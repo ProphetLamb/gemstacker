@@ -5,6 +5,11 @@ Useful to make a net profit on 5-way rotas, and similar mechanics.
 
 ## Usage
 
+```bash
+pip install -r requirements.txt
+python get_listings.py
+```
+
 ```json
 {
   "Awakened Elemental Damage with Attacks Support": {
