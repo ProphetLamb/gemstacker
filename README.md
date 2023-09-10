@@ -50,8 +50,6 @@ For human readability per 1000000 experience.
 
 $$ \verb|gain_margin|_{3,5}(\verb|Awakened Elemental Damage with Attacks Support|) := \frac{810\verb|c| - 403\verb|c|}{683662262\verb|exp|} * 1000000 = 0.595 $$
 
-Additionally a temporary poe trade url is generated.
-
 ## Implementation
 
 - Scraping and requests have rate limits. Initially a cache of all gem info from [poedb.tw](https://poedb.tw/us) is built. This will take few minutes.
