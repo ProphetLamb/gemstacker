@@ -16,6 +16,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 from starlette.requests import Request
+import logging
 
 class GemLevelProvider:
   def __init__(self, cache_directory: t.Optional[str] = None, rate_limiter_timeout_seconds: int = 1) -> None:
@@ -23,10 +24,13 @@ class GemLevelProvider:
     self.cache_directory: str = cache_directory if cache_directory else '.cache/gem_experience'
     self.last_request_time: t.Optional[datetime] = None
     self.next_request_delta = timedelta(seconds=rate_limiter_timeout_seconds)
+    self.logger = logging.getLogger()
 
-  def get_gem_level_table(self, gem_name: str) -> t.Dict[int, dict]:
+  def _get_gem_level_table(self, gem_name: str) -> t.Dict[int, dict]:
     # query https://poedb.tw/us/{gem_name} with spaces replaced by underscores
-    page = requests.get(f'https://poedb.tw/us/{gem_name.replace(" ", "_")}')
+    url = f'https://poedb.tw/us/{gem_name.replace(" ", "_")}'
+    self.logger.info(f'Fetching gem level table for {gem_name} from {url}')
+    page = requests.get(url)
     # get the last element table at .tab-pane>.card>.table-responsive>.table
     soup = BeautifulSoup(page.content, 'html.parser')
     level_effect = soup.select('.tab-pane>.card>.card-header')
@@ -40,8 +44,9 @@ class GemLevelProvider:
     df = df.fillna(0)
     df['Level'] = df['Level'].astype(int)
     # form into dict of 'Level' -> ...columns
-    return df.set_index('Level').to_dict(orient='index')
-
+    level_effects = df.set_index('Level').to_dict(orient='index')
+    self.logger.info(f'Fetched gem level table with {len(level_effect)} levels for {gem_name}')
+    return level_effects
 
   def get_level_data(self, gem_name: str, level: int) -> t.Optional[dict]:
     cache = self._get_or_create_table(gem_name)
@@ -78,7 +83,7 @@ class GemLevelProvider:
     if gem_name not in self.known_gems:
       self._sleep_on_request_if_needed()
       try:
-        self.known_gems[gem_name] = self.get_gem_level_table(gem_name)
+        self.known_gems[gem_name] = self._get_gem_level_table(gem_name)
       except Exception as e:
         self.known_gems[gem_name] = None
         return None
@@ -92,12 +97,15 @@ class GemLevelProvider:
   def load_cache(self, gem_name: str):
     self._ensure_cache_dir()
     filename = f'{gem_name}.json'
+    self.logger.info(f'Loading gem level table for {gem_name} from {self.cache_directory}/{filename}')
     if not os.path.exists(f'{self.cache_directory}/{filename}'):
+      self.logger.info(f'Gem level table for {gem_name} not found in cache')
       return
     with open(f'{self.cache_directory}/{filename}') as f:
       loaded = json.load(f)
       # convert all keys to int
       self.known_gems[gem_name] = {int(k): v for k, v in loaded.items()}
+      self.logger.info(f'Loaded gem level table for {gem_name} from {self.cache_directory}/{filename}')
 
   def clear_cache(self):
     self._ensure_cache_dir()
@@ -200,12 +208,12 @@ class GemTradeUrlProvider:
     json = response.json()
     return f'https://www.pathofexile.com/trade/search/{league}?{json["id"]}'
 
-
 class GemListingProvider:
   def __init__(self) -> None:
     self.last_request_time: t.Optional[datetime] = None
     self.cache_time_to_live = timedelta(minutes=30)
     self.cached_data: t.Optional[dict] = None
+    self.logger = logging.getLogger()
 
   def _fetch_listings(self) -> list:
     # load json https://poe.ninja/api/data/itemoverview?league=Crucible&type=SkillGem&language=en
@@ -216,9 +224,12 @@ class GemListingProvider:
     #  ],
     #  "language":{"name":"en","translations":{}}
     #}
+    self.logger.info('Fetching poe.ninja gem listings')
     content = requests.get('https://poe.ninja/api/data/itemoverview?league=Crucible&type=SkillGem&language=en')
     json = content.json()
-    return json['lines']
+    lines = json['lines']
+    self.logger.info(f'Fetched {len(lines)} gem listings from poe.ninja')
+    return lines
 
   def _normalize_listings(self, listings: list) -> list:
     def filter_line(listing_entry: dict) -> bool:
@@ -360,14 +371,18 @@ class GemProfitRequestResult:
 class GemProfitRequestHandler:
   def __init__(self, gem_margin_provider: GemGainMarginProvider) -> None:
     self.gem_margin_provider = gem_margin_provider
+    self.logger = logging.getLogger()
 
   async def handle(self, parameters: GemProfitRequestParameter) -> GemProfitRequestResult:
     gem_groups = self.gem_margin_provider.get_gem_groups_price_chaos_delta()
+    self.logger.debug(f'Found {len(gem_groups)} gem groups')
     # apply filter to each entry
     gem_groups = {k: v for k, v in gem_groups.items() if self.filter_entry(k, v, parameters)}
+    self.logger.debug(f'Filtered to {len(gem_groups)} gem groups')
     # sort by gain margin descending
     gem_groups = {k: v for k, v in sorted(gem_groups.items(), key=lambda item: -item[1]['gain_margin'])}
-    # take only the first n items
+    # skip n items take m items
+    self.logger.debug(f'Taking {parameters.items_offset}:{parameters.items_offset + parameters.items_count} gem groups')
     gem_groups = dict(list(gem_groups.items())[parameters.items_offset:parameters.items_offset + parameters.items_count])
     return GemProfitRequestResult(gem_groups)
 
@@ -395,21 +410,26 @@ def test():
 def server() -> Starlette:
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
   gem_margin_provider_lock = threading.Lock()
+  logger = logging.getLogger()
 
   async def get_gem_profit(request: Request) -> JSONResponse:
     parameters = GemProfitRequestParameter(**request.query_params)
+    logger.debug(f'Received request from {request.client.host} with parameters {parameters}')
     errors = list(parameters.validate())
     if len(errors) > 0:
+      logger.info(f'Validation errors {len(errors)} in request from {request.client.host} with parameters {parameters}')
       return JSONResponse({'errors': errors}, status_code=400)
     with gem_margin_provider_lock:
+      logger.debug(f'Processing request from {request.client.host}')
       handler = GemProfitRequestHandler(gem_margin_provider)
       result = await handler.handle(parameters)
+      logger.debug(f'Request processed from {request.client.host} with result {result}')
       return JSONResponse(result.data)
 
   routes = [
     Route('/gem-profit', get_gem_profit, methods=['GET'])
   ]
-  app = Starlette(debug=False, routes=routes)
+  app = Starlette(debug=True, routes=routes)
   return app
 
 if __name__ == '__main__':
