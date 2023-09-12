@@ -436,6 +436,8 @@ def test():
   print(json.dumps(result.data, indent=2))
 
 def app() -> Starlette:
+  debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False
+
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
   gem_margin_provider_lock = threading.Lock()
   logger = logging.getLogger()
@@ -462,7 +464,7 @@ def app() -> Starlette:
   routes = [
     Route('/gem-profit', get_gem_profit, methods=['GET'])
   ]
-  app = Starlette(debug=True, routes=routes)
+  app = Starlette(debug=debug, routes=routes)
   return app
 
 if __name__ == '__main__':
