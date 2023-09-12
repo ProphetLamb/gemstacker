@@ -1,4 +1,5 @@
 import asyncio
+import base64
 from dataclasses import dataclass
 import io
 import os
@@ -16,6 +17,11 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 from starlette.requests import Request
+from starlette.middleware import Middleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError, SimpleUser, UnauthenticatedUser, requires)
 import logging
 
 class GemLevelProvider:
@@ -436,12 +442,42 @@ def test():
   print(json.dumps(result.data, indent=2))
 
 def app() -> Starlette:
-  debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False
+  class SingleBearerTokenAuthBackend(AuthenticationBackend):
+    def __init__(self, bearer_token: str) -> None:
+      self.bearer_token_base64 = base64.b64encode(bearer_token.encode('utf-8')).decode('utf-8') if bearer_token is not None else None
+
+    async def authenticate(self, request: Request) -> t.Optional[t.Tuple[AuthCredentials, t.Any]]:
+      if self.bearer_token_base64 is None:
+        return None
+      if 'Authorization' not in request.headers:
+        return None
+      auth = request.headers['Authorization']
+      if not auth.startswith('Bearer '):
+        return None
+      token = auth[len('Bearer '):]
+      if token != self.bearer_token_base64:
+        return None
+      return AuthCredentials(['authenticated']), SimpleUser('user')
+
+  @dataclass
+  class AppSettings:
+    debug: bool
+    allowed_origins: t.List[str]
+    bearer_token: t.Optional[str]
+
+  settings = AppSettings(
+    debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False
+    allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*']
+    bearer_token = os.getenv('BEARER_TOKEN') if 'BEARER_TOKEN' in os.environ else None
+  )
+  logger = logging.getLogger()
+
+  logger.info(f'Starting app with settings {settings}')
 
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
   gem_margin_provider_lock = threading.Lock()
-  logger = logging.getLogger()
 
+  @requires('authenticated')
   async def get_gem_profit(request: Request) -> JSONResponse:
     parameters = None
     try:
@@ -461,10 +497,15 @@ def app() -> Starlette:
       logger.debug(f'Request processed from {request.client.host} with result {result}')
       return JSONResponse(result.data)
 
+  middleware = [
+    Middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=['*'], allow_headers=['*']),
+    Middleware(GZipMiddleware, minimum_size=4096),
+    Middleware(AuthenticationMiddleware, backend=SingleBearerTokenAuthBackend(settings.bearer_token))
+  ]
   routes = [
     Route('/gem-profit', get_gem_profit, methods=['GET'])
   ]
-  app = Starlette(debug=debug, routes=routes)
+  app = Starlette(debug=settings.debug, middleware=middleware, routes=routes)
   return app
 
 if __name__ == '__main__':
