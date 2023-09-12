@@ -1,13 +1,12 @@
-import { extract } from '$lib/types';
 import { identity, pickBy } from 'lodash';
 
 export interface GemProfitRequestParameter {
-	gem_name: string;
-	min_sell_price_chaos: number | undefined;
-	max_buy_price_chaos: number | undefined;
-	min_experience_delta: number | undefined;
-	items_offset: number | undefined;
-	items_count: number | undefined;
+	gem_name?: string;
+	min_sell_price_chaos?: number;
+	max_buy_price_chaos?: number;
+	min_experience_delta?: number;
+	items_offset?: number;
+	items_count?: number;
 }
 
 export interface GemProfitResponse {

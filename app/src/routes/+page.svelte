@@ -1,4 +1,10 @@
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { PageData } from './$types';
+	import { superForm } from 'sveltekit-superforms/client';
+	export let data: PageData;
+	const { form, errors, constraints } = superForm(data.form!);
+</script>
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
@@ -19,20 +25,77 @@
 		</figure>
 		<!-- / -->
 		<div class="flex justify-center space-x-2">
-			<a
-				class="btn variant-filled"
-				href="https://skeleton.dev/"
-				target="_blank"
-				rel="noreferrer"
-			>
+			<a class="btn variant-filled" href="https://skeleton.dev/" target="_blank" rel="noreferrer">
 				Launch Documentation
 			</a>
 		</div>
-		<div class="space-y-2">
-			<p>Try editing the following:</p>
-			<p><code class="code">/src/routes/+layout.svelte</code></p>
-			<p><code class="code">/src/routes/+page.svelte</code></p>
-		</div>
+		<form class="space-y-2" use:enhance>
+			<label class="label">
+				<span>Gem Name</span>
+				<input class="input" type="text" bind:value={$form.gem_name} {...$constraints.gem_name} />
+				{#if $errors.gem_name}
+					<aside class="alert variant-glass-error">{$errors.gem_name}</aside>
+				{/if}
+			</label>
+			<label class="label">
+				<span>Sell price (minimum Chaos value)</span>
+				<input
+					class="input"
+					type="number"
+					bind:value={$form.min_sell_price_chaos}
+					{...$constraints.min_sell_price_chaos}
+				/>
+				{#if $errors.min_sell_price_chaos}
+					<aside class="alert variant-glass-error">{$errors.min_sell_price_chaos}</aside>
+				{/if}
+			</label>
+			<label class="label">
+				<span>Buy price (maximum Chaos value)</span>
+				<input
+					class="input"
+					type="number"
+					bind:value={$form.max_buy_price_chaos}
+					{...$constraints.max_buy_price_chaos}
+				/>
+				{#if $errors.max_buy_price_chaos}
+					<aside class="alert variant-glass-error">{$errors.max_buy_price_chaos}</aside>
+				{/if}
+			</label>
+			<label class="label">
+				<span>Minimum experience required for leveling</span>
+				<input
+					class="input"
+					type="range"
+					min={1000000}
+					max={100000000}
+					step={1000000}
+					bind:value={$form.min_experience_delta}
+					{...$constraints.min_experience_delta}
+				/>
+				{#if $errors.min_experience_delta}
+					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
+				{/if}
+			</label>
+			{#await data.gemProfit}
+				<p>Loading...</p>
+			{:then gemProfit}
+				{#if gemProfit}
+					<ul class="list">
+						{#each Object.entries(gemProfit.data) as [gemName, gemProfitData]}
+							<li>
+								<span>{gemName}</span>
+								<span>{gemProfitData.min.price} @ {gemProfitData.min.level}</span>
+								<span>{gemProfitData.max.price} @ {gemProfitData.max.level}</span>
+							</li>
+						{/each}
+					</ul>
+				{:else}
+					<p>No gems found</p>
+				{/if}
+			{:catch error}
+				<p>{error.message}</p>
+			{/await}
+		</form>
 	</div>
 </div>
 
@@ -46,8 +109,7 @@
 	}
 	.img-bg {
 		@apply absolute z-[-1] rounded-full blur-[50px] transition-all;
-		animation: pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite,
-			glow 5s linear infinite;
+		animation: pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite, glow 5s linear infinite;
 	}
 	@keyframes glow {
 		0% {
