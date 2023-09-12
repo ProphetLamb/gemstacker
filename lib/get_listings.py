@@ -435,7 +435,7 @@ def test():
   #   result.data[gem_name]['min']['trade_url'] = trade_url_provider.make_gem_trade_url(gem_name, prices[gem_name]['min']['level'])
   print(json.dumps(result.data, indent=2))
 
-def server() -> Starlette:
+def app() -> Starlette:
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
   gem_margin_provider_lock = threading.Lock()
   logger = logging.getLogger()
