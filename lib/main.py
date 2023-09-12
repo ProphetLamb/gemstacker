@@ -466,9 +466,9 @@ def app() -> Starlette:
     bearer_token: t.Optional[str]
 
   settings = AppSettings(
-    debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False
-    allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*']
-    bearer_token = os.getenv('BEARER_TOKEN') if 'BEARER_TOKEN' in os.environ else None
+    debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False,
+    allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*'],
+    bearer_token = os.getenv('BEARER_TOKEN')
   )
   logger = logging.getLogger()
 
