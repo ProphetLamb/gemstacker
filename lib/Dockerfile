@@ -21,5 +21,5 @@ ENV DEBUG="False"
 ENV WORKERS="4"
 ENV LOG_LEVEL="info"
 ENV ALLOWED_ORIGINS="*"
-ENV BEARER_TOKEN=""
+ENV API_KEY=""
 CMD ["uvicorn", "--factory", "main:app", "--host", "${HOST}", "--port", "${PORT}", "--workers", "${WORKERS}", "--log-level", "${LOG_LEVEL}"]

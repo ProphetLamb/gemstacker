@@ -463,12 +463,12 @@ def app() -> Starlette:
   class AppSettings:
     debug: bool
     allowed_origins: t.List[str]
-    bearer_token: t.Optional[str]
+    api_key: t.Optional[str]
 
   settings = AppSettings(
     debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False,
     allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*'],
-    bearer_token = os.getenv('BEARER_TOKEN')
+    api_key = os.getenv('API_KEY')
   )
 
   logger = logging.getLogger('uvicorn')
@@ -500,7 +500,7 @@ def app() -> Starlette:
   middleware = [
     Middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=['*'], allow_headers=['*']),
     Middleware(GZipMiddleware, minimum_size=4096),
-    Middleware(AuthenticationMiddleware, backend=SingleBearerTokenAuthBackend(settings.bearer_token))
+    Middleware(AuthenticationMiddleware, backend=SingleBearerTokenAuthBackend(settings.api_key))
   ]
   routes = [
     Route('/gem-profit', get_gem_profit, methods=['GET'])

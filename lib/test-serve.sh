@@ -7,5 +7,5 @@ export DEBUG="true"
 export WORKERS="4"
 export LOG_LEVEL="debug"
 export ALLOWED_ORIGINS="*"
-export BEARER_TOKEN="test"
+export API_KEY="test"
 .venv/bin/python3 -m uvicorn --factory main:app --host 127.0.0.1 --port 8000 --reload
