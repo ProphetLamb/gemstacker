@@ -470,8 +470,8 @@ def app() -> Starlette:
     allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*'],
     bearer_token = os.getenv('BEARER_TOKEN')
   )
-  logger = logging.getLogger()
 
+  logger = logging.getLogger('uvicorn')
   logger.info(f'Starting app with settings {settings}')
 
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
