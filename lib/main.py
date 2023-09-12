@@ -495,7 +495,7 @@ def app() -> Starlette:
       handler = GemProfitRequestHandler(gem_margin_provider)
       result = await handler.handle(parameters)
       logger.debug(f'Request processed from {request.client.host} with result {result}')
-      return JSONResponse(result.data)
+      return JSONResponse(result.__dict__)
 
   middleware = [
     Middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=['*'], allow_headers=['*']),
