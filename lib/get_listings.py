@@ -242,21 +242,8 @@ class GemListingProvider:
       if listing_entry['count'] <= 2:
         return False
 
-      listing_entry['name'] = self._remove_variant(listing_entry['name'])
       return True
     return list(filter(filter_line, listings))
-
-  def _remove_variant(self, gem_name: str) -> str:
-    # remove quality prefixes
-    if gem_name.startswith('Anomalous '):
-      gem_name = gem_name[len('Anomalous '):]
-    if gem_name.startswith('Divergent '):
-      gem_name = gem_name[len('Divergent '):]
-    if gem_name.startswith('Phantasmal '):
-      gem_name = gem_name[len('Phantasmal '):]
-    # remove gem level/quality suffixes (e.g. "5/20") find the pattern "( \d+/\d+.*)$" and remove it
-    gem_name = re.sub(r'( \d+/\d+.*)$', '', gem_name)
-    return gem_name
 
   def _get_gem_groups(self, listings: list) -> dict:
     # group all lines by name and quality
@@ -291,19 +278,26 @@ class GemGainMarginProvider:
     self.cache_time_to_live = timedelta(seconds=30)
     self.cached_data: t.Optional[dict] = None
 
+  def _remove_variant(self, gem_name: str) -> str:
+    # remove quality prefixes
+    if gem_name.startswith('Anomalous '):
+      gem_name = gem_name[len('Anomalous '):]
+    if gem_name.startswith('Divergent '):
+      gem_name = gem_name[len('Divergent '):]
+    if gem_name.startswith('Phantasmal '):
+      gem_name = gem_name[len('Phantasmal '):]
+    # remove gem level/quality suffixes (e.g. "5/20") find the pattern "( \d+/\d+.*)$" and remove it
+    gem_name = re.sub(r'( \d+/\d+.*)$', '', gem_name)
+    return gem_name
+
   def _get_gem_experience(self, listing: dict, level: int) -> float:
-    name = listing['name']
+    name = self._remove_variant(listing['name'])
     level_data = self.gem_level_provider.get_level_data(name, level)
     if level_data is None:
       raise RuntimeError(f'Could not find gem {listing["name"]} level {level}')
     return level_data['Total Experience']
 
-  def _calculate_gain_margin(self, listing: dict, min_level: int, min_price: float, max_level: int, max_price: float) -> float:
-    if (min_level == max_level):
-      return 0
-    # the game margin is chaos value / gem experience
-    min_exp = self._get_gem_experience(listing, min_level)
-    max_exp = self._get_gem_experience(listing, max_level)
+  def _calculate_gain_margin(self, listing: dict, min_exp: int, min_price: float, max_exp: int, max_price: float) -> float:
     delta_exp = max_exp - min_exp
     if delta_exp == 0:
       return 0
@@ -330,7 +324,10 @@ class GemGainMarginProvider:
             mind = { 'price': price_data['value'], 'level': price_data['level'] }
           if maxd is None or price_data['value'] >= maxd['price']:
             maxd = { 'price': price_data['value'], 'level': price_data['level'] }
-        gain_margin = self._calculate_gain_margin(price_data['listing'], mind['level'], mind['price'], maxd['level'], maxd['price'])
+        listing = price_data['listing']
+        mind['exp'] = min_exp = self._get_gem_experience(listing, mind['level'])
+        maxd['exp'] = max_exp = self._get_gem_experience(listing, maxd['level'])
+        gain_margin = self._calculate_gain_margin(listing, min_exp, mind['price'], max_exp, maxd['price'])
         prices[name] = { 'min': mind, 'max': maxd, 'gain_margin': gain_margin }
     return prices
 
@@ -349,12 +346,41 @@ class GemProfitRequestParameter:
   gem_name: str = "*"
   min_sell_price_chaos: t.Optional[int] = None
   max_buy_price_chaos: t.Optional[int] = None
+  min_experience_delta: t.Optional[int] = None
   items_offset: int = 0
   items_count: int = 10
+
+  def _val_to_int(self, value, default: t.Optional[int] = None) -> t.Tuple[t.Optional[int], t.Optional[str]]:
+    if value is None:
+      return default, None
+    if isinstance(value, int):
+      return value, None
+    try:
+      return int(value), None
+    except ValueError:
+      return default, f'Could not convert {value} to integer'
+
 
   def validate(self) -> t.Generator[str, None, None]:
     if self.gem_name is None or self.gem_name == '':
       self.gem_name = '*'
+    # convert string values to integer, or add error
+    self.min_sell_price_chaos, error = self._val_to_int(self.min_sell_price_chaos)
+    if error:
+      yield error
+    self.max_buy_price_chaos, error = self._val_to_int(self.max_buy_price_chaos)
+    if error:
+      yield error
+    self.min_experience_delta, error = self._val_to_int(self.min_experience_delta)
+    if error:
+      yield error
+    self.items_offset, error = self._val_to_int(self.items_offset, 0)
+    if error:
+      yield error
+    self.items_count, error = self._val_to_int(self.items_count, 10)
+    if error:
+      yield error
+    # validate values
     if self.min_sell_price_chaos is not None and self.min_sell_price_chaos < 0:
       yield 'Min sell price must be greater than 0'
     if self.max_buy_price_chaos is not None and self.max_buy_price_chaos < 0:
@@ -389,9 +415,11 @@ class GemProfitRequestHandler:
   def filter_entry(self, gem_name: str, data: dict, parameters: GemProfitRequestParameter) -> bool:
     if not fnmatch.fnmatch(gem_name, parameters.gem_name):
       return False
-    if parameters.min_sell_price_chaos is not None and data['min']['price'] < parameters.min_sell_price_chaos:
+    if parameters.min_sell_price_chaos is not None and data['max']['price'] < parameters.min_sell_price_chaos:
       return False
-    if parameters.max_buy_price_chaos is not None and data['max']['price'] > parameters.max_buy_price_chaos:
+    if parameters.max_buy_price_chaos is not None and data['min']['price'] > parameters.max_buy_price_chaos:
+      return False
+    if parameters.min_experience_delta is not None and data['max']['exp'] - data['min']['exp'] < parameters.min_experience_delta:
       return False
     return True
 
@@ -413,7 +441,12 @@ def server() -> Starlette:
   logger = logging.getLogger()
 
   async def get_gem_profit(request: Request) -> JSONResponse:
-    parameters = GemProfitRequestParameter(**request.query_params)
+    parameters = None
+    try:
+      parameters = GemProfitRequestParameter(**request.query_params)
+    except TypeError as e:
+      logger.info(f'Invalid parameters passed to constructor {e}')
+      return JSONResponse({'errors': ['Illegal query parameters']}, status_code=400)
     logger.debug(f'Received request from {request.client.host} with parameters {parameters}')
     errors = list(parameters.validate())
     if len(errors) > 0:
