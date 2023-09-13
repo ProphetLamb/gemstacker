@@ -1,3 +1,11 @@
+.git
+.git*
+Dockerfile*
+docker-compose.yml
+.vscode
 __pycache__/
 .cache/
 .venv/
+.env
+.env.*
+!.env.example
