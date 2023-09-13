@@ -401,12 +401,72 @@ class GemProfitRequestResult:
   data: dict
 
 class GemProfitRequestHandler:
-  def __init__(self, gem_margin_provider: GemGainMarginProvider) -> None:
+  def __init__(self, gem_margin_provider: GemGainMarginProvider, dummy_mode = False) -> None:
     self.gem_margin_provider = gem_margin_provider
     self.logger = logging.getLogger()
+    self.dummy_mode = dummy_mode
+
+  def dummy_data(self) -> dict:
+    return dict({
+      "Awakened Added Chaos Damage Support": {
+        "min": {
+          "price": 400,
+          "level": 1,
+          "exp": 0
+        },
+        "max": {
+          "price": 800,
+          "level": 5,
+          "exp": 3550000000
+        },
+        "gain_margin": 3550000000
+      },
+      "Divergent Inspiration Support": {
+        "min": {
+          "price": 100,
+          "level": 1,
+          "exp": 0
+        },
+        "max": {
+          "price": 300,
+          "level": 20,
+          "exp": 550000000
+        },
+        "gain_margin": 550000000
+      },
+      "Enlighten Support": {
+        "min": {
+          "price": 140,
+          "level": 1,
+          "exp": 0
+        },
+        "max": {
+          "price": 400,
+          "level": 3,
+          "exp": 2625000000
+        },
+        "gain_margin": 2625000000
+      },
+      "Divergent Cast when Damage Taken Support": {
+        "min": {
+          "price": 20,
+          "level": 2,
+          "exp": 1234500
+        },
+        "max": {
+          "price": 340,
+          "level": 19,
+          "exp": 550000000
+        },
+        "gain_margin": 548765500
+      }
+    })
 
   async def handle(self, parameters: GemProfitRequestParameter) -> GemProfitRequestResult:
-    gem_groups = self.gem_margin_provider.get_gem_groups_price_chaos_delta()
+    if self.dummy_mode:
+      gem_groups = self.dummy_data()
+    else:
+      gem_groups = self.gem_margin_provider.get_gem_groups_price_chaos_delta()
     self.logger.debug(f'Found {len(gem_groups)} gem groups')
     # apply filter to each entry
     gem_groups = {k: v for k, v in gem_groups.items() if self.filter_entry(k, v, parameters)}
@@ -462,11 +522,13 @@ def app() -> Starlette:
   @dataclass
   class AppSettings:
     debug: bool
+    demo: bool
     allowed_origins: t.List[str]
     api_key: t.Optional[str]
 
   settings = AppSettings(
     debug = os.getenv('DEBUG').lower() == 'true' if 'DEBUG' in os.environ else False,
+    demo = os.getenv('DEMO').lower() == 'true' if 'DEMO' in os.environ else False,
     allowed_origins = os.getenv('ALLOWED_ORIGINS').split(',') if 'ALLOWED_ORIGINS' in os.environ else ['*'],
     api_key = os.getenv('API_KEY')
   )
@@ -492,7 +554,7 @@ def app() -> Starlette:
       return JSONResponse({'errors': errors}, status_code=400)
     with gem_margin_provider_lock:
       logger.debug(f'Processing request from {request.client.host}')
-      handler = GemProfitRequestHandler(gem_margin_provider)
+      handler = GemProfitRequestHandler(gem_margin_provider, dummy_mode = settings.demo)
       result = await handler.handle(parameters)
       logger.debug(f'Request processed from {request.client.host} with result {result}')
       return JSONResponse(result.__dict__)
