@@ -48,6 +48,7 @@ export class GemProfitApi {
 	) => {
 		const paramIdentiy = pickBy(
 			{
+				gem_name: param.gem_name?.toString(),
 				min_sell_price_chaos: param.min_sell_price_chaos?.toString(),
 				max_buy_price_chaos: param.max_buy_price_chaos?.toString(),
 				min_experience_delta: param.min_experience_delta?.toString(),

@@ -1,20 +1,35 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
-	export let form: ActionData;
+	import { gemLevelsProfitSchema } from './page.schema';
+	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
+
 	export let data: PageData;
-	const gemProfit = form?.gemProfit;
-	const { form: formData, errors, constraints } = superForm(form?.form ?? data.form!);
+	export let form: ActionData;
+	const {
+		form: gemLevelsProftForm,
+		errors,
+		constraints,
+		enhance,
+		delayed
+	} = superForm(data.form, {
+		validators: gemLevelsProfitSchema
+	});
 </script>
 
-<div class="container h-full mx-auto flex justify-center items-center">
+<div class="container h-full mx-auto flex flex-wrap gap-8 justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
 		<h2 class="h2">Gem levels for profit.</h2>
 		<form class="space-y-2" use:enhance method="POST">
 			<label class="label">
 				<span>Gem Name</span>
-				<input class="input" type="text" bind:value={$formData.gem_name} {...$constraints.gem_name} />
+				<input
+					name="gem_name"
+					class="input"
+					type="text"
+					bind:value={$gemLevelsProftForm.gem_name}
+					{...$constraints.gem_name}
+				/>
 				{#if $errors.gem_name}
 					<aside class="alert variant-glass-error">{$errors.gem_name}</aside>
 				{/if}
@@ -22,9 +37,10 @@
 			<label class="label">
 				<span>Sell price (minimum Chaos value)</span>
 				<input
+					name="min_sell_price_chaos"
 					class="input"
 					type="number"
-					bind:value={$formData.min_sell_price_chaos}
+					bind:value={$gemLevelsProftForm.min_sell_price_chaos}
 					{...$constraints.min_sell_price_chaos}
 				/>
 				{#if $errors.min_sell_price_chaos}
@@ -34,9 +50,10 @@
 			<label class="label">
 				<span>Buy price (maximum Chaos value)</span>
 				<input
+					name="max_buy_price_chaos"
 					class="input"
 					type="number"
-					bind:value={$formData.max_buy_price_chaos}
+					bind:value={$gemLevelsProftForm.max_buy_price_chaos}
 					{...$constraints.max_buy_price_chaos}
 				/>
 				{#if $errors.max_buy_price_chaos}
@@ -46,41 +63,40 @@
 			<label class="label">
 				<span>Minimum experience required for leveling</span>
 				<input
+					name="min_experience_delta"
 					class="input"
 					type="range"
 					min={1000000}
 					max={100000000}
 					step={1000000}
-					bind:value={$formData.min_experience_delta}
+					bind:value={$gemLevelsProftForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
-				<span>{$formData.min_experience_delta}exp</span>
+				<p>{$gemLevelsProftForm.min_experience_delta}exp</p>
 				{#if $errors.min_experience_delta}
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
 			</label>
-			<button class="btn variant-filled" type="submit">
-				Search
-			</button>
-			<hr class="w-full pb-12" />
-			<h3 class="h3">The best gems for you.</h3>
-			<div class="text-token card p-4 space-y-4">
-				{#if gemProfit}
-				<ol class="list">
-					{#each Object.entries(gemProfit.data) as [gemName, gemProfitData], idx}
-						<li>
-							<span class="badge-icon p-4 variant-soft-primary">{idx + 1}.</span>
-							<span class="flex-auto">{gemName}</span>
-							<span>{gemProfitData.min.price}c @ lvl{gemProfitData.min.level}</span>
-							<span>{gemProfitData.max.price}c @ lvl{gemProfitData.max.level}</span>
-						</li>
-					{/each}
-				</ol>
-				{:else}
-				<p>Enter your search criteria above.</p>
-				{/if}
-			</div>
-			<hr class="w-full pb-12" />
+			<button class="btn variant-filled" type="submit"> Search </button>
 		</form>
+	</div>
+	<div class="text-token flex flex-col items-center card p-4 space-y-4">
+		<h3 class="h3">The best gems for you.</h3>
+		{#if $delayed}
+			Loading..
+		{:else if form?.gemProfit}
+			<ol class="list">
+				{#each Object.entries(form.gemProfit.data) as [gemName, gemProfitData], idx}
+					<li>
+						<span class="badge-icon p-4 variant-soft-primary">{idx + 1}.</span>
+						<span class="flex-auto">{gemName}</span>
+						<span>{gemProfitData.min.price}c @ lvl{gemProfitData.min.level}</span>
+						<span>{gemProfitData.max.price}c @ lvl{gemProfitData.max.level}</span>
+					</li>
+				{/each}
+			</ol>
+		{:else}
+			<p>Enter your search criteria above.</p>
+		{/if}
 	</div>
 </div>
