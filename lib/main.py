@@ -23,7 +23,6 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.authentication import (AuthCredentials, AuthenticationBackend, BaseUser, SimpleUser, requires)
 import logging
-from asgi_caches.decorators import cached
 from asgi_caches.middleware import CacheMiddleware
 from brotli_asgi import BrotliMiddleware
 
@@ -545,7 +544,6 @@ def app() -> Starlette:
   gem_margin_provider_lock = threading.Lock()
 
   @requires('authenticated')
-  @cached(cache, public=True, ttl=60*30)
   async def get_gem_profit(request: Request) -> JSONResponse:
     parameters = None
     try:
