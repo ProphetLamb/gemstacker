@@ -11,11 +11,8 @@ export const load: PageServerLoad = async ({ request }) => {
 };
 
 export const actions: Actions = {
-	default: async () => {
-	},
 	getGemLevelProfit: async ({ request }) => {
 		const gemLevelsProfitForm = await superValidate(request, gemLevelsProfitSchema);
-		console.log(gemLevelsProfitForm);
 		if (!gemLevelsProfitForm.valid) {
 			return fail(400, { gemLevelsProfitForm });
 		}

@@ -21,7 +21,7 @@
 <div class="container h-full mx-auto flex flex-wrap gap-8 justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
 		<h2 class="h2">Gem levels for profit.</h2>
-		<form class="space-y-2" use:enhance method="POST" action="getGemLevelProfit">
+		<form class="space-y-2" use:enhance method="POST" action="?/getGemLevelProfit">
 			<label class="label">
 				<span>Gem Name</span>
 				<input
