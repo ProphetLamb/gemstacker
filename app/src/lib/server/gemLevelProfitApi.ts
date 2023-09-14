@@ -1,4 +1,4 @@
-import { identity, pickBy } from 'lodash';
+import { removeNull } from "$lib/typing";
 
 export interface GemProfitRequestParameter {
 	gem_name?: string;
@@ -46,19 +46,16 @@ export class GemProfitApi {
 	getGemProfit: (param: GemProfitRequestParameter) => Promise<GemProfitResponse> = async (
 		param
 	) => {
-		const paramIdentiy = pickBy(
-			{
-				gem_name: param.gem_name?.toString(),
-				min_sell_price_chaos: param.min_sell_price_chaos?.toString(),
-				max_buy_price_chaos: param.max_buy_price_chaos?.toString(),
-				min_experience_delta: param.min_experience_delta?.toString(),
-				items_offset: param.items_offset?.toString(),
-				items_count: param.items_count?.toString()
-			},
-			identity
-		) as Record<string, string>;
+		const paramIdentity = removeNull({
+			gem_name: param.gem_name?.toString(),
+			min_sell_price_chaos: param.min_sell_price_chaos?.toString(),
+			max_buy_price_chaos: param.max_buy_price_chaos?.toString(),
+			min_experience_delta: param.min_experience_delta?.toString(),
+			items_offset: param.items_offset?.toString(),
+			items_count: param.items_count?.toString()
+		});
 
-		const queryParam = new URLSearchParams(paramIdentiy);
+		const queryParam = new URLSearchParams(paramIdentity);
 		const headers = new Headers({
 			Accept: 'application/json',
 			Authorization: `Bearer ${btoa(this.options.api_key)}`
