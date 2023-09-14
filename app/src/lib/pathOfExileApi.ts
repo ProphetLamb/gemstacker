@@ -27,7 +27,7 @@ export interface PoeTradeRawRequest {
 
 export type PoeTradeQueryRequest = PoeTradeLeagueRequest & (PoeTradeGemRequest | PoeTradeRawRequest);
 
-export interface PoeTradeQueryResponse {
+export interface PoeTradeQueryResponseData {
 	/**
 	 * The id of the query.
 	 * This id is used to fetch the results of the query.
@@ -44,6 +44,12 @@ export interface PoeTradeQueryResponse {
 	 * The total number of results for the query.
 	 */
 	total: number;
+}
+
+export interface PoeTradeQueryResponse {
+	data: PoeTradeQueryResponseData;
+	league: PoeTradeLeagueResponse;
+	web_trade_url: URL;
 }
 
 export interface PoeTradeLeagueApiOptions {
@@ -138,7 +144,12 @@ export class PathofExileApi {
 		if (response.status !== 200) {
 			throw new Error(`Request failed with status ${response.status}: ${await response.text()}`);
 		}
-		const result = (await response.json()) as PoeTradeQueryResponse;
+		const data = (await response.json()) as PoeTradeQueryResponseData;
+		const result: PoeTradeQueryResponse = {
+			data,
+			league,
+			web_trade_url: new URL(`https://www.pathofexile.com/trade/search/${league.id}?${data.id}`)
+		}
 		return result;
 
 		function createTradeQueryBody() {
