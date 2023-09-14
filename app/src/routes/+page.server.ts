@@ -28,6 +28,5 @@ export const actions: Actions = {
 		} catch (error) {
 			return fail(500, { gemLevelsProfitForm });
 		}
-	},
-	createGemTradeQuery: async ({ request }) => {}
+	}
 };
