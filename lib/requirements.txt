@@ -4,6 +4,8 @@ asgi-caches==0.3.1
 async-caches==0.3.0
 async-timeout==4.0.3
 beautifulsoup4==4.12.2
+Brotli==1.1.0
+brotli-asgi==1.4.0
 certifi==2023.7.22
 charset-normalizer==3.2.0
 click==8.1.7

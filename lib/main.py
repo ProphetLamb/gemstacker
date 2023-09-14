@@ -21,11 +21,11 @@ from starlette.requests import Request
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.gzip import GZipMiddleware
-from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError, SimpleUser, UnauthenticatedUser, requires)
+from starlette.authentication import (AuthCredentials, AuthenticationBackend, SimpleUser, requires)
 import logging
 from asgi_caches.decorators import cached
 from asgi_caches.middleware import CacheMiddleware
+from brotli_asgi import BrotliMiddleware
 
 class GemLevelProvider:
   def __init__(self, cache_directory: t.Optional[str] = None, rate_limiter_timeout_seconds: int = 1) -> None:
@@ -545,7 +545,7 @@ def app() -> Starlette:
   gem_margin_provider_lock = threading.Lock()
 
   @requires('authenticated')
-  @cached(cache, ttl=60*30)
+  @cached(cache, public=True, ttl=60*30)
   async def get_gem_profit(request: Request) -> JSONResponse:
     parameters = None
     try:
@@ -567,7 +567,7 @@ def app() -> Starlette:
 
   middleware = [
     Middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=['*'], allow_headers=['*']),
-    Middleware(GZipMiddleware, minimum_size=4096),
+    Middleware(BrotliMiddleware, minimum_size=512, gzip_fallback=True),
     Middleware(CacheMiddleware, cache=cache),
     Middleware(AuthenticationMiddleware, backend=SingleBearerTokenAuthBackend(settings.api_key))
   ]
