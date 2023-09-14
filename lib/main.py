@@ -6,6 +6,7 @@ import os
 import re
 import threading
 import time
+from caches import Cache
 import requests
 import typing as t
 import pandas as pd
@@ -23,6 +24,8 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.authentication import (AuthCredentials, AuthenticationBackend, AuthenticationError, SimpleUser, UnauthenticatedUser, requires)
 import logging
+from asgi_caches.decorators import cached
+from asgi_caches.middleware import CacheMiddleware
 
 class GemLevelProvider:
   def __init__(self, cache_directory: t.Optional[str] = None, rate_limiter_timeout_seconds: int = 1) -> None:
@@ -217,7 +220,7 @@ class GemTradeUrlProvider:
 class GemListingProvider:
   def __init__(self) -> None:
     self.last_request_time: t.Optional[datetime] = None
-    self.cache_time_to_live = timedelta(minutes=30)
+    self.cache_time_to_live = timedelta(minutes=60)
     self.cached_data: t.Optional[dict] = None
     self.logger = logging.getLogger()
 
@@ -536,10 +539,13 @@ def app() -> Starlette:
   logger = logging.getLogger('uvicorn')
   logger.info(f'Starting app with settings {settings}')
 
+  cache = Cache("locmem://null", ttl=60*30)
+
   gem_margin_provider = GemGainMarginProvider(GemLevelProvider(), GemListingProvider())
   gem_margin_provider_lock = threading.Lock()
 
   @requires('authenticated')
+  @cached(cache, ttl=60*30)
   async def get_gem_profit(request: Request) -> JSONResponse:
     parameters = None
     try:
@@ -562,12 +568,13 @@ def app() -> Starlette:
   middleware = [
     Middleware(CORSMiddleware, allow_origins=settings.allowed_origins, allow_credentials=True, allow_methods=['*'], allow_headers=['*']),
     Middleware(GZipMiddleware, minimum_size=4096),
+    Middleware(CacheMiddleware, cache=cache),
     Middleware(AuthenticationMiddleware, backend=SingleBearerTokenAuthBackend(settings.api_key))
   ]
   routes = [
     Route('/gem-profit', get_gem_profit, methods=['GET'])
   ]
-  app = Starlette(debug=settings.debug, middleware=middleware, routes=routes)
+  app = Starlette(debug=settings.debug, middleware=middleware, routes=routes, on_startup=[cache.connect], on_shutdown=[cache.disconnect])
   return app
 
 if __name__ == '__main__':
