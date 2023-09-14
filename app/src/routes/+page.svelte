@@ -2,8 +2,6 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
 	import { gemLevelsProfitSchema } from '$lib/gemLevelProfitApi';
-	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
-	import TradeGemButton from '$lib/client/TradeGemButton.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
