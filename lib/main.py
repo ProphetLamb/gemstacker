@@ -21,7 +21,7 @@ from starlette.requests import Request
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from starlette.authentication import (AuthCredentials, AuthenticationBackend, SimpleUser, requires)
+from starlette.authentication import (AuthCredentials, AuthenticationBackend, BaseUser, SimpleUser, requires)
 import logging
 from asgi_caches.decorators import cached
 from asgi_caches.middleware import CacheMiddleware
@@ -509,7 +509,7 @@ def app() -> Starlette:
     def __init__(self, bearer_token: str) -> None:
       self.bearer_token_base64 = base64.b64encode(bearer_token.encode('utf-8')).decode('utf-8') if bearer_token is not None else None
 
-    async def authenticate(self, request: Request) -> t.Optional[t.Tuple[AuthCredentials, t.Any]]:
+    async def authenticate(self, request: Request) -> t.Optional[t.Tuple[AuthCredentials, BaseUser]]:
       if self.bearer_token_base64 is None:
         return None
       if 'Authorization' not in request.headers:
