@@ -1,31 +1,9 @@
-import { gemProfitRequestParameterSchema, gemProfitResponseSchema } from '$lib/gemLevelProfitApi';
-
-export interface GemProfitRequestParameter {
-	gem_name?: string;
-	min_sell_price_chaos?: number;
-	max_buy_price_chaos?: number;
-	min_experience_delta?: number;
-	items_offset?: number;
-	items_count?: number;
-}
-
-export interface GemProfitResponse {
-	data: {
-		[key: string]: {
-			min: {
-				price: number;
-				level: number;
-				exp: number;
-			};
-			max: {
-				price: number;
-				level: number;
-				exp: number;
-			};
-			gain_margin: number;
-		};
-	};
-}
+import {
+	gemProfitRequestParameterSchema,
+	gemProfitResponseSchema,
+	type GemProfitRequestParameter,
+	type GemProfitResponse
+} from '$lib/gemLevelProfitApi';
 
 export interface GemProfitApiOptions {
 	api_endpoint: string;
