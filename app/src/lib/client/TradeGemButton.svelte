@@ -4,6 +4,7 @@
 		type PoeTradeGemRequest,
 		type PoeTradeLeagueRequest
 	} from '$lib/pathOfExileApi';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	export let name: string;
 	export let min_level: number | undefined;
@@ -30,13 +31,14 @@
 
 {#if trade_url}
 	{#await trade_url}
-		<button class="button" disabled>
-			<div class="spinner" />
-			Generating...
+		<button class="btn variant-soft-secondary" disabled>
+			<ProgressRadial font={12} width="w-8" />
 		</button>
 	{:then trade_url}
-		<a class="button" href={trade_url}>Open trade</a>
+		<a class="btn variant-soft-secondary" href={trade_url}>Open</a>
+	{:catch error}
+		<button class="btn variant-soft-secondary" on:click={startGenerateTradeUrl}>Failed</button>
 	{/await}
 {:else}
-	<button class="button" on:click={startGenerateTradeUrl}> Trade Gem </button>
+	<button class="btn variant-soft-secondary" on:click={startGenerateTradeUrl}>Trade</button>
 {/if}
