@@ -93,7 +93,6 @@
 						<span class="flex-auto">{name}</span>
 						<span>{data.min.price}c @ lvl{data.min.level}</span>
 						<span>{data.max.price}c @ lvl{data.max.level}</span>
-						<TradeGemButton {name} min_level={data.min.level} max_level={data.max.level} corrupted={false} />
 					</li>
 				{/each}
 			</ol>
