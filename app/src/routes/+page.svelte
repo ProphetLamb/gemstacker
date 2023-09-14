@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
-	import { gemLevelsProfitSchema } from '$lib/gemLevelProftApi';
+	import { gemLevelsProfitSchema } from '$lib/gemLevelProfitApi';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
 	export let data: PageData;
