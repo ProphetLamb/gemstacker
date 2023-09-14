@@ -2,7 +2,7 @@ export type LeagueMode = 'Standard' | 'Softcore' | 'Hardcore' | 'Ruthless' | 'Ha
 export type Realms = 'pc' | 'xbox' | 'sony';
 
 export interface PoeTradeLeagueRequest {
-	trade_leauge: LeagueMode
+	trade_league: LeagueMode
 	realm: Realms
 }
 
@@ -49,7 +49,7 @@ export interface PoeTradeQueryResponseData {
 export interface PoeTradeQueryResponse {
 	data: PoeTradeQueryResponseData;
 	league: PoeTradeLeagueResponse;
-	web_trade_url: URL;
+	web_trade_url: string;
 }
 
 export interface PoeTradeLeagueApiOptions {
@@ -101,7 +101,7 @@ export class PathofExileApi {
 		}
 		const league = getLeagueSwitch();
 		if (!league) {
-			throw new Error(`No league found for realm ${param.realm} and league mode ${param.trade_leauge}`);
+			throw new Error(`No league found for realm ${param.realm} and league mode ${param.trade_league}`);
 		}
 		return league;
 
@@ -109,7 +109,7 @@ export class PathofExileApi {
 			const hcRuthlessLeagueName = `HC Ruthless ${currentSoftcoreLeague.text}`;
 			const ruthlessLeagueName = `Ruthless ${currentSoftcoreLeague.text}`;
 			const hcLeagueName = `Hardcore ${currentSoftcoreLeague.text}`;
-			switch (param.trade_leauge) {
+			switch (param.trade_league) {
 				case 'Standard':
 					return allRealmLeagues.find(league => league.text === 'Standard');
 				case 'Hardcore Ruthless':
@@ -148,7 +148,7 @@ export class PathofExileApi {
 		const result: PoeTradeQueryResponse = {
 			data,
 			league,
-			web_trade_url: new URL(`https://www.pathofexile.com/trade/search/${league.id}?${data.id}`)
+			web_trade_url: `https://www.pathofexile.com/trade/search/${league.id}?${data.id}`
 		}
 		return result;
 
