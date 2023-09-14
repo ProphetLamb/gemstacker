@@ -31,14 +31,14 @@
 
 {#if trade_url}
 	{#await trade_url}
-		<button class="btn variant-soft-secondary" disabled>
+		<button class="btn variant-soft-secondary w-16" disabled>
 			<ProgressRadial font={12} width="w-8" />
 		</button>
 	{:then trade_url}
-		<a class="btn variant-soft-secondary" href={trade_url}>Open</a>
+		<a class="btn variant-soft-secondary w-16" href={trade_url}>Open</a>
 	{:catch error}
-		<button class="btn variant-soft-secondary" on:click={startGenerateTradeUrl}>Failed</button>
+		<button class="btn variant-soft-secondary w-16" on:click={startGenerateTradeUrl}>Failed</button>
 	{/await}
 {:else}
-	<button class="btn variant-soft-secondary" on:click={startGenerateTradeUrl}>Trade</button>
+	<button class="btn variant-soft-secondary w-16" on:click={startGenerateTradeUrl}>Trade</button>
 {/if}
