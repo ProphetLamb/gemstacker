@@ -7,12 +7,12 @@
 	export let data: PageData;
 	export let form: ActionData;
 	const {
-		form: gemLevelsProftForm,
+		form: gemLevelsProfitForm,
 		errors,
 		constraints,
 		enhance,
 		delayed
-	} = superForm(data.form, {
+	} = superForm(data.gemLevelsProfitForm, {
 		validators: gemLevelsProfitSchema
 	});
 </script>
@@ -20,14 +20,14 @@
 <div class="container h-full mx-auto flex flex-wrap gap-8 justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
 		<h2 class="h2">Gem levels for profit.</h2>
-		<form class="space-y-2" use:enhance method="POST">
+		<form class="space-y-2" use:enhance method="POST" action="getGemLevelProfit">
 			<label class="label">
 				<span>Gem Name</span>
 				<input
 					name="gem_name"
 					class="input"
 					type="text"
-					bind:value={$gemLevelsProftForm.gem_name}
+					bind:value={$gemLevelsProfitForm.gem_name}
 					{...$constraints.gem_name}
 				/>
 				{#if $errors.gem_name}
@@ -40,7 +40,7 @@
 					name="min_sell_price_chaos"
 					class="input"
 					type="number"
-					bind:value={$gemLevelsProftForm.min_sell_price_chaos}
+					bind:value={$gemLevelsProfitForm.min_sell_price_chaos}
 					{...$constraints.min_sell_price_chaos}
 				/>
 				{#if $errors.min_sell_price_chaos}
@@ -53,7 +53,7 @@
 					name="max_buy_price_chaos"
 					class="input"
 					type="number"
-					bind:value={$gemLevelsProftForm.max_buy_price_chaos}
+					bind:value={$gemLevelsProfitForm.max_buy_price_chaos}
 					{...$constraints.max_buy_price_chaos}
 				/>
 				{#if $errors.max_buy_price_chaos}
@@ -69,10 +69,10 @@
 					min={1000000}
 					max={100000000}
 					step={1000000}
-					bind:value={$gemLevelsProftForm.min_experience_delta}
+					bind:value={$gemLevelsProfitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
-				<p>{$gemLevelsProftForm.min_experience_delta}exp</p>
+				<p>{$gemLevelsProfitForm.min_experience_delta}exp</p>
 				{#if $errors.min_experience_delta}
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}

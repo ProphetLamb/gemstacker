@@ -6,16 +6,18 @@ import { superValidate } from 'sveltekit-superforms/client';
 import { gemLevelsProfitSchema } from '$lib/gemLevelProftApi';
 
 export const load: PageServerLoad = async ({ request }) => {
-	const form = await superValidate(request, gemLevelsProfitSchema);
-	return { form };
+	const gemLevelsProfitForm = await superValidate(request, gemLevelsProfitSchema);
+	return { gemLevelsProfitForm };
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
-		const form = await superValidate(request, gemLevelsProfitSchema);
-		console.log(form);
-		if (!form.valid) {
-			return fail(400, { form });
+	default: async () => {
+	},
+	getGemLevelProfit: async ({ request }) => {
+		const gemLevelsProfitForm = await superValidate(request, gemLevelsProfitSchema);
+		console.log(gemLevelsProfitForm);
+		if (!gemLevelsProfitForm.valid) {
+			return fail(400, { gemLevelsProfitForm });
 		}
 
 		const gemProfitApi = new GemProfitApi(fetch, {
@@ -24,11 +26,11 @@ export const actions: Actions = {
 		});
 
 		try {
-			const gemProfit = await gemProfitApi.getGemProfit(form.data);
+			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
 
-			return { form, gemProfit };
+			return { gemLevelsProfitForm, gemProfit };
 		} catch (error) {
-			return fail(500, { form });
+			return fail(500, { gemLevelsProfitForm });
 		}
 	}
 };
