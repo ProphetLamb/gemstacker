@@ -81,7 +81,7 @@
 			<button class="btn variant-filled" type="submit"> Search </button>
 		</form>
 	</div>
-	<div class="text-token flex flex-col items-center card p-4 space-y-4">
+	<div class="text-token flex flex-col items-center card p-4 space-y-4 min-w-[32rem]">
 		<h3 class="h3">The best gems for you.</h3>
 		{#if $delayed}
 			Loading..
