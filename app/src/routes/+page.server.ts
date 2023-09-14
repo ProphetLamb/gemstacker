@@ -24,7 +24,6 @@ export const actions: Actions = {
 
 		try {
 			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
-
 			return { gemLevelsProfitForm, gemProfit };
 		} catch (error) {
 			return fail(500, { gemLevelsProfitForm });

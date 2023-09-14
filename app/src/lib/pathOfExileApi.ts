@@ -132,7 +132,6 @@ export class PathofExileApi {
 		const league = await this.getTradeLeague(param);
 		const headers = new Headers({
 			Accept: 'application/json',
-			'Content-Type': 'application/json'
 		});
 		const url = new URL(`https://www.pathofexile.com/api/trade/search/${league.id}`);
 		const body = JSON.stringify(createTradeQueryBody())

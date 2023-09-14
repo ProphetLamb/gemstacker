@@ -86,7 +86,7 @@
 		{#if $delayed}
 			Loading..
 		{:else if form?.gemProfit}
-			<ol class="list">
+			<ol class="list w-full">
 				{#each Object.entries(form.gemProfit.data) as [name, data], idx}
 					<li>
 						<span class="badge-icon p-4 variant-soft-primary">{idx + 1}.</span>
