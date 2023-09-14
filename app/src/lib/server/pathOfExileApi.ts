@@ -1,67 +1,21 @@
-export type LeagueMode = 'Standard' | 'Softcore' | 'Hardcore' | 'Ruthless' | 'Hardcore Ruthless';
-export type Realms = 'pc' | 'xbox' | 'sony';
-
-export interface PoeTradeLeagueRequest {
-	trade_league: LeagueMode;
-	realm: Realms;
-}
-
-export interface PoeTradeLeagueResponse {
-	id: string;
-	realm: string;
-	text: string;
-}
-
-export interface PoeTradeGemRequest {
-	type: 'gem';
-	name: string;
-	min_level?: number;
-	max_level?: number;
-	corrupted?: boolean;
-}
-
-export interface PoeTradeRawRequest {
-	type: 'raw';
-	request: unknown;
-}
-
-export type PoeTradeQueryRequest = PoeTradeLeagueRequest &
-	(PoeTradeGemRequest | PoeTradeRawRequest);
-
-export interface PoeTradeQueryResponseData {
-	/**
-	 * The id of the query.
-	 * This id is used to fetch the results of the query.
-	 * Users can access the trade site at `https://www.pathofexile.com/trade/search/{league.id}?{id}`
-	 */
-	id: string;
-	/**
-	 * The ids of the specific results.
-	 * These ids are used to fetch the specific results.
-	 * Apis can fetch the specific results at `https://www.pathofexile.com/api/trade/fetch/{result.id}?query={id}`
-	 */
-	result: string[];
-	/**
-	 * The total number of results for the query.
-	 */
-	total: number;
-	complexity?: number;
-	inexact?: boolean;
-}
-
-export interface PoeTradeQueryResponse {
-	data: PoeTradeQueryResponseData;
-	league: PoeTradeLeagueResponse;
-	web_trade_url: string;
-}
-
-export interface PoeTradeLeagueApiOptions {}
-
-export interface PoeLeaguesResponse {
-	result: PoeTradeLeagueResponse[];
-}
+import {
+	type PoeTradeLeaguesResponse,
+	type PoeTradeLeagueRequest,
+	type PoeTradeLeagueResponse,
+	type PoeTradeQueryRequest,
+	type PoeTradeQueryResponse,
+	type PoeTradeGemRequest,
+	poeTradeLeaguesResponseSchema,
+	poeTradeLeagueRequestSchema,
+	poeTradeQueryRequestSchema,
+	poeTradeQueryResponseDataSchema
+} from '$lib/pathOfExileApi';
 
 type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
+
+export interface PoeTradeLeagueApiOptions {
+	foo?: string;
+}
 
 export class PathofExileApi {
 	fetch: Fetch;
@@ -71,7 +25,7 @@ export class PathofExileApi {
 		this.fetch = fetch;
 	}
 
-	getLeaguesList: () => Promise<PoeLeaguesResponse> = async () => {
+	getLeaguesList: () => Promise<PoeTradeLeaguesResponse> = async () => {
 		const headers = new Headers({
 			Accept: 'application/json'
 		});
@@ -83,13 +37,15 @@ export class PathofExileApi {
 		if (response.status !== 200) {
 			throw new Error(`Request failed with status ${response.status}: ${await response.text()}`);
 		}
-		const result = (await response.json()) as PoeLeaguesResponse;
+		const rawResult = await response.json();
+		const result = poeTradeLeaguesResponseSchema.parse(rawResult);
 		return result;
 	};
 
 	getTradeLeague: (param: PoeTradeLeagueRequest) => Promise<PoeTradeLeagueResponse> = async (
 		param
 	) => {
+		poeTradeLeagueRequestSchema.parse(param);
 		const getLeaguesResponse = await this.getLeaguesList();
 		const allRealmLeagues = getLeaguesResponse.result.filter(
 			(league) => league.realm === param.realm
@@ -133,6 +89,7 @@ export class PathofExileApi {
 	createTradeQuery: (param: PoeTradeQueryRequest) => Promise<PoeTradeQueryResponse> = async (
 		param
 	) => {
+		poeTradeQueryRequestSchema.parse(param);
 		const league = await this.getTradeLeague(param);
 		const headers = new Headers({
 			Accept: 'application/json'
@@ -147,12 +104,13 @@ export class PathofExileApi {
 		if (response.status !== 200) {
 			throw new Error(`Request failed with status ${response.status}: ${await response.text()}`);
 		}
-		const data = (await response.json()) as PoeTradeQueryResponseData;
-		const result: PoeTradeQueryResponse = {
+		const rawData = await response.json();
+		const data = poeTradeQueryResponseDataSchema.parse(rawData);
+		const result = {
 			data,
 			league,
 			web_trade_url: `https://www.pathofexile.com/trade/search/${league.id}?${data.id}`
-		};
+		} satisfies PoeTradeQueryResponse;
 		return result;
 
 		function createTradeQueryBody() {
