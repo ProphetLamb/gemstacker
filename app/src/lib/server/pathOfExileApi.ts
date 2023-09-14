@@ -45,6 +45,8 @@ export interface PoeTradeQueryResponseData {
 	 * The total number of results for the query.
 	 */
 	total: number;
+	complexity?: number;
+	inexact?: boolean;
 }
 
 export interface PoeTradeQueryResponse {
