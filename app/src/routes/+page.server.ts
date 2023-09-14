@@ -3,7 +3,7 @@ import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { GemProfitApi } from '$lib/server/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/client';
-import { gemLevelsProfitSchema } from './page.schema';
+import { gemLevelsProfitSchema } from './+page';
 
 export const load: PageServerLoad = async ({ request }) => {
 	const form = await superValidate(request, gemLevelsProfitSchema);
