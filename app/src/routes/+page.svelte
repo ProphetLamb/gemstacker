@@ -3,6 +3,7 @@
 	import type { ActionData, PageData } from './$types';
 	import { gemLevelsProfitSchema } from '$lib/gemLevelProfitApi';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
+	import TradeGemButton from '$lib/client/TradeGemButton.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -86,12 +87,13 @@
 			Loading..
 		{:else if form?.gemProfit}
 			<ol class="list">
-				{#each Object.entries(form.gemProfit.data) as [gemName, gemProfitData], idx}
+				{#each Object.entries(form.gemProfit.data) as [name, data], idx}
 					<li>
 						<span class="badge-icon p-4 variant-soft-primary">{idx + 1}.</span>
-						<span class="flex-auto">{gemName}</span>
-						<span>{gemProfitData.min.price}c @ lvl{gemProfitData.min.level}</span>
-						<span>{gemProfitData.max.price}c @ lvl{gemProfitData.max.level}</span>
+						<span class="flex-auto">{name}</span>
+						<span>{data.min.price}c @ lvl{data.min.level}</span>
+						<span>{data.max.price}c @ lvl{data.max.level}</span>
+						<TradeGemButton {name} min_level={data.min.level} max_level={data.max.level} corrupted={false} />
 					</li>
 				{/each}
 			</ol>
