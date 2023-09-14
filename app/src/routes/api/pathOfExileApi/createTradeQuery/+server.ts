@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 	const api = new PathofExileApi(fetch, {});
 	try {
 		const result = await api.createTradeQuery({ type: 'gem', ...league, ...tradeQuery.data });
-		return json({ url: result.web_trade_url });
+		return json(result);
 	} catch (e) {
 		if (e instanceof Error) {
 			throw error(500, { message: e.message });
