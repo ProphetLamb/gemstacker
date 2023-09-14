@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
-	import { gemLevelsProfitSchema } from '$lib/gemLevelProfitApi';
+	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -12,7 +12,7 @@
 		enhance,
 		delayed
 	} = superForm(data.gemLevelsProfitForm, {
-		validators: gemLevelsProfitSchema
+		validators: gemProfitRequestParameterSchema
 	});
 </script>
 

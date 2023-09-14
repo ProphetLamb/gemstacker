@@ -57,7 +57,7 @@ export interface PoeTradeQueryResponse {
 
 export interface PoeTradeLeagueApiOptions {}
 
-interface PoeLeaguesResponse {
+export interface PoeLeaguesResponse {
 	result: PoeTradeLeagueResponse[];
 }
 

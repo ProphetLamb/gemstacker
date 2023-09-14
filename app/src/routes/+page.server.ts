@@ -3,16 +3,16 @@ import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { GemProfitApi } from '$lib/server/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/client';
-import { gemLevelsProfitSchema } from '$lib/gemLevelProfitApi';
+import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 
 export const load: PageServerLoad = async ({ request }) => {
-	const gemLevelsProfitForm = await superValidate(request, gemLevelsProfitSchema);
+	const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
 	return { gemLevelsProfitForm };
 };
 
 export const actions: Actions = {
 	getGemLevelProfit: async ({ request }) => {
-		const gemLevelsProfitForm = await superValidate(request, gemLevelsProfitSchema);
+		const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
 		if (!gemLevelsProfitForm.valid) {
 			return fail(400, { gemLevelsProfitForm });
 		}
@@ -29,7 +29,5 @@ export const actions: Actions = {
 			return fail(500, { gemLevelsProfitForm });
 		}
 	},
-	createGemTradeQuery: async ({ request }) => {
-
-	}
+	createGemTradeQuery: async ({ request }) => {}
 };
