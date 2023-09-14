@@ -32,11 +32,13 @@ export interface GemProfitApiOptions {
 	api_key: string;
 }
 
+type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
+
 export class GemProfitApi {
-	fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
+	fetch: Fetch;
 	options: GemProfitApiOptions;
 	constructor(
-		fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
+		fetch: Fetch,
 		options: GemProfitApiOptions
 	) {
 		this.options = options;
