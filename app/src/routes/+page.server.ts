@@ -1,6 +1,6 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import { API_KEY, API_ENDPOINT } from '$env/static/private';
-import { GemProfitApi } from '$lib/server/gemLevelProfitApi';
+import { GemProfitApi } from '$lib/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/client';
 import { gemLevelsProfitSchema } from '$lib/gemLevelProftApi';
