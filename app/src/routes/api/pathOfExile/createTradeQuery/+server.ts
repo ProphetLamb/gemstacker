@@ -2,7 +2,7 @@ import { poeTradeGemRequestSchema, type PoeTradeLeagueRequest } from '$lib/pathO
 import { createPathOfExileApi } from '$lib/server/pathOfExileApi';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 
-export const POST: RequestHandler = async ({ fetch, request }) => {
+export const POST: RequestHandler = async ({ fetch, request, setHeaders }) => {
 	const requestBody = await request.json();
 	const tradeQuery = poeTradeGemRequestSchema.safeParse(requestBody);
 	if (!tradeQuery.success) {
@@ -12,6 +12,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 	const api = createPathOfExileApi(fetch);
 	try {
 		const result = await api.createTradeQuery({ type: 'gem', ...league, ...tradeQuery.data });
+		setHeaders({ 'Cache-Control': 'max-age=2592000' });
 		return json(result);
 	} catch (e) {
 		if (e instanceof Error) {
