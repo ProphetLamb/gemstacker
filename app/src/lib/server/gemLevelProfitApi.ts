@@ -25,6 +25,7 @@ export class GemProfitApi {
 		gemProfitRequestParameterSchema.parse(param);
 
 		const query = Object.entries(param)
+			.filter(([key, value]) => key !== undefined && value !== undefined)
 			.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
 			.join('&');
 		const headers = new Headers({
