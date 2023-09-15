@@ -33,21 +33,16 @@
 </script>
 
 {#await web_trade_url}
-	<button class="btn variant-soft-primary w-18">
-		<span class="m-auto">
-			<ProgressRadial width="w-6" font={10} />
-		</span>
+	<button class="btn variant-soft-primary w-[5rem]" disabled>
+		<ProgressRadial width="w-6" font={10} />
 	</button>
 {:then web_trade_url}
 	{#if web_trade_url}
-		<a class="btn variant-soft-primary w-18" href={web_trade_url} target="_blank"
-			><span class="m-auto">Buy</span></a
-		>
+		<a class="btn variant-soft-success w-[5rem]" href={web_trade_url} target="_blank">Buy</a>
 	{:else}
-		<button class="btn variant-soft-primary w-18" on:click={startCreateTradeQuery}>Trade</button>
+		<button class="btn variant-soft-primary w-[5rem]" on:click={startCreateTradeQuery}>Trade</button
+		>
 	{/if}
 {:catch error}
-	<button class="btn variant-soft-primary w-18">
-		<span class="m-auto">Failed</span>
-	</button>
+	<button class="btn variant-soft-error w-[5rem]">Failed</button>
 {/await}
