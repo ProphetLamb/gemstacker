@@ -1,4 +1,3 @@
-import type { GemProfitResponse } from '$lib/gemLevelProfitApi';
 import { Base64 } from 'js-base64';
 import { z } from 'zod';
 
@@ -9,10 +8,20 @@ export interface BookmarksTradeLocation {
 	slug: string;
 }
 
+export const bookmarksTradeLocationSchema = z.object({
+	type: z.string(),
+	slug: z.string()
+});
+
 export interface PartialBookmarksTradeLocation {
 	type: string | null;
 	slug: string | null;
 }
+
+export const partialBookmarksTradeLocationSchema = z.object({
+	type: z.string().nullable(),
+	slug: z.string().nullable()
+});
 
 export interface BookmarksTradeStruct {
 	id?: string;
@@ -21,6 +30,13 @@ export interface BookmarksTradeStruct {
 	completedAt: string | null;
 }
 
+export const bookmarksTradeStructSchema = z.object({
+	id: z.string().optional(),
+	title: z.string(),
+	location: bookmarksTradeLocationSchema,
+	completedAt: z.string().nullable()
+});
+
 export interface BookmarksFolderStruct {
 	id?: string;
 	title: string;
@@ -28,7 +44,12 @@ export interface BookmarksFolderStruct {
 	archivedAt: string | null;
 }
 
-export type BookmarksFolderIcon = BookmarksFolderAscendancyIcon | BookmarksFolderItemIcon;
+export const bookmarksFolderStructSchema = z.object({
+	id: z.string().optional(),
+	title: z.string(),
+	icon: z.string().nullable(),
+	archivedAt: z.string().nullable()
+});
 
 export enum BookmarksFolderAscendancyDuelistIcon {
 	SLAYER = 'slayer',
@@ -36,11 +57,23 @@ export enum BookmarksFolderAscendancyDuelistIcon {
 	CHAMPION = 'champion'
 }
 
+export const bookmarksFolderAscendencyDuelistIconSchema = z.enum([
+	BookmarksFolderAscendancyDuelistIcon.SLAYER,
+	BookmarksFolderAscendancyDuelistIcon.GLADIATOR,
+	BookmarksFolderAscendancyDuelistIcon.CHAMPION
+]);
+
 export enum BookmarksFolderAscendancyShadowIcon {
 	ASSASSIN = 'assassin',
 	SABOTEUR = 'saboteur',
 	TRICKSTER = 'trickster'
 }
+
+export const bookmarksFolderAscendencyShadowIconSchema = z.enum([
+	BookmarksFolderAscendancyShadowIcon.ASSASSIN,
+	BookmarksFolderAscendancyShadowIcon.SABOTEUR,
+	BookmarksFolderAscendancyShadowIcon.TRICKSTER
+]);
 
 export enum BookmarksFolderAscendancyMarauderIcon {
 	JUGGERNAUT = 'juggernaut',
@@ -48,11 +81,23 @@ export enum BookmarksFolderAscendancyMarauderIcon {
 	CHIEFTAIN = 'chieftain'
 }
 
+export const bookmarksFolderAscendencyMarauderIconSchema = z.enum([
+	BookmarksFolderAscendancyMarauderIcon.JUGGERNAUT,
+	BookmarksFolderAscendancyMarauderIcon.BERSERKER,
+	BookmarksFolderAscendancyMarauderIcon.CHIEFTAIN
+]);
+
 export enum BookmarksFolderAscendancyWitchIcon {
 	NECROMANCER = 'necromancer',
 	ELEMENTALIST = 'elementalist',
 	OCCULTIST = 'occultist'
 }
+
+export const bookmarksFolderAscendencyWitchIconSchema = z.enum([
+	BookmarksFolderAscendancyWitchIcon.NECROMANCER,
+	BookmarksFolderAscendancyWitchIcon.ELEMENTALIST,
+	BookmarksFolderAscendancyWitchIcon.OCCULTIST
+]);
 
 export enum BookmarksFolderAscendancyRangerIcon {
 	DEADEYE = 'deadeye',
@@ -60,15 +105,31 @@ export enum BookmarksFolderAscendancyRangerIcon {
 	PATHFINDER = 'pathfinder'
 }
 
+export const bookmarksFolderAscendencyRangerIconSchema = z.enum([
+	BookmarksFolderAscendancyRangerIcon.DEADEYE,
+	BookmarksFolderAscendancyRangerIcon.RAIDER,
+	BookmarksFolderAscendancyRangerIcon.PATHFINDER
+]);
+
 export enum BookmarksFolderAscendancyTemplarIcon {
 	GUARDIAN = 'guardian',
 	HIEROPHANT = 'hierophant',
 	INQUISITOR = 'inquisitor'
 }
 
+export const bookmarksFolderAscendencyTemplarIconSchema = z.enum([
+	BookmarksFolderAscendancyTemplarIcon.GUARDIAN,
+	BookmarksFolderAscendancyTemplarIcon.HIEROPHANT,
+	BookmarksFolderAscendancyTemplarIcon.INQUISITOR
+]);
+
 export enum BookmarksFolderAscendancyScionIcon {
 	ASCENDANT = 'ascendant'
 }
+
+export const bookmarksFolderAscendencyScionIconSchema = z.enum([
+	BookmarksFolderAscendancyScionIcon.ASCENDANT
+]);
 
 export type BookmarksFolderAscendancyIcon =
 	| BookmarksFolderAscendancyDuelistIcon
@@ -78,6 +139,16 @@ export type BookmarksFolderAscendancyIcon =
 	| BookmarksFolderAscendancyRangerIcon
 	| BookmarksFolderAscendancyTemplarIcon
 	| BookmarksFolderAscendancyScionIcon;
+
+export const bookmarksFolderAscendencyIconSchema = z.union([
+	bookmarksFolderAscendencyDuelistIconSchema,
+	bookmarksFolderAscendencyShadowIconSchema,
+	bookmarksFolderAscendencyMarauderIconSchema,
+	bookmarksFolderAscendencyWitchIconSchema,
+	bookmarksFolderAscendencyRangerIconSchema,
+	bookmarksFolderAscendencyTemplarIconSchema,
+	bookmarksFolderAscendencyScionIconSchema
+]);
 
 export enum BookmarksFolderItemIcon {
 	ALCHEMY = 'alchemy',
@@ -92,8 +163,28 @@ export enum BookmarksFolderItemIcon {
 	SCARAB = 'scarab'
 }
 
+export const bookmarksFolderItemIconSchema = z.enum([
+	BookmarksFolderItemIcon.ALCHEMY,
+	BookmarksFolderItemIcon.CHAOS,
+	BookmarksFolderItemIcon.EXALT,
+	BookmarksFolderItemIcon.DIVINE,
+	BookmarksFolderItemIcon.MIRROR,
+	BookmarksFolderItemIcon.CARD,
+	BookmarksFolderItemIcon.ESSENCE,
+	BookmarksFolderItemIcon.FOSSIL,
+	BookmarksFolderItemIcon.MAP,
+	BookmarksFolderItemIcon.SCARAB
+]);
+
+export type BookmarksFolderIcon = BookmarksFolderAscendancyIcon | BookmarksFolderItemIcon;
+
+export const bookmarksFolderIconSchema = z.union([
+	bookmarksFolderAscendencyIconSchema,
+	bookmarksFolderItemIconSchema
+]);
+
 interface ExportedFolderStruct {
-	icn: string;
+	icn: string | null;
 	tit: string;
 	trs: Array<{
 		tit: string;
@@ -102,7 +193,7 @@ interface ExportedFolderStruct {
 }
 
 const exportedFolderStructSchema = z.object({
-	icn: z.string(),
+	icn: z.string().nullable(),
 	tit: z.string(),
 	trs: z.array(
 		z.object({
@@ -125,7 +216,7 @@ function jsonFromExportString(exportString: string): string {
 export class BetterTrading {
 	serialize(folder: BookmarksFolderStruct, trades: BookmarksTradeStruct[]): string {
 		const payload = {
-			icn: folder.icon as string,
+			icn: folder.icon,
 			tit: folder.title,
 			trs: trades.map((trade) => ({
 				tit: trade.title,
@@ -142,11 +233,11 @@ export class BetterTrading {
 				JSON.parse(jsonFromExportString(serializedFolder))
 			);
 
-			const folder: BookmarksFolderStruct = {
-				icon: potentialPayload.icn as BookmarksFolderIcon,
+			const folder = {
+				icon: potentialPayload.icn ? bookmarksFolderIconSchema.parse(potentialPayload.icn) : null,
 				title: potentialPayload.tit,
 				archivedAt: null
-			};
+			} satisfies BookmarksFolderStruct;
 
 			const trades: BookmarksTradeStruct[] = potentialPayload.trs.map((trade) => {
 				const [type, slug] = trade.loc.split(':');
