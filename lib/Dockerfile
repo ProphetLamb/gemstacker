@@ -15,11 +15,5 @@ COPY --from=compiletime /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY . .
 
-ENV HOST="127.0.0.1"
-ENV PORT="8000"
-ENV DEBUG="False"
-ENV WORKERS="4"
-ENV LOG_LEVEL="info"
-ENV ALLOWED_ORIGINS="*"
-ENV API_KEY=""
-CMD ["uvicorn", "--factory", "main:app", "--host", "${HOST}", "--port", "${PORT}", "--workers", "${WORKERS}", "--log-level", "${LOG_LEVEL}"]
+RUN chmod +x start.sh
+CMD ["./start.sh"]
