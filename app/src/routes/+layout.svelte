@@ -36,7 +36,7 @@
 	<svelte:fragment slot="pageFooter">
 		<div class="bg-surface-50-900-token p-4">
 			<p>
-				<a href="/" class="anchor">Home</a>
+				<a href="/" target="_blank" rel="noreferrer" class="anchor">Home</a>
 				&nbsp;
 				<span class="opacity-10 mx-2">|</span>
 				&nbsp;
@@ -49,7 +49,7 @@
 				&nbsp;
 				<span class="opacity-10 mx-2">|</span>
 				&nbsp;
-				<a href="/imprint" class="anchor">Imprint</a>
+				<a href="/imprint" target="_blank" rel="noreferrer" class="anchor">Imprint</a>
 			</p>
 		</div>
 	</svelte:fragment>
