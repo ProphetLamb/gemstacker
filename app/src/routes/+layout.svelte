@@ -27,7 +27,7 @@
 					target="_blank"
 					rel="noreferrer"
 				>
-					<Icon src={hi.Heart} size="16" theme="solid" class="fill-pink-600" />
+					<Icon src={hi.Star} size="16" theme="solid" class="fill-yellow-300" />
 					<span>GitHub</span>
 				</a>
 			</svelte:fragment>
