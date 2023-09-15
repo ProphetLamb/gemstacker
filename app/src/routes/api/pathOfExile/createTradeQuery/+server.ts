@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ fetch, request, setHeaders }) => {
 	const api = createPathOfExileApi(fetch);
 	try {
 		const result = await api.createTradeQuery({ type: 'gem', ...league, ...tradeQuery.data });
-		setHeaders({ 'Cache-Control': 'max-age=2592000' });
+		setHeaders({ 'Cache-Control': 'public, max-age=2592000' });
 		return json(result);
 	} catch (e) {
 		if (e instanceof Error) {
