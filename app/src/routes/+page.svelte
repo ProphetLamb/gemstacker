@@ -19,8 +19,8 @@
 	});
 </script>
 
-<div class="container h-full mx-auto flex flex-wrap gap-8 justify-center items-center">
-	<div class="space-y-10 text-center flex flex-col items-center">
+<div class="container h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
+	<div class="space-y-10 text-center flex flex-col items-center p-4">
 		<h2 class="h2">
 			Gem levels for <span
 				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-500 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
@@ -95,7 +95,7 @@
 			</button>
 		</form>
 	</div>
-	<div class="flex flex-col items-center">
+	<div class="flex flex-col items-center p-4">
 		<h2 class="h2 flex flex-row items-center space-x-4 pb-4">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
