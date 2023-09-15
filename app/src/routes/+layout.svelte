@@ -1,16 +1,14 @@
 <script lang="ts">
 	import '../app.postcss';
 	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
-
-	// Highlight JS
 	import hljs from 'highlight.js';
 	import 'highlight.js/styles/github-dark.css';
 	import { storeHighlightJs } from '@skeletonlabs/skeleton';
-	storeHighlightJs.set(hljs);
-
-	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
+	import { Icon } from '@steeze-ui/svelte-icon';
+	import * as hi from '@steeze-ui/heroicons';
+	storeHighlightJs.set(hljs);
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
@@ -29,7 +27,8 @@
 					target="_blank"
 					rel="noreferrer"
 				>
-					GitHub
+					<Icon src={hi.Heart} size="16" theme="solid" class="fill-pink-600" />
+					<span>GitHub</span>
 				</a>
 			</svelte:fragment>
 		</AppBar>
