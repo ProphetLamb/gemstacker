@@ -3,6 +3,8 @@
 	import type { ActionData, PageData } from './$types';
 	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
+	import { Icon } from '@steeze-ui/svelte-icon';
+	import * as hi from '@steeze-ui/heroicons';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -85,17 +87,30 @@
 		{#if $delayed}
 			Loading..
 		{:else if form?.gemProfit}
-			<ol class="list w-full">
-				{#each Object.entries(form.gemProfit.data) as [name, data], idx}
-					<li>
-						<span class="badge-icon p-4 variant-soft-secondary">{idx + 1}.</span>
-						<span class="flex-auto">{name}</span>
-						<span>{data.min.price}c @ lvl{data.min.level}</span>
-						<span>{data.max.price}c @ lvl{data.max.level}</span>
-						<GemTradeQueryButton {data} {name} />
-					</li>
-				{/each}
-			</ol>
+			<table class="list w-full">
+				<tbody>
+					{#each Object.entries(form.gemProfit.data) as [name, data], idx}
+						<tr class="h-12">
+							<td>
+								<div class="badge-icon variant-soft-primary h-11 w-11">
+									<img src={``} alt={`${idx + 1}`} />
+								</div>
+							</td>
+							<td class="flex-auto">{name}</td>
+							<td class="align-middle text-right">{data.min.price}c</td>
+							<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+							<td class="align-middle text-left">lvl{data.min.level}</td>
+							<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
+							<td class="align-middle text-right">{data.max.price}c</td>
+							<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+							<td class="align-middle text-left">lvl{data.max.level}</td>
+							<td>
+								<GemTradeQueryButton {data} {name} />
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		{:else}
 			<p>Enter your search criteria above.</p>
 		{/if}
