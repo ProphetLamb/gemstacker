@@ -74,7 +74,7 @@ export interface PoeTradeQueryResponseData {
 	 * These ids are used to fetch the specific results.
 	 * Apis can fetch the specific results at `https://www.pathofexile.com/api/trade/fetch/{result.id}?query={id}`
 	 */
-	result: string[];
+	result: Array<string>;
 	/**
 	 * The total number of results for the query.
 	 */
@@ -104,7 +104,7 @@ export const poeTradeQueryResponseSchema = z.object({
 });
 
 export interface PoeTradeLeaguesResponse {
-	result: PoeTradeLeagueResponse[];
+	result: Array<PoeTradeLeagueResponse>;
 }
 
 export const poeTradeLeaguesResponseSchema = z.object({
