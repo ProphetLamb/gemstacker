@@ -34,7 +34,7 @@
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="pageFooter">
-		<div class="bg-surface-50-900-token p-4">
+		<div class="">
 			<p>
 				<a href="/" target="_blank" rel="noreferrer" class="anchor">Home</a>
 				&nbsp;
