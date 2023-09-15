@@ -12,6 +12,11 @@ export default {
 	],
 	theme: {
 		extend: {
+			textShadow: {
+				sm: '0 1px 2px var(--tw-shadow-color)',
+				DEFAULT: '0 2px 4px var(--tw-shadow-color)',
+				lg: '0 8px 16px var(--tw-shadow-color)'
+			},
 			animation: {
 				'gradient-x': 'gradient-x 3s ease infinite',
 				'gradient-y': 'gradient-y 3s ease infinite',
@@ -52,6 +57,16 @@ export default {
 		}
 	},
 	plugins: [
+		function ({ matchUtilities, theme }) {
+			matchUtilities(
+				{
+					'text-shadow': (value) => ({
+						textShadow: value
+					})
+				},
+				{ values: theme('textShadow') }
+			);
+		},
 		forms,
 		typography,
 		skeleton({
