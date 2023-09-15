@@ -22,8 +22,8 @@
 <div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
 	<article class="space-y-10 text-center flex flex-col items-center p-4">
 		<h1 class="h1">
-			Gem levels for <span
-				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-500 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
+			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
+				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-700 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
 				>profit</span
 			>.
 		</h1>
@@ -96,9 +96,9 @@
 		</form>
 	</article>
 	<article class="flex flex-col items-center p-4">
-		<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
+		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
-			<span>The best gems for you.</span>
+			<span class="">The best gems for you.</span>
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
 			{#if $delayed}
