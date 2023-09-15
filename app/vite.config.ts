@@ -1,7 +1,13 @@
+import { sentrySvelteKit } from "@sentry/sveltekit";
 import { purgeCss } from 'vite-plugin-tailwind-purgecss';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit(), purgeCss()]
+	plugins: [sentrySvelteKit({
+        sourceMapsUploadOptions: {
+            org: "prophetlamb-38d869310",
+            project: "poe-gemleveling-profit-calculator"
+        }
+    }), sveltekit(), purgeCss()]
 });
