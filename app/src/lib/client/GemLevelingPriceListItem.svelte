@@ -33,18 +33,18 @@
 	}
 </script>
 
-<span class="badge-icon p-4 variant-soft-primary">{idx + 1}.</span>
+<span class="badge-icon p-4 variant-soft-secondary">{idx + 1}.</span>
 <span class="flex-auto">{name}</span>
 <span>{data.min.price}c @ lvl{data.min.level}</span>
 <span>{data.max.price}c @ lvl{data.max.level}</span>
 {#await web_trade_url}
-	<button class="btn variant-soft-primary"><ProgressRadial width="w-6" font={10} /></button>
+	<button class="btn variant-soft-primary w-18"><ProgressRadial width="w-6" font={10} /></button>
 {:then web_trade_url}
 	{#if web_trade_url}
-		<a class="btn variant-soft-primary" href={web_trade_url} target="_blank">Buy</a>
+		<a class="btn variant-soft-primary w-18" href={web_trade_url} target="_blank">Buy</a>
 	{:else}
-		<button class="btn variant-soft-primary" on:click={startCreateTradeQuery}>Trade</button>
+		<button class="btn variant-soft-primary w-18" on:click={startCreateTradeQuery}>Trade</button>
 	{/if}
 {:catch error}
-	<button class="btn variant-soft-primary">Failed</button>
+	<button class="btn variant-soft-primary w-18">Failed</button>
 {/await}
