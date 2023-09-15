@@ -122,10 +122,15 @@ export class PathofExileApi {
 		}
 		const rawData = await response.json();
 		const data = poeTradeQueryResponseDataSchema.parse(rawData);
+		const leagueRealmPathPart = league.realm === 'pc' ? '' : `${encodeURIComponent(league.realm)}/`;
 		const result = {
 			data,
 			league,
-			web_trade_url: `${this.options.web_endpoint}/trade/search/${league.id}/${data.id}`
+			web_trade_url: `${
+				this.options.web_endpoint
+			}/trade/search/${leagueRealmPathPart}${encodeURIComponent(league.id)}/${encodeURIComponent(
+				data.id
+			)}`
 		} satisfies PoeTradeQueryResponse;
 		return result;
 
