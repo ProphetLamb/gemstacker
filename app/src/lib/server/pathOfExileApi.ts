@@ -125,7 +125,7 @@ export class PathofExileApi {
 		const result = {
 			data,
 			league,
-			web_trade_url: `${this.options.web_endpoint}/trade/search/${league.id}?${data.id}`
+			web_trade_url: `${this.options.web_endpoint}/trade/search/${league.id}/${data.id}`
 		} satisfies PoeTradeQueryResponse;
 		return result;
 
