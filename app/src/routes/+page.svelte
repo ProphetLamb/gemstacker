@@ -2,7 +2,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
 	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
-	import GemLevelingPriceListItem from '$lib/client/GemLevelingPriceListItem.svelte';
+	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -88,7 +88,11 @@
 			<ol class="list w-full">
 				{#each Object.entries(form.gemProfit.data) as [name, data], idx}
 					<li>
-						<GemLevelingPriceListItem {data} {idx} {name} />
+						<span class="badge-icon p-4 variant-soft-secondary">{idx + 1}.</span>
+						<span class="flex-auto">{name}</span>
+						<span>{data.min.price}c @ lvl{data.min.level}</span>
+						<span>{data.max.price}c @ lvl{data.max.level}</span>
+						<GemTradeQueryButton {data} {name} />
 					</li>
 				{/each}
 			</ol>

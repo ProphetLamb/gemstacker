@@ -4,7 +4,6 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	export let data: GemProfitResponseItem;
-	export let idx: number;
 	export let name: string;
 
 	let web_trade_url: Promise<string | undefined> = Promise.resolve(undefined);
@@ -33,18 +32,22 @@
 	}
 </script>
 
-<span class="badge-icon p-4 variant-soft-secondary">{idx + 1}.</span>
-<span class="flex-auto">{name}</span>
-<span>{data.min.price}c @ lvl{data.min.level}</span>
-<span>{data.max.price}c @ lvl{data.max.level}</span>
 {#await web_trade_url}
-	<button class="btn variant-soft-primary w-18"><ProgressRadial width="w-6" font={10} /></button>
+	<button class="btn variant-soft-primary w-18">
+		<span class="m-auto">
+			<ProgressRadial width="w-6" font={10} />
+		</span>
+	</button>
 {:then web_trade_url}
 	{#if web_trade_url}
-		<a class="btn variant-soft-primary w-18" href={web_trade_url} target="_blank">Buy</a>
+		<a class="btn variant-soft-primary w-18" href={web_trade_url} target="_blank"
+			><span class="m-auto">Buy</span></a
+		>
 	{:else}
 		<button class="btn variant-soft-primary w-18" on:click={startCreateTradeQuery}>Trade</button>
 	{/if}
 {:catch error}
-	<button class="btn variant-soft-primary w-18">Failed</button>
+	<button class="btn variant-soft-primary w-18">
+		<span class="m-auto">Failed</span>
+	</button>
 {/await}
