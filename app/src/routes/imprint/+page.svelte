@@ -6,7 +6,7 @@
 				<tr>
 					<td class=""><strong>Contact</strong></td>
 					<td class="px-2">
-						Prophet&nbsp;Lamb&nbsp;&lt;<a href="mailto:prophet.lamb@gmail.com" class="anchor"
+						ProphetLamb&nbsp;&lt;<a href="mailto:prophet.lamb@gmail.com" class="anchor"
 							>prophet.lamb@gmail.com</a
 						>&gt;
 					</td>
