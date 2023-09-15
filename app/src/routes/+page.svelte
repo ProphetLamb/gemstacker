@@ -19,14 +19,14 @@
 	});
 </script>
 
-<div class="container h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
-	<div class="space-y-10 text-center flex flex-col items-center p-4">
-		<h2 class="h2">
+<div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
+	<article class="space-y-10 text-center flex flex-col items-center p-4">
+		<h1 class="h1">
 			Gem levels for <span
 				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-500 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
 				>profit</span
 			>.
-		</h2>
+		</h1>
 		<form class="space-y-2" use:enhance method="POST" action="?/getGemLevelProfit">
 			<label class="label">
 				<span>Gem Name</span>
@@ -94,12 +94,12 @@
 				Search
 			</button>
 		</form>
-	</div>
-	<div class="flex flex-col items-center p-4">
-		<h2 class="h2 flex flex-row items-center space-x-4 pb-4">
+	</article>
+	<article class="flex flex-col items-center p-4">
+		<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
-		</h2>
+		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
 			{#if $delayed}
 				Loading..
@@ -132,5 +132,5 @@
 				<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
 			{/if}
 		</div>
-	</div>
+	</article>
 </div>

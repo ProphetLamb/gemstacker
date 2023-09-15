@@ -33,6 +33,26 @@
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
+	<svelte:fragment slot="pageFooter">
+		<div class="bg-surface-50-900-token p-4">
+			<p>
+				<a href="/" class="anchor">Home</a>
+				&nbsp;
+				<span class="opacity-10 mx-2">|</span>
+				&nbsp;
+				<a
+					href="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator/blob/master/LICENSE"
+					target="_blank"
+					rel="noreferrer"
+					class="anchor">MIT License</a
+				>
+				&nbsp;
+				<span class="opacity-10 mx-2">|</span>
+				&nbsp;
+				<a href="/imprint" class="anchor">Imprint</a>
+			</p>
+		</div>
+	</svelte:fragment>
 	<!-- Page Route Content -->
 	<slot />
 </AppShell>
