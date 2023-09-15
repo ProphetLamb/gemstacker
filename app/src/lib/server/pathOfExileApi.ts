@@ -14,22 +14,27 @@ import {
 type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
 
 export interface PoeTradeLeagueApiOptions {
-	foo?: string;
+	api_endpoint: string;
 }
 
 export class PathofExileApi {
 	fetch: Fetch;
 	options: PoeTradeLeagueApiOptions;
-	constructor(fetch: Fetch, options: PoeTradeLeagueApiOptions) {
-		this.options = options;
+	constructor(fetch: Fetch, options?: PoeTradeLeagueApiOptions) {
+		this.options = options ?? { api_endpoint: 'https://www.pathofexile.com' };
 		this.fetch = fetch;
+	}
+
+	getUserAgent() {
+		return 'OAuth poe-gemleveling-profit-calculator/0.1 (contact: prophet.lamb@gmail.com)';
 	}
 
 	getLeaguesList: () => Promise<PoeTradeLeaguesResponse> = async () => {
 		const headers = new Headers({
-			Accept: 'application/json'
+			Accept: 'application/json',
+			'User-Agent': this.getUserAgent()
 		});
-		const url = new URL('https://www.pathofexile.com/api/trade/data/leagues');
+		const url = new URL(`${this.options.api_endpoint}/api/trade/data/leagues`);
 		const response = await this.fetch(url, {
 			method: 'GET',
 			headers
@@ -92,9 +97,10 @@ export class PathofExileApi {
 		poeTradeQueryRequestSchema.parse(param);
 		const league = await this.getTradeLeague(param);
 		const headers = new Headers({
-			Accept: 'application/json'
+			Accept: 'application/json',
+			'User-Agent': this.getUserAgent()
 		});
-		const url = new URL(`https://www.pathofexile.com/api/trade/search/${league.id}`);
+		const url = new URL(`${this.options.api_endpoint}/api/trade/search/${league.id}`);
 		const body = JSON.stringify(createTradeQueryBody());
 		const response = await this.fetch(url, {
 			method: 'POST',
@@ -109,7 +115,7 @@ export class PathofExileApi {
 		const result = {
 			data,
 			league,
-			web_trade_url: `https://www.pathofexile.com/trade/search/${league.id}?${data.id}`
+			web_trade_url: `${this.options.api_endpoint}/trade/search/${league.id}?${data.id}`
 		} satisfies PoeTradeQueryResponse;
 		return result;
 
