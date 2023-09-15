@@ -213,7 +213,7 @@ function jsonFromExportString(exportString: string): string {
 	}
 }
 
-export class BetterTrading {
+export class BetterTradingBookmarks {
 	serialize(folder: BookmarksFolderStruct, trades: BookmarksTradeStruct[]): string {
 		const payload = {
 			icn: folder.icon,
