@@ -12,7 +12,15 @@ export interface GemProfitApiOptions {
 
 type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
 
-export class GemProfitApi {
+export interface GemProfitApi {
+	getGemProfit(param: GemProfitRequestParameter): Promise<GemProfitResponse>;
+}
+
+export function createGemProfitApi(fetch: Fetch, options: GemProfitApiOptions) {
+	return new RawGemProfitApi(fetch, options);
+}
+
+export class RawGemProfitApi {
 	fetch: Fetch;
 	options: GemProfitApiOptions;
 	constructor(fetch: Fetch, options: GemProfitApiOptions) {

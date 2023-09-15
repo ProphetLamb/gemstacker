@@ -1,6 +1,6 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import { API_KEY, API_ENDPOINT } from '$env/static/private';
-import { GemProfitApi } from '$lib/server/gemLevelProfitApi';
+import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/client';
 import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
@@ -17,7 +17,7 @@ export const actions: Actions = {
 			return fail(400, { gemLevelsProfitForm });
 		}
 
-		const gemProfitApi = new GemProfitApi(fetch, {
+		const gemProfitApi = createGemProfitApi(fetch, {
 			api_endpoint: API_ENDPOINT,
 			api_key: API_KEY
 		});
