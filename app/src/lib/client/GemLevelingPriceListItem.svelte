@@ -21,8 +21,12 @@
 				max_level: data.max.level,
 				corrupted: false
 			} satisfies PoeTradeGemRequest)
-		}).then((res) => {
-			const rawResponse = res.json();
+		}).then(async (res) => {
+			if (res.status !== 200) {
+				return undefined;
+			}
+			const rawResponse = await res.json();
+			console.log(rawResponse);
 			const response = poeTradeQueryResponseSchema.parse(rawResponse);
 			return response.web_trade_url;
 		});
@@ -34,7 +38,7 @@
 <span>{data.min.price}c @ lvl{data.min.level}</span>
 <span>{data.max.price}c @ lvl{data.max.level}</span>
 {#await web_trade_url}
-	<button class="btn variant-soft-primary"><ProgressRadial width="w-12" font={10} /></button>
+	<button class="btn variant-soft-primary"><ProgressRadial width="w-6" font={10} /></button>
 {:then web_trade_url}
 	{#if web_trade_url}
 		<a class="btn variant-soft-primary" href={web_trade_url} target="_blank">Buy</a>
