@@ -18,7 +18,7 @@
 		<!-- App Bar -->
 		<AppBar>
 			<svelte:fragment slot="lead">
-				<strong class="text-xl uppercase">Gem Stacker</strong>
+				<a href="/" class="text-3xl uppercase font-extrabold">Gem Stacker</a>
 			</svelte:fragment>
 			<svelte:fragment slot="trail">
 				<a

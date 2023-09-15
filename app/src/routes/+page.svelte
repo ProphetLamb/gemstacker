@@ -21,7 +21,12 @@
 
 <div class="container h-full mx-auto flex flex-wrap gap-8 justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
-		<h2 class="h2">Gem levels for profit.</h2>
+		<h2 class="h2">
+			Gem levels for <span
+				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-500 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
+				>profit</span
+			>.
+		</h2>
 		<form class="space-y-2" use:enhance method="POST" action="?/getGemLevelProfit">
 			<label class="label">
 				<span>Gem Name</span>
@@ -79,40 +84,50 @@
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
 			</label>
-			<button class="btn variant-filled" type="submit"> Search </button>
+			<button
+				class="shadow-lg btn variant-filled bg-gradient-to-br hover:from-orange-600 hover:to-amber-200 hover:shadow-orange-400/50 from-indigo-700 to-fuchsia-800 shadow-indigo-500/50 via-accent animate-gradient-x text-2xl"
+				type="submit"
+			>
+				Search
+			</button>
 		</form>
 	</div>
-	<div class="text-token flex flex-col items-center card p-4 space-y-4 w-[46rem]">
-		<h3 class="h3">The best gems for you.</h3>
-		{#if $delayed}
-			Loading..
-		{:else if form?.gemProfit}
-			<table class="list w-full">
-				<tbody>
-					{#each Object.entries(form.gemProfit.data) as [name, data], idx}
-						<tr class="h-12">
-							<td>
-								<div class="badge-icon variant-soft-primary h-11 w-11">
-									<img src={``} alt={`${idx + 1}`} />
-								</div>
-							</td>
-							<td class="flex-auto">{name}</td>
-							<td class="align-middle text-right">{data.min.price}c</td>
-							<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
-							<td class="align-middle text-left">lvl{data.min.level}</td>
-							<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
-							<td class="align-middle text-right">{data.max.price}c</td>
-							<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
-							<td class="align-middle text-left">lvl{data.max.level}</td>
-							<td>
-								<GemTradeQueryButton {data} {name} />
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		{:else}
-			<p>Enter your search criteria above.</p>
-		{/if}
+	<div class="flex flex-col items-center">
+		<h2 class="h2 flex flex-row items-center space-x-4 pb-4">
+			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
+			<span>The best gems for you.</span>
+		</h2>
+		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
+			{#if $delayed}
+				Loading..
+			{:else if form?.gemProfit}
+				<table class="list w-full">
+					<tbody>
+						{#each Object.entries(form.gemProfit.data) as [name, data], idx}
+							<tr class="h-12">
+								<td>
+									<div class="badge-icon variant-soft-primary h-11 w-11">
+										<img src={``} alt={`${idx + 1}`} />
+									</div>
+								</td>
+								<td class="flex-auto">{name}</td>
+								<td class="align-middle text-right">{data.min.price}c</td>
+								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+								<td class="align-middle text-left">lvl{data.min.level}</td>
+								<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
+								<td class="align-middle text-right">{data.max.price}c</td>
+								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+								<td class="align-middle text-left">lvl{data.max.level}</td>
+								<td>
+									<GemTradeQueryButton {data} {name} />
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			{:else}
+				<p>Enter your search criteria above.</p>
+			{/if}
+		</div>
 	</div>
 </div>
