@@ -29,6 +29,16 @@ export function createPathOfExileApi(fetch: Fetch, options?: PoeTradeLeagueApiOp
 	return new RawPathofExileApi(fetch, options);
 }
 
+function splitGemDiscriminator(name: string): [string, string | undefined] {
+	const discriminators = ['Anomalous ', 'Divergent ', 'Phantasmal '];
+	const discriminator = discriminators.find((discrimination) => name.startsWith(discrimination));
+	if (!discriminator) {
+		return [name, undefined];
+	}
+	const gemName = name.slice(discriminator.length);
+	return [gemName, discriminator.trim()];
+}
+
 class RawPathofExileApi implements PathOfExileApi {
 	fetch: Fetch;
 	options: PoeTradeLeagueApiOptions;
@@ -157,6 +167,7 @@ class RawPathofExileApi implements PathOfExileApi {
 		}
 
 		function createGemTradeQueryBody(param: PoeTradeGemRequest) {
+			const [name, discriminator] = splitGemDiscriminator(param.name);
 			return {
 				query: {
 					filters: {
@@ -192,7 +203,10 @@ class RawPathofExileApi implements PathOfExileApi {
 							filters: []
 						}
 					],
-					type: param.name
+					type: {
+						...{ option: name },
+						...(discriminator ? { discriminator: discriminator.toLowerCase() } : {})
+					}
 				},
 				sort: {
 					price: 'asc'
