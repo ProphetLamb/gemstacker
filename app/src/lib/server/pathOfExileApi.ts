@@ -57,7 +57,12 @@ export class PathofExileApi {
 		);
 		// the shortest text not 'Standard' is the softcore current trade league text
 		const currentSoftcoreLeague = allRealmLeagues
-			.filter((league) => league.text !== 'Standard')
+			.filter(
+				(league) =>
+					!league.text.includes('Standard') &&
+					!league.text.includes('Hardcore') &&
+					!league.text.includes('Ruthless')
+			)
 			.reduce((a, b) => (a.text.length < b.text.length ? a : b));
 		if (!currentSoftcoreLeague) {
 			throw new Error(`No current league found for realm ${param.realm}`);
@@ -98,6 +103,7 @@ export class PathofExileApi {
 		const league = await this.getTradeLeague(param);
 		const headers = new Headers({
 			Accept: 'application/json',
+			'Content-Type': 'application/json',
 			'User-Agent': this.getUserAgent()
 		});
 		const url = new URL(`${this.options.api_endpoint}/api/trade/search/${league.id}`);
