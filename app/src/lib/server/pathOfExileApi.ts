@@ -15,13 +15,17 @@ type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promi
 
 export interface PoeTradeLeagueApiOptions {
 	api_endpoint: string;
+	web_endpoint: string;
 }
 
 export class PathofExileApi {
 	fetch: Fetch;
 	options: PoeTradeLeagueApiOptions;
 	constructor(fetch: Fetch, options?: PoeTradeLeagueApiOptions) {
-		this.options = options ?? { api_endpoint: 'https://www.pathofexile.com' };
+		this.options = options ?? {
+			api_endpoint: 'https://www.pathofexile.com/api',
+			web_endpoint: 'https://www.pathofexile.com'
+		};
 		this.fetch = fetch;
 	}
 
@@ -34,7 +38,7 @@ export class PathofExileApi {
 			Accept: 'application/json',
 			'User-Agent': this.getUserAgent()
 		});
-		const url = new URL(`${this.options.api_endpoint}/api/trade/data/leagues`);
+		const url = new URL(`${this.options.api_endpoint}/trade/data/leagues`);
 		const response = await this.fetch(url, {
 			method: 'GET',
 			headers
@@ -106,7 +110,7 @@ export class PathofExileApi {
 			'Content-Type': 'application/json',
 			'User-Agent': this.getUserAgent()
 		});
-		const url = new URL(`${this.options.api_endpoint}/api/trade/search/${league.id}`);
+		const url = new URL(`${this.options.api_endpoint}/trade/search/${league.id}`);
 		const body = JSON.stringify(createTradeQueryBody());
 		const response = await this.fetch(url, {
 			method: 'POST',
@@ -121,7 +125,7 @@ export class PathofExileApi {
 		const result = {
 			data,
 			league,
-			web_trade_url: `${this.options.api_endpoint}/trade/search/${league.id}?${data.id}`
+			web_trade_url: `${this.options.web_endpoint}/trade/search/${league.id}?${data.id}`
 		} satisfies PoeTradeQueryResponse;
 		return result;
 
