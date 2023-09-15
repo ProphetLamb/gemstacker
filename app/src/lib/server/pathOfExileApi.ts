@@ -18,7 +18,18 @@ export interface PoeTradeLeagueApiOptions {
 	web_endpoint: string;
 }
 
-export class PathofExileApi {
+export interface PathOfExileApi {
+	getUserAgent(): string;
+	getLeaguesList(): Promise<PoeTradeLeaguesResponse>;
+	getTradeLeague(param: PoeTradeLeagueRequest): Promise<PoeTradeLeagueResponse>;
+	createTradeQuery(param: PoeTradeQueryRequest): Promise<PoeTradeQueryResponse>;
+}
+
+export function createPathOfExileApi(fetch: Fetch, options?: PoeTradeLeagueApiOptions) {
+	return new RawPathofExileApi(fetch, options);
+}
+
+class RawPathofExileApi implements PathOfExileApi {
 	fetch: Fetch;
 	options: PoeTradeLeagueApiOptions;
 	constructor(fetch: Fetch, options?: PoeTradeLeagueApiOptions) {

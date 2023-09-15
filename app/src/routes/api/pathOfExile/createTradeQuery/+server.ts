@@ -1,5 +1,5 @@
 import { poeTradeGemRequestSchema, type PoeTradeLeagueRequest } from '$lib/pathOfExileApi';
-import { PathofExileApi } from '$lib/server/pathOfExileApi';
+import { createPathOfExileApi } from '$lib/server/pathOfExileApi';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ fetch, request }) => {
@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 		throw error(400, { message: tradeQuery.error.message });
 	}
 	const league = { realm: 'pc', trade_league: 'Softcore' } satisfies PoeTradeLeagueRequest;
-	const api = new PathofExileApi(fetch);
+	const api = createPathOfExileApi(fetch);
 	try {
 		const result = await api.createTradeQuery({ type: 'gem', ...league, ...tradeQuery.data });
 		return json(result);
