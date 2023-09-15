@@ -34,6 +34,7 @@
 					name="gem_name"
 					class="input"
 					type="text"
+					placeholder="Gem name glob..."
 					bind:value={$gemLevelsProfitForm.gem_name}
 					{...$constraints.gem_name}
 				/>
@@ -47,6 +48,7 @@
 					name="min_sell_price_chaos"
 					class="input"
 					type="number"
+					placeholder="Minimum sell price..."
 					bind:value={$gemLevelsProfitForm.min_sell_price_chaos}
 					{...$constraints.min_sell_price_chaos}
 				/>
@@ -60,6 +62,7 @@
 					name="max_buy_price_chaos"
 					class="input"
 					type="number"
+					placeholder="Maximum buy price..."
 					bind:value={$gemLevelsProfitForm.max_buy_price_chaos}
 					{...$constraints.max_buy_price_chaos}
 				/>
@@ -126,7 +129,7 @@
 					</tbody>
 				</table>
 			{:else}
-				<p>Enter your search criteria above.</p>
+				<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
 			{/if}
 		</div>
 	</div>
