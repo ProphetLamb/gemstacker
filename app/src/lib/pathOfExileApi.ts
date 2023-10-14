@@ -110,3 +110,61 @@ export interface PoeTradeLeaguesResponse {
 export const poeTradeLeaguesResponseSchema = z.object({
 	result: z.array(poeTradeLeagueResponseSchema)
 });
+
+export function splitGemDiscriminator(name: string): [string, string | undefined] {
+	const discriminators = ['Anomalous ', 'Divergent ', 'Phantasmal '];
+	const discriminator = discriminators.find((discrimination) => name.startsWith(discrimination));
+	if (!discriminator) {
+		return [name, undefined];
+	}
+	const gemName = name.slice(discriminator.length);
+	return [gemName, discriminator.trim()];
+}
+
+export function createGemTradeQueryBody(param: PoeTradeGemRequest) {
+	const [name, discriminator] = splitGemDiscriminator(param.name);
+	return {
+		query: {
+			filters: {
+				misc_filters: {
+					filters: {
+						gem_level: {
+							...(param.min_level !== undefined ? { min: param.min_level } : {}),
+							...(param.max_level !== undefined ? { max: param.max_level } : {})
+						},
+						...(param.corrupted !== undefined
+							? {
+									corrupted: {
+										option: param.corrupted ? 'true' : 'false'
+									}
+							  }
+							: {})
+					}
+				},
+				trade_filters: {
+					filters: {
+						collapse: {
+							option: 'true'
+						}
+					}
+				}
+			},
+			status: {
+				option: 'online'
+			},
+			stats: [
+				{
+					type: 'and',
+					filters: []
+				}
+			],
+			type: {
+				...{ option: name },
+				...(discriminator ? { discriminator: discriminator.toLowerCase() } : {})
+			}
+		},
+		sort: {
+			price: 'asc'
+		}
+	};
+}
