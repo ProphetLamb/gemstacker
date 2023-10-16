@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AnimatedSearchButton from './../lib/client/AnimatedSearchButton.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
 	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
@@ -23,7 +24,7 @@
 	<article class="space-y-10 text-center flex flex-col items-center p-4">
 		<h1 class="h1">
 			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
-				class="bg-clip-text text-transparent bg-gradient-to-tr from-primary-700 to-tertiary-300 via-accent animate-gradient-xy font-extrabold"
+				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-purple-700 to-indigo-600 via-accent animate-gradient-xy font-extrabold"
 				>profit</span
 			>.
 		</h1>
@@ -87,12 +88,7 @@
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
 			</label>
-			<button
-				class="shadow-lg btn variant-filled bg-gradient-to-br hover:from-orange-600 hover:to-amber-200 hover:shadow-orange-400/50 from-indigo-700 to-fuchsia-800 shadow-indigo-500/50 via-accent animate-gradient-x text-2xl"
-				type="submit"
-			>
-				Search
-			</button>
+			<AnimatedSearchButton />
 		</form>
 	</article>
 	<article class="flex flex-col items-center p-4">
@@ -104,7 +100,7 @@
 			{#if $delayed}
 				Loading..
 			{:else if form?.gemProfit}
-				<table class="list w-full">
+				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
 					<tbody>
 						{#each Object.entries(form.gemProfit.data) as [name, data], idx}
 							<tr class="h-12">
@@ -134,3 +130,9 @@
 		</div>
 	</article>
 </div>
+
+<style lang="postcss">
+	span.bg-clip-text {
+		filter: drop-shadow(0 1px 2px var(--tw-shadow-color));
+	}
+</style>
