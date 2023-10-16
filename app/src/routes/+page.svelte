@@ -104,7 +104,7 @@
 					<tbody>
 						{#each Object.entries(form.gemProfit.data) as [name, data], idx}
 							<tr class="h-12">
-								<td>
+								<td class="pr-2">
 									<div class="badge-icon variant-soft-primary h-11 w-11">
 										<img src={``} alt={`${idx + 1}`} />
 									</div>
@@ -117,7 +117,7 @@
 								<td class="align-middle text-right">{data.max.price}c</td>
 								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
 								<td class="align-middle text-left">lvl{data.max.level}</td>
-								<td>
+								<td class="pl-2">
 									<GemTradeQueryButton {data} {name} />
 								</td>
 							</tr>
