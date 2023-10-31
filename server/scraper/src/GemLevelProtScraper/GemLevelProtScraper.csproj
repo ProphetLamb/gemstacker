@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup Label="Build">
+    <TargetFramework>net7.0</TargetFramework>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Disable publishing of a web.config file for IIS when calling dotnet publish. -->
+    <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Docker">
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <Authors>ProphetLamb</Authors>
+    <Company>ProphetLamb</Company>
+    <Product>GemLevelProtApi</Product>
+    <Description>Provides up to date information on gem values at specific levels</Description>
+    <Copyright>Copyright © ProphetLamb. All rights Reserved</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Dawn.Guard" Version="1.12.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
+    <PackageReference Include="ScrapeAAS" Version="0.1.0-hotfix.1" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    <PackageReference Include="Yoh.Text.Json.NamingPolicies" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
