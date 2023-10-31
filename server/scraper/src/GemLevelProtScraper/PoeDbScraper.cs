@@ -9,12 +9,6 @@ using ScrapeAAS;
 
 namespace GemLevelProtScraper;
 
-
-// "PoeDbDatabaseSettings": {
-//   "ConnectionString": "mongodb://localhost:27017",
-//   "DatabaseName": "PoeDb",
-//   "SkillCollectionName": "PoeDbSkill"
-// }
 public sealed class PoeDbDatabaseSettings
 {
     public required string ConnectionString { get; init; }
