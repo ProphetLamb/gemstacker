@@ -24,7 +24,7 @@
 	<article class="space-y-10 text-center flex flex-col items-center p-4">
 		<h1 class="h1">
 			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
-				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-purple-700 to-indigo-600 via-accent animate-gradient-xy font-extrabold"
+				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-indigo-500 to-sky-300 via-accent animate-gradient-xy font-bold"
 				>profit</span
 			>.
 		</h1>
