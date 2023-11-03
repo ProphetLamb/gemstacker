@@ -3,17 +3,31 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using GemLevelProtScraper.Migrations;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper;
 
-public sealed class PoeDbDatabaseSettings
+public sealed record PoeDbDatabaseSettings : IOptions<PoeDbDatabaseSettings>, IDatabaseMigratable
 {
     public required string ConnectionString { get; init; }
     public required string DatabaseName { get; init; }
     public required string SkillCollectionName { get; init; }
+
+    PoeDbDatabaseSettings IOptions<PoeDbDatabaseSettings>.Value => this;
+
+    public DatabaseMigrationSettings GetMigrationSettings()
+    {
+        return new()
+        {
+            ConnectionString = ConnectionString,
+            Database = new(DatabaseAlias.PoeDb, DatabaseName),
+            MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
+        };
+    }
 }
 
 internal sealed record PoeDbRoot(string ActiveSkillUrl);
@@ -36,6 +50,7 @@ internal sealed record PoeDbLink(string Label, string Link);
 
 internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, ImmutableArray<PoeDbLink> Acronyms, string Metadata, ImmutableArray<PoeDbLink> ReferenceUrls);
 
+[BsonIgnoreExtraElements]
 internal sealed record PoeDbSkill(PoeDbSkillName Name, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects);
 
 internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : BackgroundService
