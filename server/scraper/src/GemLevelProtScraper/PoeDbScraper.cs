@@ -69,10 +69,11 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : B
     }
 }
 
-internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IStaticPageLoader pageLoader) : IDataflowHandler<PoeDbRoot>
+internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IStaticPageLoader pageLoader, IMigrationCompletion migrationCompletion) : IDataflowHandler<PoeDbRoot>
 {
     public async ValueTask HandleAsync(PoeDbRoot message, CancellationToken cancellationToken = default)
     {
+        _ = await migrationCompletion.WaitAsync(DatabaseAlias.PoeDb).ConfigureAwait(false);
         var response = await pageLoader.LoadAsync(new(message.ActiveSkillUrl), cancellationToken).ConfigureAwait(false);
         JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
         var skills = await response.ReadFromJsonAsync<PoeDbActiveSkillsResponse>(jsonOptions, cancellationToken).ConfigureAwait(false);

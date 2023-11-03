@@ -87,33 +87,20 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
 internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiGemPrice>
 {
     private readonly IMongoCollection<PoeNinjaApiGemPrice> _gemPriceCollection;
+    private readonly IMigrationCompletion _migrationCompletion;
 
-    public PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> databaseSettingsOptions)
+    public PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> databaseSettingsOptions, IMigrationCompletion migrationCompletion)
     {
         var databaseSettings = databaseSettingsOptions.Value;
         MongoClient mongoClient = new(databaseSettings.ConnectionString);
         var mongoDatabase = mongoClient.GetDatabase(databaseSettings.DatabaseName);
         _gemPriceCollection = mongoDatabase.GetCollection<PoeNinjaApiGemPrice>(databaseSettings.GemPriceCollectionName);
-    }
-
-    private async Task EnsureIndexCreated(CancellationToken cancellationToken)
-    {
-        IndexKeysDefinitionBuilder<PoeNinjaApiGemPrice> builder = new();
-        var combinedIndex = builder.Combine(
-            builder.Hashed(nameof(PoeNinjaApiGemPrice.Name)),
-            builder.Ascending(nameof(PoeNinjaApiGemPrice.GemLevel)),
-            builder.Descending(nameof(PoeNinjaApiGemPrice.GemQuality))
-        );
-        CreateIndexModel<PoeNinjaApiGemPrice> model = new(combinedIndex, new()
-        {
-            Unique = true,
-            Name = "GemIdentifier"
-        });
-        _ = await _gemPriceCollection.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+        _migrationCompletion = migrationCompletion;
     }
 
     public async ValueTask HandleAsync(PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
+        _ = await _migrationCompletion.WaitAsync(DatabaseAlias.PoeNinja).ConfigureAwait(false);
         _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gemPrice
                 => gemPrice.GemLevel == newGemPrice.GemLevel
