@@ -72,6 +72,9 @@ indent_style = tab
 # Default Severity for all .NET Code Style rules below
 dotnet_analyzer_diagnostic.severity = warning
 
+# Use the LoggerMessage delegates
+dotnet_diagnostic.CA1848.severity = suggestion
+
 ##########################################
 # Language Rules
 # https://docs.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/language-rules
@@ -539,4 +542,3 @@ dotnet_diagnostic.SA1101.severity = none
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 ##########################################
-1
