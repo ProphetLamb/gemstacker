@@ -199,7 +199,7 @@ public sealed class RowsView(IHtmlTableElement table, int columnIndex)
 
     public TableRows this[Func<IHtmlTableCellElement, bool> cellPredicate] => new(table.Rows.Select((row, index) => (index, cell: row.Cells[columnIndex])).Where(tuple => cellPredicate(tuple.cell)).ToImmutableArray(), table, columnIndex);
     public TableRows this[ReadOnlyMemory<char> textContent, StringComparison? stringComparison = null] => this[cell => cell.TextContent.AsSpan().Equals(textContent.Span, stringComparison ?? StringComparison.CurrentCultureIgnoreCase)];
-    public TableRows this[string textContent, StringComparison? stringComparison = null] => this[textContent, stringComparison];
+    public TableRows this[string textContent, StringComparison? stringComparison = null] => this[textContent.AsMemory(), stringComparison];
 }
 
 public sealed class TableRows(ImmutableArray<(int Index, IHtmlTableCellElement Cell)> cellsWithIndex, IHtmlTableElement tableElement, int columnIndex) : IEnumerable<IEnumerable<IHtmlTableCellElement>>
