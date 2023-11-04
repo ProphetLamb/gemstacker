@@ -3,32 +3,13 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using GemLevelProtScraper.Migrations;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Migration;
 using ScrapeAAS;
 
-namespace GemLevelProtScraper;
-
-public sealed record PoeDbDatabaseSettings : IOptions<PoeDbDatabaseSettings>, IDatabaseMigratable
-{
-    public required string ConnectionString { get; init; }
-    public required string DatabaseName { get; init; }
-    public required string SkillCollectionName { get; init; }
-
-    PoeDbDatabaseSettings IOptions<PoeDbDatabaseSettings>.Value => this;
-
-    public DatabaseMigrationSettings GetMigrationSettings()
-    {
-        return new()
-        {
-            ConnectionString = ConnectionString,
-            Database = new(DatabaseAlias.PoeDb, DatabaseName),
-            MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
-        };
-    }
-}
+namespace GemLevelProtScraper.PoeDb;
 
 internal sealed record PoeDbRoot(string ActiveSkillUrl);
 
@@ -69,11 +50,10 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : B
     }
 }
 
-internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IStaticPageLoader pageLoader, IMigrationCompletion migrationCompletion) : IDataflowHandler<PoeDbRoot>
+internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IStaticPageLoader pageLoader) : IDataflowHandler<PoeDbRoot>
 {
     public async ValueTask HandleAsync(PoeDbRoot message, CancellationToken cancellationToken = default)
     {
-        _ = await migrationCompletion.WaitAsync(DatabaseAlias.PoeDb).ConfigureAwait(false);
         var response = await pageLoader.LoadAsync(new(message.ActiveSkillUrl), cancellationToken).ConfigureAwait(false);
         JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
         var skills = await response.ReadFromJsonAsync<PoeDbActiveSkillsResponse>(jsonOptions, cancellationToken).ConfigureAwait(false);
@@ -252,20 +232,15 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
     }
 }
 
-internal sealed class PoeDbSink : IDataflowHandler<PoeDbSkill>
+internal sealed class PoeDbSink(IOptions<PoeDbDatabaseSettings> settings, IMongoMigrationCompletion completion) : IDataflowHandler<PoeDbSkill>
 {
-    private readonly IMongoCollection<PoeDbSkill> _skillCollection;
-
-    public PoeDbSink(IOptions<PoeDbDatabaseSettings> databaseSettingsOptions)
-    {
-        var databaseSettings = databaseSettingsOptions.Value;
-        MongoClient mongoClient = new(databaseSettings.ConnectionString);
-        var mongoDatabase = mongoClient.GetDatabase(databaseSettings.DatabaseName);
-        _skillCollection = mongoDatabase.GetCollection<PoeDbSkill>(databaseSettings.SkillCollectionName);
-    }
+    private readonly IMongoCollection<PoeDbSkill> _skillCollection = new MongoClient(settings.Value.ConnectionString)
+            .GetDatabase(settings.Value.DatabaseName)
+            .GetCollection<PoeDbSkill>(settings.Value.SkillCollectionName);
 
     public async ValueTask HandleAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _skillCollection.FindOneAndReplaceAsync(
             skill => skill.Name == newSkill.Name,
             newSkill,

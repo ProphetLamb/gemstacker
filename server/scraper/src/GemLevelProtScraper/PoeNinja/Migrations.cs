@@ -1,16 +1,31 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Migration;
+using MongoDB.Migration.Core;
 
-namespace GemLevelProtScraper.Migrations;
+namespace GemLevelProtScraper.PoeNinja;
 
-public sealed record DatabaseAlias(string Alias, string Name)
+public sealed record PoeNinjaDatabaseSettings : IOptions<PoeNinjaDatabaseSettings>, IMongoMigratable
 {
-    public const string PoeDb = "PoeDb";
-    public const string PoeNinja = "PoeNinja";
+    public required string ConnectionString { get; init; }
+    public required string DatabaseName { get; init; }
+    public required string GemPriceCollectionName { get; init; }
+
+    PoeNinjaDatabaseSettings IOptions<PoeNinjaDatabaseSettings>.Value => this;
+
+    public MongoMigrableDefinition GetMigratableDefinition()
+    {
+        return new()
+        {
+            ConnectionString = ConnectionString,
+            Database = new("PoeNinja", DatabaseName),
+            MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
+        };
+    }
 }
 
-[MigrationDefinition(DatabaseAlias.PoeNinja, 0, 1, Description = $"Add composite index {GemIdentifierIndexName}")]
-public sealed class PoeNinjaAddCompositeIndexMigration(IOptions<PoeNinjaDatabaseSettings> optionsAccessor) : IMigration
+[MongoMigration("PoeNinja", 0, 1, Description = $"Add composite index {GemIdentifierIndexName}")]
+public sealed class PoeNinjaAddCompositeIndexMigration(IOptions<PoeNinjaDatabaseSettings> optionsAccessor) : IMongoMigration
 {
     public const string GemIdentifierIndexName = "GemIdentifier";
 

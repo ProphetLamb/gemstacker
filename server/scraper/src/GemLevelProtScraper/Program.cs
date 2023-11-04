@@ -1,6 +1,8 @@
 using GemLevelProtScraper;
-using GemLevelProtScraper.Migrations;
+using GemLevelProtScraper.PoeDb;
+using GemLevelProtScraper.PoeNinja;
 using MongoDB.Bson.Serialization;
+using MongoDB.Migration;
 using ScrapeAAS;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +14,7 @@ builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
     .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
     .AddMigrations()
-    // .AddHostedService<PoeNinjaScraper>()
+    .AddHostedService<PoeNinjaScraper>()
     .AddHostedService<PoeDbScraper>()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()

@@ -1,32 +1,14 @@
 
 using System.Collections.Immutable;
 using System.Text.Json;
-using GemLevelProtScraper.Migrations;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Migration;
+using MongoDB.Migration.Core;
 using ScrapeAAS;
 
-namespace GemLevelProtScraper;
-
-public sealed record PoeNinjaDatabaseSettings : IOptions<PoeNinjaDatabaseSettings>, IDatabaseMigratable
-{
-    public required string ConnectionString { get; init; }
-    public required string DatabaseName { get; init; }
-    public required string GemPriceCollectionName { get; init; }
-
-    PoeNinjaDatabaseSettings IOptions<PoeNinjaDatabaseSettings>.Value => this;
-
-    public DatabaseMigrationSettings GetMigrationSettings()
-    {
-        return new()
-        {
-            ConnectionString = ConnectionString,
-            Database = new(DatabaseAlias.PoeDb, DatabaseName),
-            MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
-        };
-    }
-}
+namespace GemLevelProtScraper.PoeNinja;
 
 internal sealed record PoeNinjaRoot(string GemPriceUrl);
 
@@ -84,23 +66,15 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
     }
 }
 
-internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiGemPrice>
+internal sealed class PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion migrationCompletion) : IDataflowHandler<PoeNinjaApiGemPrice>
 {
-    private readonly IMongoCollection<PoeNinjaApiGemPrice> _gemPriceCollection;
-    private readonly IMigrationCompletion _migrationCompletion;
-
-    public PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> databaseSettingsOptions, IMigrationCompletion migrationCompletion)
-    {
-        var databaseSettings = databaseSettingsOptions.Value;
-        MongoClient mongoClient = new(databaseSettings.ConnectionString);
-        var mongoDatabase = mongoClient.GetDatabase(databaseSettings.DatabaseName);
-        _gemPriceCollection = mongoDatabase.GetCollection<PoeNinjaApiGemPrice>(databaseSettings.GemPriceCollectionName);
-        _migrationCompletion = migrationCompletion;
-    }
+    private readonly IMongoCollection<PoeNinjaApiGemPrice> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
+        .GetDatabase(settings.Value.DatabaseName)
+        .GetCollection<PoeNinjaApiGemPrice>(settings.Value.GemPriceCollectionName);
 
     public async ValueTask HandleAsync(PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
-        _ = await _migrationCompletion.WaitAsync(DatabaseAlias.PoeNinja).ConfigureAwait(false);
+        _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gemPrice
                 => gemPrice.GemLevel == newGemPrice.GemLevel
