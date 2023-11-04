@@ -249,7 +249,7 @@ internal sealed class PoeDbSink(IOptions<PoeDbDatabaseSettings> settings, IMongo
 
     public async ValueTask HandleAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
-        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _skillCollection.FindOneAndReplaceAsync(
             skill => skill.Name == newSkill.Name,
             newSkill,

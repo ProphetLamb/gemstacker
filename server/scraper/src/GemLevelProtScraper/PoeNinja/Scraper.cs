@@ -73,7 +73,7 @@ internal sealed class PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> settings, 
 
     public async ValueTask HandleAsync(PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
-        _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gemPrice
                 => gemPrice.GemLevel == newGemPrice.GemLevel
