@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Migration;
-using MongoDB.Migration.Core;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeNinja;

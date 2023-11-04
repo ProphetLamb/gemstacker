@@ -99,8 +99,10 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         PoeDbSkill ParseSkill()
         {
             var headers = pane.QuerySelectorAll("div.card > h5.card-header");
-            var qualities = ParseQualitiesTable(GetTableForHeader(headers, skillName, "Unusual Gems", logger)).ToImmutableArray();
-            var skillLevels = ParseLevelsTable(GetTableForHeader(headers, skillName, "Level Effects", logger)).ToImmutableArray();
+            var qualities = TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
+                ? ParseQualitiesTable(qualitiesTable).ToImmutableArray()
+                : ImmutableArray<PoeDbGemQuality>.Empty;
+            var skillLevels = ParseLevelsTable(GetTableForHeader(headers, skillName, "Level Effect", logger)).ToImmutableArray();
             var skillDescription = TryGetHeader(headers, skillName, skillName) is { } header
                 && TryGetTableForHeader(headers, skillName, skillName) is { } descriptionTable
                 ? new PoeDbSkillDescription(header.ParentElement!.Text(), ParseRelatedGemsTable(descriptionTable).ToImmutableArray())
@@ -222,13 +224,13 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
     private static bool IsHeaderTextEqual(IElement header, ReadOnlySpan<char> expectedText)
     {
         return GetHeaderTextValueRegex().Match(header.TextContent ?? "") is { Success: true } match
-            && match.Groups[1].ValueSpan.Equals(expectedText, StringComparison.OrdinalIgnoreCase);
+            && match.Groups[1].ValueSpan.StartsWith(expectedText, StringComparison.OrdinalIgnoreCase);
     }
 
     private static Uri CreatePoeDbSkillPageUrlByName(string name)
     {
         var normalizedName = name.Replace(' ', '_');
-        return new($"https://poedb.tw/{Uri.EscapeDataString(normalizedName)}");
+        return new($"https://poedb.tw/us/{Uri.EscapeDataString(normalizedName)}");
     }
 }
 
