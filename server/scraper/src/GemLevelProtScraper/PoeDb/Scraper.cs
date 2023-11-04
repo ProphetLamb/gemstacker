@@ -103,7 +103,9 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             var qualities = TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
                 ? ParseQualitiesTable(qualitiesTable).ToImmutableArray()
                 : ImmutableArray<PoeDbGemQuality>.Empty;
-            var skillLevels = ParseLevelsTable(GetTableForHeader(headers, skillName, "Level Effect", logger)).ToImmutableArray();
+            var skillLevels = TryGetTableForHeader(headers, skillName, "Level Effect", logger) is { } levelsTable
+                ? ParseLevelsTable(levelsTable).ToImmutableArray()
+                : ImmutableArray<PoeDbSkillLevel>.Empty;
             var skillDescription = TryGetHeader(headers, skillName, skillName) is { } header
                 && TryGetTableForHeader(headers, skillName, skillName) is { } descriptionTable
                 ? new PoeDbSkillDescription(header.ParentElement!.Text(), ParseRelatedGemsTable(descriptionTable).ToImmutableArray())
@@ -168,11 +170,13 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         static PoeDbSkillStats ParseInfoTable(IHtmlTableElement infoTable)
         {
             var titleView = infoTable.ToRowsView(0);
-            var baseType = titleView["BaseType"].Single().First().TextContent;
-            var class_ = titleView["Class"].Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href)).Single();
+            var baseType = titleView.Match("BaseType*").Single().First().TextContent;
+            var class_ = titleView.Match("Class*").Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href)).Single();
             var metadata = titleView["Metadata"].Single().First().TextContent;
-            var acronyms = titleView["Acronym"].Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href));
-            var references = titleView["Reference"].Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href));
+            var acronyms = titleView["Acronym"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
+                ?? Enumerable.Empty<PoeDbLink>();
+            var references = titleView["Reference"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
+                ?? Enumerable.Empty<PoeDbLink>();
             return new(
                 baseType,
                 class_,
