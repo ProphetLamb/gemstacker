@@ -113,7 +113,7 @@ internal abstract class ValueEnumerableSerializerBase<TValue, TItem> : Serialize
 
 internal sealed class ImmutableArraySerializationProvider : IBsonSerializationProvider
 {
-    private static ConcurrentDictionary<Type, Type?> s_serializerTypeCache = new();
+    private static readonly ConcurrentDictionary<Type, Type?> s_serializerTypeCache = new();
 
     [ThreadStatic]
     private static (Type Type, Type? Serializer)? t_lastSerializer;
