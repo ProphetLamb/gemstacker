@@ -175,12 +175,12 @@ public sealed class MaybeTableColumn(TableColumns filter, Func<IEnumerable<IHtml
     public IEnumerable<T?> SelectText<T>(Func<string, T> textSelector, T? defaultValue)
         where T : class
     {
-        return this.Select(cell => cell is null ? defaultValue : textSelector(cell.TextContent));
+        return this.Select(cell => cell is null || string.IsNullOrEmpty(cell.TextContent) ? defaultValue : textSelector(cell.TextContent));
     }
     public IEnumerable<T?> SelectText<T>(Func<string, T> textSelector, T? defaultValue)
         where T : struct
     {
-        return this.Select(cell => cell is null ? defaultValue : textSelector(cell.TextContent));
+        return this.Select(cell => cell is null || string.IsNullOrEmpty(cell.TextContent) ? defaultValue : textSelector(cell.TextContent));
     }
     public IEnumerator<IHtmlTableCellElement?> GetEnumerator()
     {

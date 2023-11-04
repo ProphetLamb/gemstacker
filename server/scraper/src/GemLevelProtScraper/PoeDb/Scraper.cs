@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
@@ -23,9 +24,9 @@ internal sealed record PoeDbSkillRelatedGem(PoeDbSkillName Name, string Text);
 
 internal sealed record PoeDbSkillDescription(string Text, ImmutableArray<PoeDbSkillRelatedGem> RelatedGems);
 
-internal sealed record PoeDbStatRequirements(long? Intelligence, long? Dexterity, long? Strenght);
+internal sealed record PoeDbStatRequirements(double? Intelligence, double? Dexterity, double? Strenght);
 
-internal sealed record PoeDbSkillLevel(long Level, long RequiresLevel, PoeDbStatRequirements Requirements, long? Experience);
+internal sealed record PoeDbSkillLevel(double Level, double RequiresLevel, PoeDbStatRequirements Requirements, double? Experience);
 
 internal sealed record PoeDbLink(string Label, string Link);
 
@@ -88,7 +89,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Fialed to parse skill page");
+            logger.LogError(ex, "Failed to parse skill page");
         }
 
         if (skill is { })
@@ -133,12 +134,12 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         {
             var view = levelEffectsTable.ToView();
             foreach (var (((((level, requiresLevel), intelligence), dexterity), strength), experience) in
-                view["Level"].Single().SelectText(long.Parse)
-                .Zip(view["Requires Level"].Single().SelectText(long.Parse))
-                .Zip(view["Intellegence"].SingleOrDefault().SelectText(long.Parse, null))
-                .Zip(view["Dexternity"].SingleOrDefault().SelectText(long.Parse, null))
-                .Zip(view["Strength"].SingleOrDefault().SelectText(long.Parse, null))
-                .Zip(view["Experience"].SingleOrDefault().SelectText(long.Parse, null))
+                view["Level"].Single().SelectText(ParseDoubleCultured)
+                .Zip(view["Requires Level"].Single().SelectText(ParseDoubleCultured))
+                .Zip(view["Intellegence"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip(view["Dexternity"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip(view["Strength"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip(view["Experience"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
             )
             {
                 yield return new(
@@ -149,6 +150,8 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 );
             }
         }
+
+        static double ParseDoubleCultured(string text) => double.Parse(text, CultureInfo.GetCultureInfo(1033));
 
         static IEnumerable<PoeDbSkillRelatedGem> ParseRelatedGemsTable(IHtmlTableElement relatedGemsTable)
         {
