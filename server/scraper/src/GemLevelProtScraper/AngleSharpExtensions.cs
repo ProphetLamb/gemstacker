@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Immutable;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using DotNet.Globbing;
 
 namespace GemLevelProtScraper;
 
@@ -87,6 +88,12 @@ public sealed class TableView(TableHeaders tableHeaders, IHtmlTableElement table
     public TableColumns this[Func<TableHeaders, IEnumerable<(int, IHtmlTableHeaderCellElement)>> filterHeaders] => new(filterHeaders(tableHeaders).ToImmutableArray(), tableElement);
     public TableColumns this[string headerName, StringComparison? stringComparison = null] => this[col => col.GetIndices(headerName, stringComparison)];
     public TableColumns this[ReadOnlyMemory<char> headerName, StringComparison? stringComparison = null] => this[col => col.GetIndices(headerName, stringComparison)];
+
+    public TableColumns Match(string headerNameGlob)
+    {
+        var glob = Glob.Parse(headerNameGlob);
+        return this[h => h.GetIndices(i => glob.IsMatch(i.TextContent))];
+    }
 }
 
 public sealed class TableColumns(ImmutableArray<(int Index, IHtmlTableHeaderCellElement Cell)> cellsWithIndex, IHtmlTableElement tableElement) : IEnumerable<IEnumerable<IHtmlTableCellElement>>
@@ -200,6 +207,12 @@ public sealed class RowsView(IHtmlTableElement table, int columnIndex)
     public TableRows this[Func<IHtmlTableCellElement, bool> cellPredicate] => new(table.Rows.Select((row, index) => (index, cell: row.Cells[columnIndex])).Where(tuple => cellPredicate(tuple.cell)).ToImmutableArray(), table, columnIndex);
     public TableRows this[ReadOnlyMemory<char> textContent, StringComparison? stringComparison = null] => this[cell => cell.TextContent.AsSpan().Equals(textContent.Span, stringComparison ?? StringComparison.CurrentCultureIgnoreCase)];
     public TableRows this[string textContent, StringComparison? stringComparison = null] => this[textContent.AsMemory(), stringComparison];
+
+    public TableRows Match(string headerNameGlob)
+    {
+        var glob = Glob.Parse(headerNameGlob);
+        return this[h => glob.IsMatch(h.TextContent)];
+    }
 }
 
 public sealed class TableRows(ImmutableArray<(int Index, IHtmlTableCellElement Cell)> cellsWithIndex, IHtmlTableElement tableElement, int columnIndex) : IEnumerable<IEnumerable<IHtmlTableCellElement>>
