@@ -13,6 +13,7 @@ builder.Configuration.AddEnvironmentVariables();
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
 
 var apiKey = builder.Configuration["Authentication:ApiKey"];
+var webShareKey = builder.Configuration["Authentication:WebShareApiKey"];
 
 builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
@@ -30,6 +31,7 @@ builder.Services
         .AddDataFlow<PoeDbSkillNameSpider>()
         .AddDataFlow<PoeDbSkillSpider>()
         .AddDataFlow<PoeDbSink>()
+        .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
     )
     .AddHttpContextAccessor()
     .AddMemoryCache()
