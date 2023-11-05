@@ -208,10 +208,30 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             && match.Groups[1].ValueSpan.StartsWith(expectedText, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static Uri CreatePoeDbSkillPageUrlByName(string name)
+    private static Uri CreatePoeDbSkillPageUrlByName(ReadOnlySpan<char> name)
     {
-        var normalizedName = name.Replace(' ', '_');
-        return new($"https://poedb.tw/us/{Uri.EscapeDataString(normalizedName)}");
+        Span<char> normalizedName = stackalloc char[name.Length];
+        var normalizedNameIndex = 0;
+        for (var nameIndex = 0; nameIndex < name.Length; nameIndex++)
+        {
+            var ch = name[nameIndex];
+            if (char.IsWhiteSpace(ch))
+            {
+                normalizedName[normalizedNameIndex] = '_';
+                normalizedNameIndex++;
+                continue;
+            }
+            if (char.IsAscii(ch))
+            {
+                normalizedName[normalizedNameIndex] = ch;
+                normalizedNameIndex++;
+                continue;
+            }
+        }
+
+        var normalizedNameString = normalizedName[..normalizedNameIndex].ToString();
+
+        return new($"https://poedb.tw/us/{Uri.EscapeDataString(normalizedNameString)}");
     }
 }
 
