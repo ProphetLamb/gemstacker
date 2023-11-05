@@ -58,3 +58,32 @@ public sealed class PoeNinjaAddCompositeIndexMigration(IOptions<PoeNinjaDatabase
         return database.GetCollection<PoeNinjaApiGemPrice>(optionsAccessor.Value.GemPriceCollectionName);
     }
 }
+
+[MongoMigration("PoeNinja", 1, 2, Description = $"Add windcard index {NameWindcardIndexName}")]
+public sealed class PoeNinjaAddNameWildcardIndexMigration(IOptions<PoeNinjaDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public const string NameWindcardIndexName = "NameWildcard";
+
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var gemPriceCollection = GetGemPriceCollection(optionsAccessor, database);
+        await gemPriceCollection.Indexes.DropOneAsync(NameWindcardIndexName, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var gemPriceCollection = GetGemPriceCollection(optionsAccessor, database);
+        IndexKeysDefinitionBuilder<PoeNinjaApiGemPrice> builder = new();
+        var wildcardIndex = builder.Wildcard(p => p.Name);
+        CreateIndexModel<PoeNinjaApiGemPrice> model = new(wildcardIndex, new()
+        {
+            Name = NameWindcardIndexName
+        });
+        _ = await gemPriceCollection.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static IMongoCollection<PoeNinjaApiGemPrice> GetGemPriceCollection(IOptions<PoeNinjaDatabaseSettings> optionsAccessor, IMongoDatabase database)
+    {
+        return database.GetCollection<PoeNinjaApiGemPrice>(optionsAccessor.Value.GemPriceCollectionName);
+    }
+}

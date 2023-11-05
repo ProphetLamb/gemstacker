@@ -4,9 +4,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using MongoDB.Migration;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeDb;
@@ -112,12 +110,12 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         {
             var view = levelEffectsTable.ToView();
             foreach (var (((((level, requiresLevel), intelligence), dexterity), strength), experience) in
-                view["Level"].Single().SelectText(ParseDoubleCultured)
-                .Zip(view["Requires Level"].Single().SelectText(ParseDoubleCultured))
-                .Zip(view["Intelligence"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
-                .Zip(view["Dexterity"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
-                .Zip(view["Strength"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
-                .Zip(view["Experience"].SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                view["Level"].Single().SelectText(ParseDecimalCultured)
+                .Zip(view["Requires Level"].Single().SelectText(ParseDecimalCultured))
+                .Zip(view["Intelligence"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["Dexterity"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["Strength"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["Experience"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
             )
             {
                 yield return new(
@@ -129,7 +127,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             }
         }
 
-        static double ParseDoubleCultured(string text) => double.Parse(text, CultureInfo.GetCultureInfo(1033));
+        static decimal ParseDecimalCultured(string text) => decimal.Parse(text, CultureInfo.GetCultureInfo(1033));
 
         static IEnumerable<PoeDbSkillRelatedGem> ParseRelatedGemsTable(IHtmlTableElement relatedGemsTable)
         {
@@ -217,20 +215,10 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
     }
 }
 
-internal sealed class PoeDbSink(IOptions<PoeDbDatabaseSettings> settings, IMongoMigrationCompletion completion) : IDataflowHandler<PoeDbSkill>
+internal sealed class PoeDbSink(PoeDbRepository repository) : IDataflowHandler<PoeDbSkill>
 {
-    private readonly IMongoCollection<PoeDbSkill> _skillCollection = new MongoClient(settings.Value.ConnectionString)
-            .GetDatabase(settings.Value.DatabaseName)
-            .GetCollection<PoeDbSkill>(settings.Value.SkillCollectionName);
-
     public async ValueTask HandleAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
-        // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
-        _ = await _skillCollection.FindOneAndReplaceAsync(
-            skill => skill.Name == newSkill.Name,
-            newSkill,
-            new() { IsUpsert = true },
-            cancellationToken
-        ).ConfigureAwait(false);
+        _ = await repository.AddOrUpdateAsync(newSkill, cancellationToken).ConfigureAwait(false);
     }
 }

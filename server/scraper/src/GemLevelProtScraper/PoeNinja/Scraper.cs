@@ -1,7 +1,4 @@
 using System.Text.Json;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
-using MongoDB.Migration;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeNinja;
@@ -40,23 +37,10 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
     }
 }
 
-internal sealed class PoeNinjaSink(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion migrationCompletion) : IDataflowHandler<PoeNinjaApiGemPrice>
+internal sealed class PoeNinjaSink(PoeNinjaRepository repository) : IDataflowHandler<PoeNinjaApiGemPrice>
 {
-    private readonly IMongoCollection<PoeNinjaApiGemPrice> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
-        .GetDatabase(settings.Value.DatabaseName)
-        .GetCollection<PoeNinjaApiGemPrice>(settings.Value.GemPriceCollectionName);
-
     public async ValueTask HandleAsync(PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
-        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
-        _ = await _gemPriceCollection.FindOneAndReplaceAsync(
-            gemPrice
-                => gemPrice.GemLevel == newGemPrice.GemLevel
-                && gemPrice.GemQuality == newGemPrice.GemQuality
-                && gemPrice.Name == newGemPrice.Name,
-            newGemPrice,
-            new() { IsUpsert = true },
-            cancellationToken
-        ).ConfigureAwait(false);
+        _ = await repository.AddOrUpdateAsync(newGemPrice, cancellationToken).ConfigureAwait(false);
     }
 }

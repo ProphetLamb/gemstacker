@@ -1,11 +1,5 @@
-using System;
 using System.Collections.Immutable;
-using System.Text.Json;
-using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-using MongoDB.Migration;
-using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeNinja;
 
