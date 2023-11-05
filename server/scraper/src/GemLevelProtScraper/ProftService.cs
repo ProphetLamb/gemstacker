@@ -45,7 +45,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         var gemData = await gemDataTask.ConfigureAwait(false);
 
         var eligiblePrices = gemPrices
-            .Where(p => p.ChaosValue <= request.MaxBuyPriceChaos && p.ChaosValue >= request.MinSellPriceChaos)
+            .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
             .ToImmutableArray();
         if (eligiblePrices.IsDefaultOrEmpty || gemPrices.Count == 0)
         {
