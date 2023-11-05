@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
 using ScrapeAAS;
+using Yoh.Text.Json.NamingPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
@@ -32,7 +33,13 @@ builder.Services
     )
     .AddHttpContextAccessor();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
+        o.JsonSerializerOptions.AllowTrailingCommas = true;
+    });
 
 builder.Services
     .AddAuthentication()
