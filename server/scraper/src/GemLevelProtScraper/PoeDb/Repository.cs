@@ -1,3 +1,4 @@
+using DotNet.Globbing;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Migration;
@@ -21,9 +22,27 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string skillNameWildcard, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string skillName, CancellationToken cancellationToken = default)
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
-        return await _skillCollection.Aggregate().Search(Builders<PoeDbSkill>.Search.Wildcard(s => s.Name.Name, skillNameWildcard)).ToListAsync(cancellationToken).ConfigureAwait(false);
+        return await _skillCollection.Find(s => s.Name.Name == skillName).ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameGlobAsync(string nameWildcard, CancellationToken cancellationToken)
+    {
+        if (!nameWildcard.ContainsGlobChars())
+        {
+            return await GetByNameAsync(nameWildcard, cancellationToken).ConfigureAwait(false);
+        }
+        var names = await ListNamesAsync(cancellationToken).ConfigureAwait(false);
+        var nameGlob = Glob.Parse(nameWildcard);
+        var validNamed = names.Where(nameGlob.IsMatch).Distinct();
+        var dataList = await Task.WhenAll(validNamed.Select(n => GetByNameAsync(nameWildcard, cancellationToken))).ConfigureAwait(false);
+        return dataList.SelectMany(p => p).ToArray();
+    }
+
+    internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _skillCollection.Find(s => true).Project(s => s.Name.Name).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 }

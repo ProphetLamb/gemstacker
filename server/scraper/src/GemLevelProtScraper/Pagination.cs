@@ -8,6 +8,15 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace GemLevelProtScraper;
 
+public static class PagerExtensions
+{
+    public static IServiceCollection AddPager(this IServiceCollection services)
+    {
+        services.Add(new ServiceDescriptor(typeof(Pager<>), typeof(Pager<>), ServiceLifetime.Transient));
+        return services;
+    }
+}
+
 public sealed class Pager<TItem>(IMemoryCache pageCollectionCache)
 {
     public Page<TItem> Get(Guid pagerId, int pageNumber)

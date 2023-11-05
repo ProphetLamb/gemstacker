@@ -18,11 +18,11 @@ builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
     .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
     .AddMigrations()
-    .AddTransient<ProfitService>()
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaRepository>()
-    .AddHostedService<PoeNinjaScraper>()
-    .AddHostedService<PoeDbScraper>()
+    .AddTransient<ProfitService>()
+    // .AddHostedService<PoeNinjaScraper>()
+    // .AddHostedService<PoeDbScraper>()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .AddDataFlow<PoeNinjaSpider>()
@@ -31,7 +31,9 @@ builder.Services
         .AddDataFlow<PoeDbSkillSpider>()
         .AddDataFlow<PoeDbSink>()
     )
-    .AddHttpContextAccessor();
+    .AddHttpContextAccessor()
+    .AddMemoryCache()
+    .AddPager();
 
 builder.Services
     .AddControllers()
@@ -52,7 +54,7 @@ app
         HttpContext context,
         [FromServices] ProfitService profitService,
         [FromServices] Pager<ProfitResponse> pager,
-        [FromQuery] ProfitRequest request,
+        [AsParameters] ProfitRequest request,
         [FromQuery(Name = "pager_id")] Guid? maybePagerId = null,
         [FromQuery(Name = "page_number")] int? maybePageNumber = null,
         [FromQuery(Name = "page_size")] int pageSize = 25,

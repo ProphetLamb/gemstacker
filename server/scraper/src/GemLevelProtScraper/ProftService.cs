@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using DotNet.Globbing;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using Microsoft.AspNetCore.Mvc;
@@ -38,8 +39,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 {
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
     {
-        var gemPricesTask = poeNinjaRepository.GetByNameAsync(request.GemNameWindcard, cancellationToken);
-        var gemDataTask = poeDbRepository.GetByNameAsync(request.GemNameWindcard, cancellationToken);
+        var gemPricesTask = poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken);
+        var gemDataTask = poeDbRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken);
         var gemPrices = await gemPricesTask.ConfigureAwait(false);
         var gemData = await gemDataTask.ConfigureAwait(false);
 
@@ -55,29 +56,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             eligiblePrices,
             d => d.Name.Name,
             p => p.Name,
-            (d, p) =>
-            {
-                var pricesWithExperience = p
-                    .Where(p => !p.Corrupted && p.ListingCount >= 4)
-                    .OrderBy(p => p.ChaosValue)
-                    .Select(p => (
-                        p,
-                        d.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
-                    ))
-                    .ToImmutableArray();
-                var (min, minExp) = pricesWithExperience.First();
-                var (max, maxExp) = pricesWithExperience.Last();
-                var deltaExp = maxExp - minExp;
-                var deltaPrice = max.ChaosValue - min.ChaosValue;
-                var margin = deltaExp == 0 ? 0 : deltaPrice * 1000000 / deltaExp;
-                return (
-                    Margin: margin,
-                    Min: (Data: min, Exp: minExp),
-                    Max: (Data: max, Exp: maxExp),
-                    Data: d
-                );
-            }
-        );
+            ComputeSkillGainMargin);
 
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
@@ -97,5 +76,27 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
+        static (decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data) ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        {
+            var pricesWithExperience = prices
+                .Where(p => !p.Corrupted && p.ListingCount >= 4)
+                .OrderBy(p => p.ChaosValue)
+                .Select(p => (
+                    p,
+                    skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
+                ))
+                .ToImmutableArray();
+            var (min, minExp) = pricesWithExperience.First();
+            var (max, maxExp) = pricesWithExperience.Last();
+            var deltaExp = maxExp - minExp;
+            var deltaPrice = max.ChaosValue - min.ChaosValue;
+            var margin = deltaExp == 0 ? 0 : deltaPrice * 1000000 / deltaExp;
+            return (
+                margin,
+                (min, minExp),
+                (max, maxExp),
+                skill
+            );
+        }
     }
 }
