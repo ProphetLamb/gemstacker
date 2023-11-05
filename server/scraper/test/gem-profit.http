@@ -1,2 +1,2 @@
-GET http://localhost:5000/gem-profit?gem_name=Enlighten*
+GET http://localhost:5000/gem-profit?gem_name=*Multiple Projectiles*
 Authorization: Token dGVzdA==

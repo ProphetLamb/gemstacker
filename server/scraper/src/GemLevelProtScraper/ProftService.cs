@@ -56,7 +56,9 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             eligiblePrices,
             d => d.Name.Name,
             p => p.Name,
-            ComputeSkillGainMargin);
+            ComputeSkillGainMargin
+        )
+            .SelectTruthy(t => t);
 
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
@@ -66,7 +68,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             Max = FromPrice(t.Max.Data, t.Max.Exp)
         });
 
-        return responses.ToImmutableArray();
+        var result = responses.ToImmutableArray();
+        return result;
 
         static ProfitLevelResponse FromPrice(PoeNinjaApiGemPrice price, decimal exp) => new()
         {
@@ -76,7 +79,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
-        static (decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data) ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        static (decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data)? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
         {
             var pricesWithExperience = prices
                 .Where(p => !p.Corrupted && p.ListingCount >= 4)
@@ -86,6 +89,10 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
                     skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
                 ))
                 .ToImmutableArray();
+            if (pricesWithExperience.IsDefaultOrEmpty)
+            {
+                return null;
+            }
             var (min, minExp) = pricesWithExperience.First();
             var (max, maxExp) = pricesWithExperience.Last();
             var deltaExp = maxExp - minExp;

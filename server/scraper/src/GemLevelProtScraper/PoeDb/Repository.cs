@@ -37,7 +37,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         var names = await ListNamesAsync(cancellationToken).ConfigureAwait(false);
         var nameGlob = Glob.Parse(nameWildcard);
         var validNamed = names.Where(nameGlob.IsMatch).Distinct();
-        var dataList = await Task.WhenAll(validNamed.Select(n => GetByNameAsync(nameWildcard, cancellationToken))).ConfigureAwait(false);
+        var dataList = await Task.WhenAll(validNamed.Select(n => GetByNameAsync(n, cancellationToken))).ConfigureAwait(false);
         return dataList.SelectMany(p => p).ToArray();
     }
 

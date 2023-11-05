@@ -1,0 +1,2 @@
+GET http://localhost:5000/gem-profit?gem_name=*Multiple+Projectiles*&pager_id=7873c8c8-544b-4756-9dae-55ae5d12cf23&page_number=1
+Authorization: Token dGVzdA==

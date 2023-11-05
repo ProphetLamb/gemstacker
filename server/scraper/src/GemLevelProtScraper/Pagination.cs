@@ -61,7 +61,7 @@ internal sealed class PageCollection<TItem>(
 ) : IEnumerable<Page<TItem>>
 {
 
-    public Page<TItem>? this[int pageIndex] => pageIndex == Math.Clamp(pageIndex, 0, pages.Length - 1)
+    public Page<TItem>? this[int pageIndex] => (uint)pageIndex < (uint)pages.Length
         ? GetPage(pageIndex)
         : null;
 
@@ -141,7 +141,7 @@ public interface IPaginatable
 public sealed class RequestQueryPaginatable(Uri requestBaseUrl, string pagerIdQueryName, string pageNumberQueryName) : IPaginatable
 {
     public const string DefaultPagerIdQueryName = "pager_id";
-    public const string DefaultPageNumberQueryName = "page_numer";
+    public const string DefaultPageNumberQueryName = "page_index";
 
     public RequestQueryPaginatable(Uri requestBaseUri)
         : this(requestBaseUri, DefaultPagerIdQueryName, DefaultPageNumberQueryName)
@@ -160,10 +160,11 @@ public sealed class RequestQueryPaginatable(Uri requestBaseUrl, string pagerIdQu
 
     public Uri CreatePageUrl(Guid pagerId, int pageIndex)
     {
+        var pageNumber = pageIndex + 1;
         UriBuilder builder = new(requestBaseUrl);
         var query = HttpUtility.ParseQueryString(builder.Query);
         query.Add(pagerIdQueryName, pagerId.ToString());
-        query.Add(pageNumberQueryName, pageIndex.ToString(CultureInfo.InvariantCulture));
+        query.Add(pageNumberQueryName, pageNumber.ToString(CultureInfo.InvariantCulture));
         builder.Query = query.ToString();
         return builder.Uri;
     }

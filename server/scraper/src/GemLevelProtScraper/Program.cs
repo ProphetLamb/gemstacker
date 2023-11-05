@@ -21,8 +21,8 @@ builder.Services
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaRepository>()
     .AddTransient<ProfitService>()
-    // .AddHostedService<PoeNinjaScraper>()
-    // .AddHostedService<PoeDbScraper>()
+    .AddHostedService<PoeNinjaScraper>()
+    .AddHostedService<PoeDbScraper>()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .AddDataFlow<PoeNinjaSpider>()
