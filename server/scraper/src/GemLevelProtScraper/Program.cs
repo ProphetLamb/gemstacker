@@ -26,11 +26,14 @@ builder.Services
         .AddDataFlow<PoeDbSkillSpider>()
         .AddDataFlow<PoeDbSink>()
     )
-    .AddHttpContextAccessor()
-    .AddControllers();
+    .AddHttpContextAccessor();
+
+builder.Services.AddControllers();
+
 builder.Services
     .AddAuthentication()
     .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("token", o => o.ApiKey = apiKey);
+
 var app = builder.Build();
 
 app
