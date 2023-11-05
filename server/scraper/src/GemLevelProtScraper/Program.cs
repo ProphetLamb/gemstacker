@@ -10,6 +10,8 @@ builder.Configuration.AddEnvironmentVariables();
 
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
 
+var apiKey = builder.Configuration["Authentication:ApiKey"];
+
 builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
     .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
@@ -23,7 +25,17 @@ builder.Services
         .AddDataFlow<PoeDbSkillNameSpider>()
         .AddDataFlow<PoeDbSkillSpider>()
         .AddDataFlow<PoeDbSink>()
-    );
-
+    )
+    .AddHttpContextAccessor()
+    .AddControllers();
+builder.Services
+    .AddAuthentication()
+    .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("token", o => o.ApiKey = apiKey);
 var app = builder.Build();
+
+app
+    .MapGet("gem-profit", () =>
+    {
+        ;
+    });
 app.Run();

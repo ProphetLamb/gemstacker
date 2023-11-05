@@ -26,8 +26,10 @@
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
     <PackageReference Include="DotNet.Glob" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Cors" Version="4.2.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
-    <PackageReference Include="ScrapeAAS" Version="0.1.0-hotfix.1" />
+    <PackageReference Include="ScrapeAAS" Version="0.1.1" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Yoh.Text.Json.NamingPolicies" Version="1.0.0" />
   </ItemGroup>
