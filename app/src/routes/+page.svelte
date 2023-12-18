@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import AnimatedSearchButton from './../lib/client/AnimatedSearchButton.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
@@ -102,7 +103,10 @@
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
 			{#if $delayed}
-				Loading..
+				<div class="flex flex-row items-center">
+					<ProgressRadial stroke={10} value={undefined} class="w-4" />
+					<span class="ml-2 text-center">Loading...</span>
+				</div>
 			{:else if form?.gemProfit}
 				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
 					<tbody>
