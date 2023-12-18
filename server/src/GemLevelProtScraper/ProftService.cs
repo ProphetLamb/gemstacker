@@ -34,10 +34,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 {
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
     {
-        var gemPricesTask = poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken);
-        var gemDataTask = poeDbRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken);
-        var gemPrices = await gemPricesTask.ConfigureAwait(false);
-        var gemData = await gemDataTask.ConfigureAwait(false);
+        var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
 
         var eligiblePrices = gemPrices
             .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
@@ -46,6 +43,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         {
             return ImmutableArray<ProfitResponse>.Empty;
         }
+
+        var gemData = await poeDbRepository.GetByNameListAsync(eligiblePrices.Select(p => p.Name), cancellationToken).ConfigureAwait(false);
 
         var eligibleGemsWithPrices = gemData.GroupJoin(
             eligiblePrices,
