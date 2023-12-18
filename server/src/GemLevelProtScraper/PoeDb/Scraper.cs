@@ -84,7 +84,9 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 && TryGetTableForHeader(headers, skillName, skillName) is { } descriptionTable
                 ? new PoeDbSkillDescription(header.ParentElement!.Text(), ParseRelatedGemsTable(descriptionTable).ToImmutableArray())
                 : null;
-            var skillStats = pane.QuerySelector(":scope > table.table") is IHtmlTableElement infoTable
+            var skillStats = TryGetTableForHeader(headers, skillName, "Attribute", logger) is { } attributeTable
+                ? ParseInfoTable(attributeTable)
+                : pane.QuerySelector(":scope > table.table") is IHtmlTableElement infoTable
                 ? ParseInfoTable(infoTable)
                 : throw new InvalidOperationException("Missing skill stats table");
 
