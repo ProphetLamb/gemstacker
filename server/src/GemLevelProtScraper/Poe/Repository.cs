@@ -14,17 +14,17 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings)
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _leagueCollection.FindOneAndReplaceAsync(
-            league => league.Mode == newLeague.Mode,
+            league => league.Mode == newLeague.Mode && league.Realm == newLeague.Realm,
             newLeague,
             new() { IsUpsert = true },
             cancellationToken
         ).ConfigureAwait(false);
     }
 
-    internal async Task<PoeLeauge?> GetByModeAsync(LeaugeMode mode, CancellationToken cancellationToken = default)
+    internal async Task<PoeLeauge?> GetByModeAndRealmAsync(LeaugeMode mode, Realm realm, CancellationToken cancellationToken = default)
     {
         return await _leagueCollection
-            .Find(l => l.Mode == mode)
+            .Find(l => l.Mode == mode && l.Realm == realm)
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
     }
