@@ -18,6 +18,7 @@ public sealed record ProfitResponse
     public required string Icon { get; init; }
     public required ProfitLevelResponse Min { get; init; }
     public required ProfitLevelResponse Max { get; init; }
+    public required decimal GainMargin { get; init; }
 }
 
 public sealed record ProfitLevelResponse
@@ -59,7 +60,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             Name = t.Data.Name.Name,
             Icon = t.Max.Data.Icon ?? t.Min.Data.Icon,
             Min = FromPrice(t.Min.Data, t.Min.Exp),
-            Max = FromPrice(t.Max.Data, t.Max.Exp)
+            Max = FromPrice(t.Max.Data, t.Max.Exp),
+            GainMargin = t.Margin
         });
 
         var result = responses.ToImmutableArray();

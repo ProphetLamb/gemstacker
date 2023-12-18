@@ -17,40 +17,36 @@ export const gemProfitRequestParameterSchema = z.object({
 	items_count: z.number().optional().default(10)
 });
 
+export interface GemProfitResponseItemPrice {
+	price: number;
+	level: number;
+	experience: number;
+}
+
 export interface GemProfitResponseItem {
-	min: {
-		price: number;
-		level: number;
-		exp: number;
-	};
-	max: {
-		price: number;
-		level: number;
-		exp: number;
-	};
+	name: string,
+	icon: string,
+	min: GemProfitResponseItemPrice;
+	max: GemProfitResponseItemPrice;
 	gain_margin: number;
 }
 
+export const gemProfitResponseItemPriceSchema = z.object({
+	price: z.number(),
+	quality: z.number(),
+	level: z.number(),
+	experience: z.number(),
+	listing_count: z.number()
+})
+
 export const gemProfitResponseItemSchema = z.object({
-	min: z.object({
-		price: z.number(),
-		level: z.number(),
-		exp: z.number()
-	}),
-	max: z.object({
-		price: z.number(),
-		level: z.number(),
-		exp: z.number()
-	}),
+	name: z.string(),
+	icon: z.string(),
+	min: gemProfitResponseItemPriceSchema,
+	max: gemProfitResponseItemPriceSchema,
 	gain_margin: z.number()
 });
 
-export interface GemProfitResponse {
-	data: {
-		[key: string]: GemProfitResponseItem;
-	};
-}
+export type GemProfitResponse = GemProfitResponseItem[]
 
-export const gemProfitResponseSchema = z.object({
-	data: z.record(gemProfitResponseItemSchema)
-});
+export const gemProfitResponseSchema = z.array(gemProfitResponseItemSchema)
