@@ -136,10 +136,10 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             foreach (var (((((level, requiresLevel), intelligence), dexterity), strength), experience) in
                 view["Level"].Single().SelectText(ParseDecimalCultured)
                 .Zip(view["Requires Level"].Single().SelectText(ParseDecimalCultured))
-                .Zip((view["Intelligence"] | view["Int"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Dexterity"] | view["Dex"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Strength"] | view["Str"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Experience"] | view["Exp"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["[Ii]nt*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["[Dd]ex*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["[Ss]tr*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip(view["[Ee]xp*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
             )
             {
                 yield return new(
