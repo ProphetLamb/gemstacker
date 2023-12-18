@@ -90,9 +90,14 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             }
             var (min, minExp) = pricesWithExperience.First();
             var (max, maxExp) = pricesWithExperience.Last();
-            var deltaExp = maxExp - minExp;
-            var deltaPrice = max.ChaosValue - min.ChaosValue;
-            var margin = deltaExp == 0 ? 0 : deltaPrice * 1000000 / deltaExp;
+            var requiredExp = maxExp - minExp;
+            var levelEarning = max.ChaosValue - min.ChaosValue;
+            // penalize quality upgrades
+            var qualityCost = Math.Max(0, max.GemQuality - min.GemQuality);
+
+            var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
+
+            var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
             return (
                 margin,
                 (min, minExp),
