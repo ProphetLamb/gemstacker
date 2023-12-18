@@ -121,7 +121,7 @@ export function splitGemDiscriminator(name: string): [string, string | undefined
 	return [gemName, discriminator.trim()];
 }
 
-export function createGemTradeQueryBody(param: PoeTradeGemRequest) {
+export function createGemTradeQueryBody(param: PoeTradeGemRequest & { min_quality?: number, max_quality?: number }) {
 	const [name, discriminator] = splitGemDiscriminator(param.name);
 	return {
 		query: {
@@ -132,12 +132,16 @@ export function createGemTradeQueryBody(param: PoeTradeGemRequest) {
 							...(param.min_level !== undefined ? { min: param.min_level } : {}),
 							...(param.max_level !== undefined ? { max: param.max_level } : {})
 						},
+						quality: {
+							...(param.min_quality !== undefined ? { min: param.min_quality } : {}),
+							...(param.max_quality !== undefined ? { min: param.max_quality } : {})
+						},
 						...(param.corrupted !== undefined
 							? {
-									corrupted: {
-										option: param.corrupted ? 'true' : 'false'
-									}
-							  }
+								corrupted: {
+									option: param.corrupted ? 'true' : 'false'
+								}
+							}
 							: {})
 					}
 				},

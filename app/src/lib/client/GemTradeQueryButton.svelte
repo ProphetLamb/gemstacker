@@ -4,15 +4,32 @@
 
 	export let gemPrice: GemProfitResponseItem;
 
-	let web_trade_url = getTradeQueryUrl();
+	let buyTradeUrl = getTradeQueryUrl(
+		gemPrice.name,
+		gemPrice.min.level,
+		gemPrice.max.level,
+		gemPrice.min.quality
+	);
+	let sellTradeUrl = getTradeQueryUrl(
+		gemPrice.name,
+		gemPrice.max.level,
+		undefined,
+		gemPrice.max.quality
+	);
 
-	function getTradeQueryUrl() {
+	function getTradeQueryUrl(
+		name: string,
+		min_level?: number,
+		max_level?: number,
+		min_quality?: number
+	) {
 		let body = JSON.stringify(
 			createGemTradeQueryBody({
-				name: gemPrice.name,
+				name,
 				corrupted: false,
-				max_level: gemPrice.max.level,
-				min_level: gemPrice.min.level
+				max_level,
+				min_level,
+				min_quality
 			})
 		);
 		let url = `https://www.pathofexile.com/trade/search/Ancestor?q=${body}`;
@@ -20,4 +37,7 @@
 	}
 </script>
 
-<a class="btn variant-soft-success w-[5rem]" href={web_trade_url} target="_blank">Buy</a>
+<div class="btn-group variant-soft-success">
+	<a class="" href={buyTradeUrl} target="_blank">Buy</a>
+	<a class="variant-soft-surface" href={sellTradeUrl} target="_blank">Sell</a>
+</div>
