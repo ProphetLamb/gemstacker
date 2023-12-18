@@ -1,19 +1,14 @@
 using System.Collections.Immutable;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GemLevelProtScraper;
 
 public sealed record ProfitRequest
 {
-    [FromQuery(Name = "gem_name")]
-    public string GemNameWindcard { get; init; } = "*";
-    [FromQuery(Name = "min_sell_price_chaos")]
+    public required string GemNameWindcard { get; init; }
     public decimal? MinSellPriceChaos { get; init; }
-    [FromQuery(Name = "max_buy_price_chaos")]
     public decimal? MaxBuyPriceChaos { get; init; }
-    [FromQuery(Name = "min_experience_delta")]
     public decimal? MinExperienceDelta { get; init; }
 }
 

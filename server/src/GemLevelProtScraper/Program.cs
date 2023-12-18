@@ -59,12 +59,22 @@ var app = builder.Build();
 app
     .MapGet("gem-profit", async (
         [FromServices] ProfitService profitService,
-        [AsParameters] ProfitRequest request,
+        [FromQuery(Name = "gem_name")] string gemNameWindcard = "*",
+        [FromQuery(Name = "min_sell_price_chaos")] decimal? minSellPriceChaos = null,
+        [FromQuery(Name = "max_buy_price_chaos")] decimal? maxBuyPriceChaos = null,
+        [FromQuery(Name = "min_experience_delta")] decimal? minExperienceDelta = null,
         CancellationToken cancellationToken = default
     ) =>
     {
+        ProfitRequest request = new()
+        {
+            GemNameWindcard = gemNameWindcard,
+            MinSellPriceChaos = minSellPriceChaos,
+            MaxBuyPriceChaos = maxBuyPriceChaos,
+            MinExperienceDelta = minExperienceDelta
+        };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
         return data;
-    }).CacheOutput("expire30min");
+    }); //.CacheOutput("expire30min")
 app.Run();
 
