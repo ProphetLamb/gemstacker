@@ -1,4 +1,5 @@
 using GemLevelProtScraper;
+using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ var webShareKey = builder.Configuration["Authentication:WebShareApiKey"];
 builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
     .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
+    .Configure<PoeDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDatabaseSettings"))
     .AddMigrations()
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaRepository>()
@@ -31,6 +33,8 @@ builder.Services
         .AddDataFlow<PoeDbSkillNameSpider>()
         .AddDataFlow<PoeDbSkillSpider>()
         .AddDataFlow<PoeDbSink>()
+        .AddDataFlow<PoeLeaguesSpider>()
+        .AddDataFlow<PoeSink>()
         .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
     )
     .AddHttpContextAccessor()
