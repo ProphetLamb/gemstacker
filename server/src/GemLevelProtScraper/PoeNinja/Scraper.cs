@@ -11,7 +11,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaRoot>>();
-            await rootPublisher.PublishAsync(new("https://poe.ninja/api/data/itemoverview?league=Crucible&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new("https://poe.ninja/api/data/itemoverview?league=Affliction&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
@@ -34,7 +34,7 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
         await Task.WhenAll(
             envelope.Lines
                 .Select(gemPrice => gemPublisher.PublishAsync(gemPrice))
-                .SelectTruthy(task => !task.IsCompletedSuccessfully ? task.AsTask() : null)
+                .SelectTruthy(task => task.IsCompletedSuccessfully ? null : task.AsTask())
         ).ConfigureAwait(false);
     }
 }
