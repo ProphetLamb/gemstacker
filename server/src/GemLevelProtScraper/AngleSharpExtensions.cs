@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using DotNet.Globbing;
@@ -98,6 +99,26 @@ public sealed class TableView(TableHeaders tableHeaders, IHtmlTableElement table
 
 public sealed class TableColumns(ImmutableArray<(int Index, IHtmlTableHeaderCellElement Cell)> cellsWithIndex, IHtmlTableElement tableElement) : IEnumerable<IEnumerable<IHtmlTableCellElement>>
 {
+    private ImmutableArray<(int Index, IHtmlTableHeaderCellElement Cell)> CellsWithIndex => cellsWithIndex;
+    public IHtmlTableElement Table => tableElement;
+
+    public TableColumns Concat(TableColumns other)
+    {
+        Debug.Assert(ReferenceEquals(Table, other.Table));
+        var builder = ImmutableArray.CreateBuilder<(int Index, IHtmlTableHeaderCellElement Cell)>(CellsWithIndex.Length + other.CellsWithIndex.Length);
+        builder.AddRange(CellsWithIndex);
+        foreach (var t in other.CellsWithIndex)
+        {
+            if (!builder.Contains(t))
+            {
+                builder.Add(t);
+            }
+        }
+        return new(builder.Capacity == builder.Count ? builder.MoveToImmutable() : builder.ToImmutable(), tableElement);
+    }
+
+    public static TableColumns operator |(TableColumns lhs, TableColumns rhs) => lhs.Concat(rhs);
+
     public IEnumerator<IEnumerable<IHtmlTableCellElement>> GetEnumerator()
     {
         return tableElement.Bodies
