@@ -106,23 +106,23 @@
 			{:else if form?.gemProfit}
 				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
 					<tbody>
-						{#each Object.entries(form.gemProfit.data) as [name, data], idx}
+						{#each form.gemProfit as gemPrice, idx}
 							<tr class="h-12">
 								<td class="pr-2">
 									<div class="badge-icon variant-soft-primary h-11 w-11">
 										<img src={``} alt={`${idx + 1}`} />
 									</div>
 								</td>
-								<td class="flex-auto">{name}</td>
-								<td class="align-middle text-right">{data.min.price}c</td>
+								<td class="flex-auto">{gemPrice.name}</td>
+								<td class="align-middle text-right">{gemPrice.min.price}c</td>
 								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
-								<td class="align-middle text-left">lvl{data.min.level}</td>
+								<td class="align-middle text-left">lvl{gemPrice.min.level}</td>
 								<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
-								<td class="align-middle text-right">{data.max.price}c</td>
+								<td class="align-middle text-right">{gemPrice.max.price}c</td>
 								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
-								<td class="align-middle text-left">lvl{data.max.level}</td>
+								<td class="align-middle text-left">lvl{gemPrice.max.level}</td>
 								<td class="pl-2">
-									<GemTradeQueryButton {data} {name} />
+									<GemTradeQueryButton {gemPrice} />
 								</td>
 							</tr>
 						{/each}
