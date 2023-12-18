@@ -8,6 +8,7 @@ export interface GemProfitRequestParameter {
 	items_offset?: number;
 	items_count?: number;
 }
+
 export const gemProfitRequestParameterSchema = z.object({
 	gem_name: z.string().optional(),
 	min_sell_price_chaos: z.number().optional(),
@@ -19,16 +20,10 @@ export const gemProfitRequestParameterSchema = z.object({
 
 export interface GemProfitResponseItemPrice {
 	price: number;
+	quality: number;
 	level: number;
 	experience: number;
-}
-
-export interface GemProfitResponseItem {
-	name: string,
-	icon: string,
-	min: GemProfitResponseItemPrice;
-	max: GemProfitResponseItemPrice;
-	gain_margin: number;
+	listing_count: number;
 }
 
 export const gemProfitResponseItemPriceSchema = z.object({
@@ -38,6 +33,14 @@ export const gemProfitResponseItemPriceSchema = z.object({
 	experience: z.number(),
 	listing_count: z.number()
 })
+
+export interface GemProfitResponseItem {
+	name: string,
+	icon: string,
+	min: GemProfitResponseItemPrice;
+	max: GemProfitResponseItemPrice;
+	gain_margin: number;
+}
 
 export const gemProfitResponseItemSchema = z.object({
 	name: z.string(),
