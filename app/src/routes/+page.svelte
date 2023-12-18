@@ -104,7 +104,7 @@
 		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
 			{#if $delayed}
 				<div class="flex flex-row items-center">
-					<ProgressRadial stroke={10} value={undefined} class="w-4" />
+					<ProgressRadial stroke={200} value={undefined} class="w-4" />
 					<span class="ml-2 text-center">Loading...</span>
 				</div>
 			{:else if form?.gemProfit}
