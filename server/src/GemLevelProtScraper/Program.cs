@@ -41,13 +41,14 @@ builder.Services
         o.AddPolicy("expire30min", b => b.Cache().Expire(TimeSpan.FromMinutes(30)));
     });
 
-builder.Services
-    .AddControllers()
-    .AddJsonOptions(o =>
-    {
-        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
-        o.JsonSerializerOptions.AllowTrailingCommas = true;
-    });
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
+{
+    o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
+    o.SerializerOptions.AllowTrailingCommas = true;
+    o.SerializerOptions.PropertyNameCaseInsensitive = false;
+    o.SerializerOptions.PropertyNamingPolicy = null;
+    o.SerializerOptions.WriteIndented = true;
+});
 
 builder.Services
     .AddAuthentication()
