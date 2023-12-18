@@ -32,6 +32,12 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         return await _skillCollection.Find(s => s.Name.Name == skillName).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameListAsync(IEnumerable<string> nameList, CancellationToken cancellationToken)
+    {
+        var nameSet = nameList.ToHashSet();
+        return await _skillCollection.Find(s => nameSet.Contains(s.Name.Name)).ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameGlobAsync(string nameWildcard, CancellationToken cancellationToken)
     {
         if (!nameWildcard.ContainsGlobChars() || nameWildcard == "*")
