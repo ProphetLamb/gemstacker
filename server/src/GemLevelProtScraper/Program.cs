@@ -2,6 +2,7 @@ using GemLevelProtScraper;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
 using ScrapeAAS;
@@ -34,8 +35,7 @@ builder.Services
         .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
     )
     .AddHttpContextAccessor()
-    .AddMemoryCache()
-    .AddPager();
+    .AddMemoryCache();
 
 builder.Services
     .AddControllers()
@@ -55,20 +55,19 @@ app
     .MapGet("gem-profit", async (
         HttpContext context,
         [FromServices] ProfitService profitService,
-        [FromServices] Pager<ProfitResponse> pager,
+        [FromServices] IMemoryCache memoryCache,
         [AsParameters] ProfitRequest request,
-        [FromQuery(Name = "pager_id")] Guid? maybePagerId = null,
-        [FromQuery(Name = "page_number")] int? maybePageNumber = null,
         [FromQuery(Name = "page_size")] int pageSize = 25,
         CancellationToken cancellationToken = default
     ) =>
     {
-        if (maybePagerId is { } pagerId && maybePageNumber is { } pageNumger)
+        HttpRequestPaginator<ProfitResponse> paginator = new(memoryCache, context.Request, new() { QueryIdName = "pager_id", QueryIndexName = "pager_index", PageSize = pageSize });
+        if (paginator.TryGetPage(out var page))
         {
-            return pager.Get(pagerId, pageNumger);
+            return page;
         }
-        var response = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        return pager.First(response, pageSize, context.Request, "pager_id", "page_number");
+        var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
+        return paginator.CreatePage(data);
     });
 app.Run();
 

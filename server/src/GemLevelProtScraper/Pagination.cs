@@ -1,196 +1,196 @@
-using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Web;
+using System.Text;
+
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace GemLevelProtScraper;
 
-public static class PagerExtensions
+public sealed record Page<TValue>
 {
-    public static IServiceCollection AddPager(this IServiceCollection services)
+    public required string CurrentUrl { get; init; }
+    public string? PreviousUrl { get; init; }
+    public string? NextUrl { get; init; }
+    public required int PageCount { get; init; }
+    public required int PageSize { get; init; }
+    public required int PageIndex { get; init; }
+    public required int ItemsCount { get; init; }
+    public required IEnumerable<TValue> Items { get; init; }
+}
+
+public sealed class PaginatorOptions
+{
+    public int PageSize { get; init; } = 64;
+    public MemoryCacheEntryOptions MemoryCacheEntryOptions { get; init; } = new()
     {
-        services.Add(new ServiceDescriptor(typeof(Pager<>), typeof(Pager<>), ServiceLifetime.Transient));
-        return services;
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10),
+        SlidingExpiration = TimeSpan.FromMinutes(5)
+    };
+    public string QueryIdName { get; init; } = "pageId";
+    public string QueryIndexName { get; init; } = "pageIndex";
+}
+
+public sealed class HttpRequestPaginator<TValue>(IMemoryCache cache, HttpRequest request, PaginatorOptions? options = null)
+{
+    private readonly HttpRequestPaginator<int, TValue> _paginator = new(cache, request, options);
+
+    public bool TryGetPage([MaybeNullWhen(false)] out Page<TValue> page)
+    {
+        return _paginator.TryGetPage(0, out page);
+    }
+
+
+    public Page<TValue> CreatePage(ImmutableArray<TValue> data)
+    {
+        return _paginator.CreatePage(0, data);
     }
 }
 
-public sealed class Pager<TItem>(IMemoryCache pageCollectionCache)
+public sealed class HttpRequestPaginator<TKey, TValue>(IMemoryCache cache, HttpRequest request, PaginatorOptions? options = null)
+    where TKey : IEquatable<TKey>
 {
-    public Page<TItem> Get(Guid pagerId, int pageNumber)
+    private readonly IMemoryCache _cache = cache;
+    private readonly PaginatorOptions _options = options ?? new();
+    private readonly HttpRequestPaginatable _paginatable = new(request, options ?? new());
+
+    public bool TryGetPage(TKey key, [MaybeNullWhen(false)] out Page<TValue> page)
     {
-        return pageCollectionCache.Get<PageCollection<TItem>>(pagerId) is { } pager
-            ? pager[pageNumber - 1] ?? pager.Empty()
-            : Page<TItem>.Empty(0);
+        if (!_paginatable.TryGetId(out var id) || !_paginatable.TryGetIndex(out var pageIndex))
+        {
+            page = null;
+            return false;
+        }
+
+        if (_cache.TryGetValue(new PaginatorId(id, key), out PageinatorContainer? container))
+        {
+            var data = container!.Data;
+            page = _paginatable.CreatePage(data, id, pageIndex);
+            return true;
+        }
+
+        page = null;
+        return false;
     }
 
-    public Page<TItem> First(IEnumerable<TItem> sequence, int pageSize, IPaginatable paginatable, MemoryCacheEntryOptions? memoryCacheEntryOptions = null)
+    public Page<TValue> CreatePage(TKey key, ImmutableArray<TValue> data)
     {
-        var pagerId = Guid.NewGuid();
-        var pager = pageCollectionCache.Set(
-            pagerId,
-            PageCollection<TItem>.Create(pagerId, sequence, pageSize, paginatable),
-            memoryCacheEntryOptions ?? new()
+        if (!_paginatable.TryGetIndex(out var pageIndex))
+        {
+            pageIndex = 0;
+        }
+        PaginatorId pageId = new(Guid.NewGuid(), key);
+        _cache.Set(pageId, new PageinatorContainer(data), _options.MemoryCacheEntryOptions);
+        return _paginatable.CreatePage(data, pageId.Value, pageIndex);
+    }
+
+    private sealed class PaginatorId(Guid value, TKey key) : IEquatable<PaginatorId>
+    {
+        public Guid Value { get; } = value;
+        public TKey Key { get; } = key;
+
+        public bool Equals(PaginatorId? other)
+        {
+            return other is { } paginatable && paginatable.Value.Equals(Value) && paginatable.Key.Equals(Key);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is PaginatorId other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+    }
+
+    private sealed class PageinatorContainer(ImmutableArray<TValue> data)
+    {
+        public ImmutableArray<TValue> Data { get; } = data;
+    }
+}
+
+public sealed class HttpRequestPaginatable(HttpRequest request, PaginatorOptions options)
+{
+    public PaginatorOptions Options { get; } = options;
+
+    public HttpRequest Request { get; } = request;
+
+    public bool TryGetId(out Guid id)
+    {
+        if (Request.Query.TryGetValue(Options.QueryIdName, out var idValues) && Guid.TryParse(idValues.FirstOrDefault(), out id))
+        {
+            return true;
+        }
+        id = default;
+        return false;
+    }
+    public bool TryGetIndex(out int index)
+    {
+        if (Request.Query.TryGetValue(Options.QueryIndexName, out var indexValues) && int.TryParse(indexValues.FirstOrDefault(), out index))
+        {
+            return true;
+        }
+        index = default;
+        return false;
+    }
+
+    private string CreatePageUrl(Guid id, int pageIndex)
+    {
+        var currentUrl = Request.GetEncodedPathAndQuery();
+        // trim the query string from the url
+        var currentQueryLength = Request.QueryString.Value?.Length ?? 0;
+        var currentUrlWithoutQuery = currentUrl.AsSpan(0, currentUrl.Length - currentQueryLength);
+        // overwrite query id & index parameters
+        var query = Request.Query.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        query[Options.QueryIdName] = id.ToString();
+        query[Options.QueryIndexName] = pageIndex.ToString(CultureInfo.InvariantCulture);
+        var queryString = QueryString.Create(query).Value ?? "";
+        // combine the url and query
+        var urlLength = currentUrlWithoutQuery.Length + 1 + queryString.Length;
+        StringBuilder urlBuilder = new(urlLength);
+        urlBuilder.Append(currentUrlWithoutQuery);
+        urlBuilder.Append(queryString);
+        return urlBuilder.ToString();
+    }
+
+    public Page<TValue> CreatePage<TValue>(ImmutableArray<TValue> data, Guid dataId, int pageIndex)
+    {
+        var previousPageIndex = pageIndex - 1;
+        var nextPageIndex = pageIndex + 1;
+        var pageSize = Options.PageSize;
+        var pageCount = (Math.Max(0, data.Length - 1) / pageSize) + 1;
+        var pageItemsOffset = pageIndex * pageSize;
+        var pageItemsCount = Math.Min(pageSize, data.Length - pageItemsOffset);
+        if (pageCount == 0 || pageItemsOffset >= data.Length)
+        {
+            return new()
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-                SlidingExpiration = TimeSpan.FromMinutes(5)
-            }
-        );
-
-        return pager[0] ?? pager.Empty();
-    }
-
-    public Page<TItem> First(IEnumerable<TItem> sequence, int pageSize, HttpRequest request)
-    {
-        return First(sequence, pageSize, new RequestQueryPaginatable(request));
-    }
-
-    public Page<TItem> First(IEnumerable<TItem> sequence, int pageSize, HttpRequest request, string pagerIdQueryName, string pageNumberQueryName)
-    {
-        return First(sequence, pageSize, new RequestQueryPaginatable(request, pagerIdQueryName, pageNumberQueryName));
-    }
-}
-
-internal sealed class PageCollection<TItem>(
-    Guid pagerId,
-    ImmutableArray<TItem> items,
-    int pageSize,
-    ImmutableArray<Uri> pages
-) : IEnumerable<Page<TItem>>
-{
-
-    public Page<TItem>? this[int pageIndex] => (uint)pageIndex < (uint)pages.Length
-        ? GetPage(pageIndex)
-        : null;
-
-    public Guid PagerId => pagerId;
-
-    public Page<TItem> Empty()
-    {
-        return Page<TItem>.Empty(pageSize) with
-        {
-            FirstPage = pages.FirstOrDefault(),
-            LastPage = pages.LastOrDefault()
-        };
-    }
-
-    public static PageCollection<TItem> Create(Guid pagerId, IEnumerable<TItem> sequence, int pageSize, IPaginatable paginatable)
-    {
-        if (sequence is not ImmutableArray<TItem> items)
-        {
-            items = sequence.ToImmutableArray();
+                CurrentUrl = CreatePageUrl(dataId, pageIndex),
+                PreviousUrl = previousPageIndex < 0 ? null : CreatePageUrl(dataId, previousPageIndex),
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                PageCount = pageCount,
+                ItemsCount = data.Length,
+                Items = Array.Empty<TValue>(),
+            };
         }
-
-        if (items.IsDefaultOrEmpty)
-        {
-            return new(pagerId, items, pageSize, ImmutableArray<Uri>.Empty);
-        }
-        var totalPages = ((items.Length - 1) / pageSize) + 1;
-        var pages = Enumerable.Range(0, totalPages)
-            .Select(p => paginatable.CreatePageUrl(pagerId, p))
-            .ToImmutableArray();
-        return new(pagerId, items, pageSize, pages);
-    }
-
-    public IEnumerator<Page<TItem>> GetEnumerator()
-    {
-        for (var pageIndex = 0; pageIndex < pages.Length; pageIndex += 1)
-        {
-            yield return GetPage(pageIndex);
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    private Page<TItem> GetPage(int pageIndex)
-    {
-        var offset = Math.Clamp(pageIndex * pageSize, 0, items.Length - 1);
-        var length = Math.Clamp(items.Length - offset, 0, pageSize - 1);
-        int? nextIndex = pageIndex + 1 < pages.Length ? pageIndex + 1 : null;
-        int? previousIndex = pageIndex - 1 >= 0 ? pageIndex - 1 : null;
+        Debug.Assert(pageItemsCount > 0);
+        ArraySegment<TValue> slice = new(Unsafe.As<ImmutableArray<TValue>, TValue[]>(ref data), pageItemsOffset, pageItemsCount);
         return new()
         {
-            PageNumber = pageIndex + 1,
+            CurrentUrl = CreatePageUrl(dataId, pageIndex),
+            PreviousUrl = previousPageIndex < 0 ? null : CreatePageUrl(dataId, previousPageIndex),
+            NextUrl = nextPageIndex >= pageCount ? null : CreatePageUrl(dataId, nextPageIndex),
+            PageIndex = pageIndex,
             PageSize = pageSize,
-            TotalPages = pages.Length,
-            TotalRecords = items.Length,
-            FirstPage = pages.First(),
-            LastPage = pages.Last(),
-            NextPage = nextIndex is { } n ? pages[n] : null,
-            PreviousPage = previousIndex is { } p ? pages[p] : null,
-            Data = new ArraySegment<TItem>
-            (
-                Unsafe.As<ImmutableArray<TItem>, TItem[]>(ref items),
-                offset,
-                length
-            )
-        };
-    }
-}
-
-public interface IPaginatable
-{
-    Uri CreatePageUrl(Guid pagerId, int pageIndex);
-}
-
-public sealed class RequestQueryPaginatable(Uri requestBaseUrl, string pagerIdQueryName, string pageNumberQueryName) : IPaginatable
-{
-    public const string DefaultPagerIdQueryName = "pager_id";
-    public const string DefaultPageNumberQueryName = "page_index";
-
-    public RequestQueryPaginatable(Uri requestBaseUri)
-        : this(requestBaseUri, DefaultPagerIdQueryName, DefaultPageNumberQueryName)
-    {
-    }
-
-    public RequestQueryPaginatable(HttpRequest request)
-        : this(request, DefaultPagerIdQueryName, DefaultPageNumberQueryName)
-    {
-    }
-
-    public RequestQueryPaginatable(HttpRequest request, string pagerIdQueryName, string pageNumberQueryName)
-        : this(new Uri(request.GetDisplayUrl()), pagerIdQueryName, pageNumberQueryName)
-    {
-    }
-
-    public Uri CreatePageUrl(Guid pagerId, int pageIndex)
-    {
-        var pageNumber = pageIndex + 1;
-        UriBuilder builder = new(requestBaseUrl);
-        var query = HttpUtility.ParseQueryString(builder.Query);
-        query.Add(pagerIdQueryName, pagerId.ToString());
-        query.Add(pageNumberQueryName, pageNumber.ToString(CultureInfo.InvariantCulture));
-        builder.Query = query.ToString();
-        return builder.Uri;
-    }
-}
-
-public sealed record Page<TItem>
-{
-    public required long PageNumber { get; init; }
-    public required long PageSize { get; init; }
-    public required long TotalPages { get; init; }
-    public required long TotalRecords { get; init; }
-    public Uri? FirstPage { get; set; }
-    public Uri? LastPage { get; set; }
-    public Uri? NextPage { get; set; }
-    public Uri? PreviousPage { get; set; }
-    public required IEnumerable<TItem> Data { get; init; }
-
-    public static Page<TItem> Empty(int pageSize)
-    {
-        return new()
-        {
-            PageNumber = 0,
-            PageSize = pageSize,
-            TotalPages = 0,
-            TotalRecords = 0,
-            Data = Enumerable.Empty<TItem>()
+            PageCount = pageCount,
+            ItemsCount = data.Length,
+            Items = slice.AsReadOnly()
         };
     }
 }
