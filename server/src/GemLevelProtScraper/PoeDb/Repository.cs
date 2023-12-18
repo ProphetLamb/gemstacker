@@ -22,7 +22,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string skillName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
@@ -38,9 +38,13 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         return await _skillCollection.Find(s => nameSet.Contains(s.Name.Name)).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameGlobAsync(string nameWildcard, CancellationToken cancellationToken)
+    internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameGlobAsync(string? nameWildcard, CancellationToken cancellationToken)
     {
-        if (!nameWildcard.ContainsGlobChars() || nameWildcard == "*")
+        if (nameWildcard == "*")
+        {
+            nameWildcard = null;
+        }
+        if (nameWildcard is null || !nameWildcard.ContainsGlobChars())
         {
             return await GetByNameAsync(nameWildcard, cancellationToken).ConfigureAwait(false);
         }
