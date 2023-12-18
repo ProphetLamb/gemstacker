@@ -26,13 +26,22 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
     }
 }
 
-public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IStaticPageLoader pageLoader) : IDataflowHandler<PoeLeaugeList>
+public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IStaticPageLoader pageLoader, IHttpClientFactory httpClientFactory) : IDataflowHandler<PoeLeaugeList>
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
     public async ValueTask HandleAsync(PoeLeaugeList message, CancellationToken cancellationToken = default)
     {
-        Uri apiUrl = new(new Uri(message.ApiUrl), "/trade/data/leagues");
-        var content = await pageLoader.LoadAsync(apiUrl, cancellationToken).ConfigureAwait(false);
+        Uri apiUrl = new($"{message.ApiUrl}/trade/data/leagues");
+        HttpRequestMessage req = new(HttpMethod.Get, apiUrl);
+        req.Headers.Accept.Clear();
+        req.Headers.Accept.Add(new("application/json"));
+        req.Headers.UserAgent.Add(new("OAuth-poe-gemleveling-profit-calculator", "0.1"));
+        using var client = httpClientFactory.CreateClient();
+        var rsp = await client.SendAsync(req, cancellationToken).ConfigureAwait(false);
+        _ = rsp.EnsureSuccessStatusCode();
+        var content = rsp.Content;
+
+        // var content = await pageLoader.LoadAsync(apiUrl, cancellationToken).ConfigureAwait(false);
         var response = await content.ReadFromJsonAsync<PoeLeagueListRepsonse>(_jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 
         var items = response.Result
