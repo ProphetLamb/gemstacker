@@ -15,7 +15,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _skillCollection.FindOneAndReplaceAsync(
-            skill => skill.Name == newSkill.Name,
+            skill => skill.Name.RelativeUrl == newSkill.Name.RelativeUrl,
             newSkill,
             new() { IsUpsert = true },
             cancellationToken
