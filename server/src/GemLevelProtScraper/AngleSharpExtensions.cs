@@ -73,6 +73,11 @@ public sealed class TableHeaders
 
     public IEnumerable<(int Index, IHtmlTableHeaderCellElement Cell)> GetIndices(ReadOnlyMemory<char> headerName, StringComparison? stringComparison = null)
     {
+        if (headerName.Span.ContainsGlobChars())
+        {
+            var glob = Glob.Parse(headerName.ToString());
+            return GetIndices(header => glob.IsMatch(header.TextContent.AsSpan()));
+        }
         return GetIndices(header => header.TextContent.AsSpan().Equals(headerName.Span, stringComparison ?? StringComparison.CurrentCultureIgnoreCase));
     }
     public IEnumerable<(int Index, IHtmlTableHeaderCellElement Cell)> GetIndices(string headerName, StringComparison? stringComparison = null)
