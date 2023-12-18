@@ -75,6 +75,7 @@
 			background-position: center;
 			background-image: url(/background.png);
 			background-repeat: no-repeat;
+			z-index: -1;
 		}
 
 		& > div {
