@@ -35,7 +35,12 @@ builder.Services
         .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
     )
     .AddHttpContextAccessor()
-    .AddMemoryCache();
+    .AddMemoryCache()
+    .AddOutputCache(o =>
+    {
+        o.AddBasePolicy(b => b.Expire(TimeSpan.FromSeconds(10)));
+        o.AddPolicy("expire30min", b => b.Cache().Expire(TimeSpan.FromMinutes(30)));
+    });
 
 builder.Services
     .AddControllers()
@@ -53,21 +58,13 @@ var app = builder.Build();
 
 app
     .MapGet("gem-profit", async (
-        HttpContext context,
         [FromServices] ProfitService profitService,
-        [FromServices] IMemoryCache memoryCache,
         [AsParameters] ProfitRequest request,
-        [FromQuery(Name = "page_size")] int pageSize = 25,
         CancellationToken cancellationToken = default
     ) =>
     {
-        HttpRequestPaginator<ProfitResponse> paginator = new(memoryCache, context.Request, new() { QueryIdName = "pager_id", QueryIndexName = "pager_index", PageSize = pageSize });
-        if (paginator.TryGetPage(out var page))
-        {
-            return page;
-        }
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        return paginator.CreatePage(data);
-    });
+        return data;
+    }).CacheOutput("expire30min");
 app.Run();
 
