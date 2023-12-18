@@ -13,6 +13,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaRoot>>();
             await rootPublisher.PublishAsync(new("https://poe.ninja/api/data/itemoverview?league=Crucible&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
 
+            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
         }
     }
@@ -20,14 +21,15 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
 
 internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaRoot>
 {
+    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
+
     public async ValueTask HandleAsync(PoeNinjaRoot root, CancellationToken cancellationToken = default)
     {
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.GetAsync(root.GemPriceUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         _ = response.EnsureSuccessStatusCode();
         await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
-        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, jsonOptions, cancellationToken).ConfigureAwait(false)
+        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPricesEnvelope");
         await Task.WhenAll(
             envelope.Lines
