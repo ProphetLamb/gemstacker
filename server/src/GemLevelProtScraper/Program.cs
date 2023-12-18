@@ -43,10 +43,9 @@ builder.Services
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
 {
-    o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
     o.SerializerOptions.AllowTrailingCommas = true;
     o.SerializerOptions.PropertyNameCaseInsensitive = false;
-    o.SerializerOptions.PropertyNamingPolicy = null;
+    o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
     o.SerializerOptions.WriteIndented = true;
 });
 
