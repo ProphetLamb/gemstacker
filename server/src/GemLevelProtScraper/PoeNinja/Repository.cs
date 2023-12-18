@@ -25,15 +25,19 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(string skillName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)
     {
         // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(skillName))
+        {
+            return await _gemPriceCollection.Find(FilterDefinition<PoeNinjaApiGemPrice>.Empty).ToListAsync(cancellationToken).ConfigureAwait(false);
+        }
         return await _gemPriceCollection.Find(p => p.Name == skillName).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(string nameWildcard, CancellationToken cancellationToken)
     {
-        if (!nameWildcard.ContainsGlobChars())
+        if (!nameWildcard.ContainsGlobChars() || nameWildcard == "*")
         {
             return await GetByNameAsync(nameWildcard, cancellationToken).ConfigureAwait(false);
         }
