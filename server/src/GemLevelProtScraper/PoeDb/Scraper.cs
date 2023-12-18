@@ -63,7 +63,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to parse skill page");
+            logger.LogError(ex, "Failed to parse skill page {SkillName}", message.Name);
         }
 
         if (skill is { })
