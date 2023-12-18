@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using MongoDB.Driver;
@@ -18,7 +17,7 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : B
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbRoot>>();
             await rootPublisher.PublishAsync(new("https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromHours(4), stoppingToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromHours(12), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
         }
     }
@@ -136,10 +135,10 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             foreach (var (((((level, requiresLevel), intelligence), dexterity), strength), experience) in
                 view["Level"].Single().SelectText(ParseDecimalCultured)
                 .Zip(view["Requires Level"].Single().SelectText(ParseDecimalCultured))
-                .Zip(view["[Ii]nt*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip(view["[Dd]ex*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip(view["[Ss]tr*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip(view["[Ee]xp*"].SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip((view["Int"] | view["Intelligence"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip((view["Dex"] | view["Dexterity"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip((view["Str"] | view["Strength"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                .Zip((view["Exp"] | view["Experience"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
             )
             {
                 yield return new(
