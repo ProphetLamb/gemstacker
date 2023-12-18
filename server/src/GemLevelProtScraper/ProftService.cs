@@ -52,7 +52,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             p => p.Name,
             ComputeSkillGainMargin
         )
-            .SelectTruthy(t => t);
+            .SelectTruthy(t => t)
+            .OrderByDescending(t => t.Margin);
 
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
