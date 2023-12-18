@@ -44,7 +44,19 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
             .Concat(card.QuerySelectorAll("a.gem_green"))
             .Concat(card.QuerySelectorAll("a.gem_red"))
             .OfType<IHtmlAnchorElement>()
-            .Select(a => new PoeDbSkillName(a.TextContent, a.Href));
+            .Select(a => new PoeDbSkillName(a.Text, a.Href))
+            .SelectTruthy(s =>
+            {
+                if (string.IsNullOrWhiteSpace(s.Name))
+                {
+                    return null;
+                }
+                if (!Uri.TryCreate(s.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
+                {
+                    return null;
+                }
+                return s with { RelativeUrl = uri.PathAndQuery };
+            });
         var tasks = items
             .Select(s => activeSkillPublisher.PublishAsync(s, cancellationToken))
             .SelectTruthy(t => t.IsCompletedSuccessfully ? null : t.AsTask());
@@ -161,7 +173,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             var titleView = infoTable.ToRowsView(0);
             var baseType = titleView.Match("BaseType*").Single().First().TextContent;
             var class_ = titleView.Match("Class*").Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href)).Single();
-            var metadata = titleView["Metadata"].Single().First().TextContent;
+            var metadata = titleView["ItemType"].Single().First().TextContent;
             var acronyms = titleView["Acronym"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
                 ?? Enumerable.Empty<PoeDbLink>();
             var references = titleView["Reference"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
