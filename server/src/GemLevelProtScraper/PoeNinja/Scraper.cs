@@ -13,7 +13,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaRoot>>();
             var league = await GetCurrentScTradeLeauge(scope, stoppingToken).ConfigureAwait(false);
-            await rootPublisher.PublishAsync(new($"https://poe.ninja/api/data/itemoverview?league={league.Id}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new($"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
