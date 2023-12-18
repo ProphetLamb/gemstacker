@@ -2,7 +2,6 @@ using GemLevelProtScraper;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
 using ScrapeAAS;
