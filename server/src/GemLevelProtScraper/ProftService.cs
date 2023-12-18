@@ -30,6 +30,8 @@ public sealed record ProfitLevelResponse
     public required long ListingCount { get; init; }
 }
 
+internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data);
+
 public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
 {
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
@@ -75,7 +77,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
-        static (decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data)? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        static ProfitMargin? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
         {
             var pricesWithExperience = prices
                 .Where(p => !p.Corrupted && p.ListingCount >= 4)
@@ -99,7 +101,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
 
             var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
-            return (
+            return new(
                 margin,
                 (min, minExp),
                 (max, maxExp),
