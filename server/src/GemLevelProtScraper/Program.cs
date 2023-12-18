@@ -62,6 +62,7 @@ app
         [FromQuery(Name = "min_sell_price_chaos")] decimal? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] decimal? maxBuyPriceChaos = null,
         [FromQuery(Name = "min_experience_delta")] decimal? minExperienceDelta = null,
+        [FromQuery(Name = "min_listing_count")] int minListingCount = 4,
         CancellationToken cancellationToken = default
     ) =>
     {
@@ -70,7 +71,8 @@ app
             GemNameWindcard = gemNameWindcard,
             MinSellPriceChaos = minSellPriceChaos,
             MaxBuyPriceChaos = maxBuyPriceChaos,
-            MinExperienceDelta = minExperienceDelta
+            MinExperienceDelta = minExperienceDelta,
+            MinimumListingCount = minListingCount
         };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
         return data;

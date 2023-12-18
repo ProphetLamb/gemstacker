@@ -10,6 +10,7 @@ public sealed record ProfitRequest
     public decimal? MinSellPriceChaos { get; init; }
     public decimal? MaxBuyPriceChaos { get; init; }
     public decimal? MinExperienceDelta { get; init; }
+    public int MinimumListingCount { get; init; }
 }
 
 public sealed record ProfitResponse
@@ -48,8 +49,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 
         var gemData = await poeDbRepository.GetByNameListAsync(eligiblePrices.Select(p => p.Name), cancellationToken).ConfigureAwait(false);
 
-        var eligibleGemsWithPrices = gemData.GroupJoin(
-            eligiblePrices,
+        var eligibleGemsWithPrices = gemData.AsParallel().GroupJoin(
+            eligiblePrices.AsParallel(),
             d => d.Name.Name,
             p => p.Name,
             ComputeSkillGainMargin
@@ -77,10 +78,10 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
-        static ProfitMargin? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        ProfitMargin? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
         {
             var pricesWithExperience = prices
-                .Where(p => !p.Corrupted && p.ListingCount >= 4)
+                .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
                 .OrderBy(p => p.ChaosValue)
                 .Select(p => (
                     p,
