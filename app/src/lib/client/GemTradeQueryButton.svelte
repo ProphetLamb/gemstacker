@@ -1,20 +1,18 @@
 <script lang="ts">
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { createGemTradeQueryBody, type PoeTradeGemRequest } from '$lib/pathOfExileApi';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
-	export let data: GemProfitResponseItem;
-	export let name: string;
+	export let gemPrice: GemProfitResponseItem;
 
 	let web_trade_url = getTradeQueryUrl();
 
 	function getTradeQueryUrl() {
 		let body = JSON.stringify(
 			createGemTradeQueryBody({
-				name,
+				name: gemPrice.name,
 				corrupted: false,
-				max_level: data.max.level,
-				min_level: data.min.level
+				max_level: gemPrice.max.level,
+				min_level: gemPrice.min.level
 			})
 		);
 		let url = `https://www.pathofexile.com/trade/search/Ancestor?q=${body}`;
