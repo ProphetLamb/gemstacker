@@ -57,6 +57,6 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
     {
-        return await _skillCollection.Find(s => true).Project(s => s.Name.Name).ToListAsync(cancellationToken).ConfigureAwait(false);
+        return await _skillCollection.Find(FilterDefinition<PoeDbSkill>.Empty).Project(s => s.Name.Name).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 }
