@@ -1,4 +1,5 @@
 using System.Text.Json;
+using GemLevelProtScraper.Poe;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeNinja;
@@ -11,10 +12,20 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaRoot>>();
-            await rootPublisher.PublishAsync(new("https://poe.ninja/api/data/itemoverview?league=Affliction&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            var league = await GetCurrentScTradeLeauge(scope, stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new($"https://poe.ninja/api/data/itemoverview?league={league.Id}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
+        }
+
+        static async Task<PoeLeauge> GetCurrentScTradeLeauge(AsyncServiceScope scope, CancellationToken stoppingToken)
+        {
+            var poeRepository = scope.ServiceProvider.GetRequiredService<PoeRepository>();
+            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<PoeLeagesListInitialSignal>();
+            await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
+            var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(LeaugeMode.Softcore, Realm.Pc, stoppingToken).ConfigureAwait(false);
+            return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException("No currentSoftcoreTradePcLeauge found");
         }
     }
 }

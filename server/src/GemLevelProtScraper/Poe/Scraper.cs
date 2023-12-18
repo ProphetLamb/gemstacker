@@ -5,7 +5,8 @@ using ScrapeAAS;
 namespace GemLevelProtScraper.Poe;
 
 internal record struct PoeLeagueListRepsonse(ImmutableArray<PoeLeagueListResponseItem> Result);
-public sealed record PoeLeagueListResponseItem(string Id, string Realm, string Text);
+internal sealed record PoeLeagueListResponseItem(string Id, string Realm, string Text);
+internal sealed record PoeLeagueListCompleted();
 
 internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {
@@ -14,8 +15,10 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<UpdatePoeLeauges>>();
+            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeaugeList>>();
+            var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeagueListCompleted>>();
             await rootPublisher.PublishAsync(new("https://www.pathofexile.com/api"), stoppingToken).ConfigureAwait(false);
+            await completedPublisher.PublishAsync(new(), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromHours(12), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
@@ -23,10 +26,10 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
     }
 }
 
-public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IStaticPageLoader pageLoader) : IDataflowHandler<UpdatePoeLeauges>
+public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IStaticPageLoader pageLoader) : IDataflowHandler<PoeLeaugeList>
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
-    public async ValueTask HandleAsync(UpdatePoeLeauges message, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeLeaugeList message, CancellationToken cancellationToken = default)
     {
         Uri apiUrl = new(new Uri(message.ApiUrl), "/trade/data/leagues");
         var content = await pageLoader.LoadAsync(apiUrl, cancellationToken).ConfigureAwait(false);

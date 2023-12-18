@@ -35,6 +35,7 @@ builder.Services
         .AddDataFlow<PoeDbSink>()
         .AddDataFlow<PoeLeaguesSpider>()
         .AddDataFlow<PoeSink>()
+        .AddDataFlow<PoeLeagesListInitialSignal>()
         .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
     )
     .AddHttpContextAccessor()
