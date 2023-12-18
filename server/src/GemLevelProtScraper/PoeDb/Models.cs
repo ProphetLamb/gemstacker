@@ -7,7 +7,7 @@ internal sealed record PoeDbRoot(string ActiveSkillUrl);
 
 internal sealed record PoeDbActiveSkillsResponse(ImmutableArray<PoeDbSkillName> Data);
 
-internal sealed record PoeDbSkillName(string Name);
+internal sealed record PoeDbSkillName(string Name, string RelativeUrl);
 
 internal sealed record PoeDbGemQuality(string Type);
 
