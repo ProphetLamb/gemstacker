@@ -1,9 +1,10 @@
 using System.Collections.Immutable;
+using GemLevelProtScraper.Poe;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-internal sealed record PoeNinjaRoot(string GemPriceUrl);
+internal sealed record PoeNinjaRoot(LeaugeMode Mode, string GemPriceUrl);
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<decimal?> Data, decimal TotalChange);
 
