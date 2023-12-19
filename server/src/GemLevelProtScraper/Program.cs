@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using GemLevelProtScraper;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
@@ -51,9 +52,10 @@ builder.Services
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
 {
     o.SerializerOptions.AllowTrailingCommas = true;
-    o.SerializerOptions.PropertyNameCaseInsensitive = false;
+    o.SerializerOptions.PropertyNameCaseInsensitive = true;
     o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
     o.SerializerOptions.WriteIndented = true;
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
 builder.Services
