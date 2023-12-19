@@ -27,20 +27,14 @@ internal abstract class ValueEnumerableSerializerBase<TValue, TItem> : Serialize
 
     protected ValueEnumerableSerializerBase(IBsonSerializer<TItem> itemSerializer)
     {
-        if (itemSerializer is null)
-        {
-            throw new ArgumentNullException(nameof(itemSerializer));
-        }
+        ArgumentNullException.ThrowIfNull(itemSerializer);
 
         _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => itemSerializer);
     }
 
     protected ValueEnumerableSerializerBase(IBsonSerializerRegistry serializerRegistry)
     {
-        if (serializerRegistry is null)
-        {
-            throw new ArgumentNullException(nameof(serializerRegistry));
-        }
+        ArgumentNullException.ThrowIfNull(serializerRegistry);
 
         _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(serializerRegistry.GetSerializer<TItem>);
     }
