@@ -11,9 +11,11 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaRoot>>();
+            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
+            var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
             var league = await GetCurrentPcLeauge(scope, LeaugeMode.Softcore, stoppingToken).ConfigureAwait(false);
             await rootPublisher.PublishAsync(new(LeaugeMode.Softcore, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await completedPublisher.PublishAsync(new(league.Mode), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
@@ -30,11 +32,11 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
     }
 }
 
-internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaRoot>
+internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
 
-    public async ValueTask HandleAsync(PoeNinjaRoot root, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
     {
         var httpClient = httpClientFactory.CreateClient();
         var response = await httpClient.GetAsync(root.GemPriceUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
