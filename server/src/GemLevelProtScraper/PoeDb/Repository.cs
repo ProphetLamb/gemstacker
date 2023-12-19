@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using DotNet.Globbing;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;

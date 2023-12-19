@@ -22,7 +22,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         static async Task<PoeLeauge> GetCurrentPcLeauge(AsyncServiceScope scope, LeaugeMode league, CancellationToken stoppingToken)
         {
             var poeRepository = scope.ServiceProvider.GetRequiredService<PoeRepository>();
-            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<PoeLeagesListInitialSignal>();
+            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
             await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
             var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
             return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException($"No leauge for mode '{league}' found");
