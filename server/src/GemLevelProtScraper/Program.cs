@@ -35,6 +35,7 @@ builder.Services
         .UseDefaultConfiguration()
         .WithLongLivingServiceLifetime(ServiceLifetime.Singleton)
         .AddDataFlow<PoeNinjaSpider>()
+        .AddDataFlow<PoeNinjaCleanup>()
         .AddDataFlow<PoeNinjaSink>()
         .AddDataFlow<PoeDbSkillNameSpider>()
         .AddDataFlow<PoeDbSkillSpider>()
