@@ -69,6 +69,7 @@ var app = builder.Build();
 app
     .MapGet("gem-profit", async (
         [FromServices] ProfitService profitService,
+        [FromQuery(Name = "league")] string league = "",
         [FromQuery(Name = "gem_name")] string gemNameWindcard = "*",
         [FromQuery(Name = "min_sell_price_chaos")] decimal? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] decimal? maxBuyPriceChaos = null,
@@ -77,8 +78,18 @@ app
         CancellationToken cancellationToken = default
     ) =>
     {
+        if (!LeagueModeHelper.TryParse(league, out var leaugeMode))
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Invalid parameter value `league`",
+                Message = $"Failed to parse the league value `{league}`"
+            });
+        }
+
         ProfitRequest request = new()
         {
+            League = leaugeMode,
             GemNameWindcard = gemNameWindcard,
             MinSellPriceChaos = minSellPriceChaos,
             MaxBuyPriceChaos = maxBuyPriceChaos,
@@ -86,7 +97,7 @@ app
             MinimumListingCount = minListingCount
         };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        return data;
+        return Results.Ok(data);
     }); //.CacheOutput("expire30min")
 app.Run();
 

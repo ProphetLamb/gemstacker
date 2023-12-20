@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 
@@ -6,6 +7,7 @@ namespace GemLevelProtScraper;
 
 public sealed record ProfitRequest
 {
+    public required LeaugeMode League { get; init; }
     public required string GemNameWindcard { get; init; }
     public decimal? MinSellPriceChaos { get; init; }
     public decimal? MaxBuyPriceChaos { get; init; }
