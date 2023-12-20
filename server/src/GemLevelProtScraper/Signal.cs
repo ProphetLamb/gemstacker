@@ -1,22 +1,55 @@
+
 using System.Runtime.CompilerServices;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper;
 
-public sealed class DataflowSignal<T> : IDataflowHandler<T>, IAsyncEnumerable<T>
+public sealed class SignalTaskStorage
 {
-    private TaskCompletionSource<T> _tcs = new();
+    private readonly Dictionary<Type, object> _tcsByType = new();
 
+    public TaskCompletionSource<T> GetOrAdd<T>()
+    {
+        lock (_tcsByType)
+        {
+            if (!_tcsByType.TryGetValue(typeof(T), out var tcs))
+            {
+                tcs = new TaskCompletionSource<T>();
+                _tcsByType[typeof(T)] = tcs;
+            }
+            return ((TaskCompletionSource<T>)tcs)!;
+        }
+    }
+
+    public TaskCompletionSource<T>? Replace<T>(T result)
+    {
+        lock (_tcsByType)
+        {
+            if (_tcsByType.TryGetValue(typeof(T), out var tcs))
+            {
+                var existing = ((TaskCompletionSource<T>)tcs)!;
+                _ = existing.TrySetResult(result);
+
+                tcs = new TaskCompletionSource<T>();
+                _tcsByType[typeof(T)] = tcs;
+                return ((TaskCompletionSource<T>)tcs)!;
+            }
+            return null;
+        }
+    }
+}
+
+public sealed class DataflowSignal<T>(SignalTaskStorage storage) : IDataflowHandler<T>, IAsyncEnumerable<T>
+{
     ValueTask IDataflowHandler<T>.HandleAsync(T message, CancellationToken cancellationToken)
     {
-        var tcs = Interlocked.Exchange(ref _tcs, new());
-        _ = tcs.TrySetResult(message);
+        _ = storage.Replace(message);
         return default;
     }
 
     public Task<T> WaitAsync(CancellationToken cancellationToken = default)
     {
-        return _tcs.Task.WaitAsync(cancellationToken);
+        return storage.GetOrAdd<T>().Task.WaitAsync(cancellationToken);
     }
 
     public async Task<T?> WaitAsync(Func<T, bool> predicate, CancellationToken cancellationToken = default)
