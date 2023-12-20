@@ -14,7 +14,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
             var league = await GetCurrentPcLeauge(scope, LeaugeMode.Softcore, stoppingToken).ConfigureAwait(false);
-            await rootPublisher.PublishAsync(new(LeaugeMode.Softcore, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new(league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
             await completedPublisher.PublishAsync(new(league.Mode), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
@@ -25,7 +25,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             var poeRepository = scope.ServiceProvider.GetRequiredService<PoeRepository>();
             var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
-            await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
+            _ = await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
             var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
             return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException($"No leauge for mode '{league}' found");
         }
