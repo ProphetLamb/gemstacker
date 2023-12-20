@@ -69,6 +69,7 @@ var app = builder.Build();
 app
     .MapGet("gem-profit", async (
         [FromServices] ProfitService profitService,
+        [FromServices] PoeRepository poeRepository,
         [FromQuery(Name = "league")] string league = "",
         [FromQuery(Name = "gem_name")] string gemNameWindcard = "*",
         [FromQuery(Name = "min_sell_price_chaos")] decimal? minSellPriceChaos = null,
@@ -78,7 +79,17 @@ app
         CancellationToken cancellationToken = default
     ) =>
     {
-        if (!LeagueModeHelper.TryParse(league, out var leaugeMode))
+        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeaugeMode.League, Realm.Pc, cancellationToken).ConfigureAwait(false);
+        if (baseLeague is null)
+        {
+            return Results.BadRequest(new
+            {
+                Error = "Invalid parameter value `league`",
+                Message = $"Failed to parse the league value `{league}`"
+            });
+        }
+
+        if (!LeagueModeHelper.TryParse(league, baseLeague.Name, out var leaugeMode))
         {
             return Results.BadRequest(new
             {
