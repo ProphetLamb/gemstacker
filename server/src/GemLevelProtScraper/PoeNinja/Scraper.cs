@@ -17,11 +17,12 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             {
                 await PoeLeagueListInitialized(scope, stoppingToken).ConfigureAwait(false);
             }
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
-            var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
-            var league = await GetCurrentPcLeauge(scope, LeaugeMode.Softcore, stoppingToken).ConfigureAwait(false);
-            await rootPublisher.PublishAsync(new(league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
-            await completedPublisher.PublishAsync(new(league.Mode), stoppingToken).ConfigureAwait(false);
+            await Task.WhenAll(
+                ScrapeTradeLeague(scope, LeaugeMode.Softcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeaugeMode.Hardcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeaugeMode.HardcoreRuthless, stoppingToken),
+                ScrapeTradeLeague(scope, LeaugeMode.Standard, stoppingToken)
+            ).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
@@ -39,6 +40,15 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
             _ = await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
+        }
+
+        static async Task ScrapeTradeLeague(AsyncServiceScope scope, LeaugeMode leagueMode, CancellationToken stoppingToken)
+        {
+            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
+            var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
+            var league = await GetCurrentPcLeauge(scope, leagueMode, stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new(league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await completedPublisher.PublishAsync(new(league.Mode), stoppingToken).ConfigureAwait(false);
         }
     }
 }
