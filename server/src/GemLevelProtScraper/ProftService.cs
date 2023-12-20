@@ -35,12 +35,44 @@ internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPric
 
 public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
 {
+    internal static ProfitMargin? ComputeSkillProfitMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+    {
+        var pricesWithExperience = prices
+            .OrderBy(p => p.ChaosValue)
+            .Select(p => (
+                p,
+                skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
+            ))
+            .ToImmutableArray();
+        if (pricesWithExperience.IsDefaultOrEmpty)
+        {
+            return null;
+        }
+        var (min, minExp) = pricesWithExperience.First();
+        var (max, maxExp) = pricesWithExperience.Last();
+        var requiredExp = maxExp - minExp;
+        var levelEarning = max.ChaosValue - min.ChaosValue;
+        // penalize quality upgrades
+        var qualityCost = Math.Max(0, max.GemQuality - min.GemQuality);
+
+        var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
+
+        var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
+        return new(
+            margin,
+            (min, minExp),
+            (max, maxExp),
+            skill
+        );
+    }
+
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
     {
         var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
 
         var eligiblePrices = gemPrices
             .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
+            .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
             .ToImmutableArray();
         if (eligiblePrices.IsDefaultOrEmpty || gemPrices.Count == 0)
         {
@@ -49,12 +81,14 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 
         var gemData = await poeDbRepository.GetByNameListAsync(eligiblePrices.Select(p => p.Name), cancellationToken).ConfigureAwait(false);
 
-        var eligibleGemsWithPrices = gemData.AsParallel().GroupJoin(
-            eligiblePrices.AsParallel(),
-            d => d.Name.Name,
-            p => p.Name,
-            ComputeSkillGainMargin
-        )
+        var eligibleGemsWithPrices = gemData
+            .AsParallel()
+            .GroupJoin(
+                eligiblePrices.AsParallel(),
+                d => d.Name.Name,
+                p => p.Name,
+                ComputeSkillProfitMargin
+            )
             .SelectTruthy(t => t)
             .OrderByDescending(t => t.Margin);
 
@@ -78,36 +112,5 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
-        ProfitMargin? ComputeSkillGainMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
-        {
-            var pricesWithExperience = prices
-                .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
-                .OrderBy(p => p.ChaosValue)
-                .Select(p => (
-                    p,
-                    skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
-                ))
-                .ToImmutableArray();
-            if (pricesWithExperience.IsDefaultOrEmpty)
-            {
-                return null;
-            }
-            var (min, minExp) = pricesWithExperience.First();
-            var (max, maxExp) = pricesWithExperience.Last();
-            var requiredExp = maxExp - minExp;
-            var levelEarning = max.ChaosValue - min.ChaosValue;
-            // penalize quality upgrades
-            var qualityCost = Math.Max(0, max.GemQuality - min.GemQuality);
-
-            var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
-
-            var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
-            return new(
-                margin,
-                (min, minExp),
-                (max, maxExp),
-                skill
-            );
-        }
     }
 }
