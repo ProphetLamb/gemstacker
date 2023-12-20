@@ -114,7 +114,7 @@
 							<tr class="h-12">
 								<td class="pr-2">
 									<div class="badge-icon variant-soft-primary h-11 w-11">
-										<img src={gemPrice.icon} alt={`${idx + 1}`} />
+										<img src={gemPrice.icon} loading="lazy" alt={`${idx + 1}`} />
 									</div>
 								</td>
 								<td class="flex-auto">{gemPrice.name}</td>
