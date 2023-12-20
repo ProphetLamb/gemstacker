@@ -10,7 +10,6 @@ internal sealed record PoeNinjaListCompleted(LeaugeMode Mode);
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<decimal?> Data, decimal TotalChange);
 
-[BsonIgnoreExtraElements]
 internal sealed record PoeNinjaApiGemPrice(
     string Name,
     string Icon,
@@ -23,6 +22,9 @@ internal sealed record PoeNinjaApiGemPrice(
     decimal DivineValue,
     long ListingCount
 );
+
+[BsonIgnoreExtraElements]
+internal sealed record PoeNinjaApiLeaugeGemPrice(LeaugeMode Leauge, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
 internal sealed record PoeNinjaApiGemPricesEnvelope(
     ImmutableArray<PoeNinjaApiGemPrice> Lines
