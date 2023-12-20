@@ -16,10 +16,11 @@ public sealed record ProfitRequest
 public sealed record ProfitResponse
 {
     public required string Name { get; init; }
-    public required string Icon { get; init; }
+    public required string? Icon { get; init; }
     public required ProfitLevelResponse Min { get; init; }
     public required ProfitLevelResponse Max { get; init; }
     public required decimal GainMargin { get; init; }
+    public required string? Discriminator { get; init; }
 }
 
 public sealed record ProfitLevelResponse
@@ -64,10 +65,11 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
             Name = t.Data.Name.Name,
-            Icon = t.Max.Data.Icon ?? t.Min.Data.Icon,
+            Icon = t.Data.IconUrl,
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
-            GainMargin = t.Margin
+            GainMargin = t.Margin,
+            Discriminator = t.Data.Discriminator
         });
 
         var result = responses.ToImmutableArray();
