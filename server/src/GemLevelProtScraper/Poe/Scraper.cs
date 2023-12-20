@@ -56,15 +56,15 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
         static LeaugeMode ParseLeagueModes(string text)
         {
             LeaugeMode mode = default;
-            if (text.StartsWith("Hardcore ", StringComparison.InvariantCultureIgnoreCase))
+            if (EqualsTrimmedOrStartsWith("Hardcore ", text))
             {
                 mode |= LeaugeMode.Hardcore;
             }
-            else if (text.StartsWith("Ruthless ", StringComparison.InvariantCultureIgnoreCase))
+            else if (EqualsTrimmedOrStartsWith("Ruthless ", text))
             {
                 mode |= LeaugeMode.Ruthless;
             }
-            else if (text.StartsWith("HC Ruthless ", StringComparison.InvariantCultureIgnoreCase))
+            else if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
             {
                 mode |= LeaugeMode.HardcoreRuthless;
             }
@@ -73,11 +73,24 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
                 mode |= LeaugeMode.Softcore;
             }
 
-            if (text.EndsWith(" Standard", StringComparison.InvariantCultureIgnoreCase) || text.Equals("Standard", StringComparison.OrdinalIgnoreCase))
+            if (EqualsTrimmedOrEndsWith(" Standard", text))
             {
                 mode |= LeaugeMode.Standard;
             }
             return mode;
+
+            static bool EqualsTrimmedOrStartsWith(string probeWithSpace, string text)
+            {
+                var probeTrimmed = probeWithSpace.AsSpan().Trim();
+                return probeWithSpace.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)
+                    || probeTrimmed.Equals(text, StringComparison.InvariantCultureIgnoreCase);
+            }
+            static bool EqualsTrimmedOrEndsWith(string probeWithSpace, string text)
+            {
+                var probeTrimmed = probeWithSpace.AsSpan().Trim();
+                return probeWithSpace.EndsWith(text, StringComparison.InvariantCultureIgnoreCase)
+                    || probeTrimmed.Equals(text, StringComparison.InvariantCultureIgnoreCase);
+            }
         }
 
         static Realm ParseRealm(string text)
