@@ -69,19 +69,24 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemCloc
 
     public ValueTask HandleAsync(PoeNinjaList message, CancellationToken cancellationToken = default)
     {
-        _startTimestamp[message.League] = clock.UtcNow.UtcDateTime;
+        lock (_startTimestamp)
+        {
+            _startTimestamp[message.League] = clock.UtcNow.UtcDateTime;
+        }
         return default;
     }
 
     public async ValueTask HandleAsync(PoeNinjaListCompleted message, CancellationToken cancellationToken = default)
     {
         var endTs = clock.UtcNow.UtcDateTime;
-        if (!_startTimestamp.TryGetValue(message.League, out var startTs) || startTs > endTs)
+        lock (_startTimestamp)
         {
-            return;
+            if (!_startTimestamp.TryGetValue(message.League, out var startTs) || startTs > endTs)
+            {
+                return;
+            }
+            _ = _startTimestamp.Remove(message.League);
         }
-        _ = _startTimestamp.Remove(message.League);
-
         var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
 
         _ = await repository.RemoveOlderThanAsync(oldestTs, cancellationToken).ConfigureAwait(false);
