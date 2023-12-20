@@ -36,18 +36,20 @@ export const gemProfitResponseItemPriceSchema = z.object({
 
 export interface GemProfitResponseItem {
 	name: string,
-	icon: string,
+	icon?: string,
 	min: GemProfitResponseItemPrice;
 	max: GemProfitResponseItemPrice;
 	gain_margin: number;
+	discriminator?: string;
 }
 
 export const gemProfitResponseItemSchema = z.object({
 	name: z.string(),
-	icon: z.string(),
+	icon: z.string().optional(),
 	min: gemProfitResponseItemPriceSchema,
 	max: gemProfitResponseItemPriceSchema,
-	gain_margin: z.number()
+	gain_margin: z.number(),
+	discriminator: z.string().optional(),
 });
 
 export type GemProfitResponse = GemProfitResponseItem[]

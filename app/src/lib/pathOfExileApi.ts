@@ -29,7 +29,10 @@ export interface PoeTradeGemRequest {
 	name: string;
 	min_level?: number;
 	max_level?: number;
+	min_quality?: number;
+	max_quality?: number;
 	corrupted?: boolean;
+	discriminator?: string;
 }
 
 export const poeTradeGemRequestSchema = z.object({
@@ -121,8 +124,9 @@ export function splitGemDiscriminator(name: string): [string, string | undefined
 	return [gemName, discriminator.trim()];
 }
 
-export function createGemTradeQueryBody(param: PoeTradeGemRequest & { min_quality?: number, max_quality?: number }) {
-	const [name, discriminator] = splitGemDiscriminator(param.name);
+export function createGemTradeQueryBody(param: PoeTradeGemRequest) {
+	let [name, discriminator] = splitGemDiscriminator(param.name);
+	discriminator = param.discriminator ?? discriminator;
 	return {
 		query: {
 			filters: {
