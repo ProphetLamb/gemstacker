@@ -3,8 +3,21 @@ using MongoDB.Driver;
 
 namespace GemLevelProtScraper.Poe;
 
-public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings)
+public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, DataflowSignal<PoeLeagueListCompleted> poeLeagueListCompleted)
 {
+    private Task? _poeLeagueListCompletedTask = poeLeagueListCompleted.WaitAsync();
+
+    internal Task WaitForLeagueListInitializedAsync(CancellationToken cancellationToken = default)
+    {
+        if (_poeLeagueListCompletedTask is null || _poeLeagueListCompletedTask.IsCompletedSuccessfully)
+        {
+            _poeLeagueListCompletedTask = null;
+            return Task.CompletedTask;
+        }
+
+        return _poeLeagueListCompletedTask.WaitAsync(cancellationToken);
+    }
+
     private readonly IMongoCollection<PoeLeauge> _leagueCollection = new MongoClient(settings.Value.ConnectionString)
             .GetDatabase(settings.Value.DatabaseName)
             .GetCollection<PoeLeauge>(settings.Value.LeaguesCollectionName);
@@ -23,6 +36,7 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings)
 
     internal async Task<PoeLeauge?> GetByModeAndRealmAsync(LeaugeMode mode, Realm realm, CancellationToken cancellationToken = default)
     {
+        await WaitForLeagueListInitializedAsync(cancellationToken).ConfigureAwait(false);
         return await _leagueCollection
             .Find(l => l.Mode == mode && l.Realm == realm)
             .FirstOrDefaultAsync(cancellationToken)

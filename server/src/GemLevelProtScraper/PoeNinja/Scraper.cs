@@ -9,14 +9,9 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var isInitial = true;
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            if (isInitial)
-            {
-                await PoeLeagueListInitialized(scope, stoppingToken).ConfigureAwait(false);
-            }
             await Task.WhenAll(
                 ScrapeTradeLeague(scope, LeaugeMode.League | LeaugeMode.Softcore, stoppingToken),
                 ScrapeTradeLeague(scope, LeaugeMode.League | LeaugeMode.Hardcore, stoppingToken),
@@ -28,7 +23,6 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
-            isInitial = false;
         }
 
         static async Task<PoeLeauge> GetCurrentPcLeauge(AsyncServiceScope scope, LeaugeMode league, CancellationToken stoppingToken)
@@ -37,13 +31,6 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
             return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException($"No leauge for mode '{league}' found");
         }
-
-        static async Task PoeLeagueListInitialized(AsyncServiceScope scope, CancellationToken stoppingToken)
-        {
-            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
-            _ = await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
-        }
-
         static async Task ScrapeTradeLeague(AsyncServiceScope scope, LeaugeMode leagueMode, CancellationToken stoppingToken)
         {
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
