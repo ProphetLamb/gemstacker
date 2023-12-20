@@ -94,30 +94,47 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 
         PoeDbSkill ParseSkill()
         {
+            var image = pane
+                .QuerySelectorAll("div.itemboximage > img")
+                .OfType<IHtmlImageElement>()
+                .Select(img => img.Source)
+                .FirstOrDefault();
+
             var headers = pane.QuerySelectorAll("div.card > h5.card-header");
+
             var qualities = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
                 ? ParseQualitiesTable(qualitiesTable).ToImmutableArray()
                 : ImmutableArray<PoeDbGemQuality>.Empty;
+
             var skillLevels = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Level Effect", logger) is { } levelsTable
                 ? ParseLevelsTable(levelsTable).ToImmutableArray()
                 : ImmutableArray<PoeDbSkillLevel>.Empty;
+
             var skillDescription = PoeDbHtml.TryGetHeader(headers, skillName, skillName) is { } header
                 && PoeDbHtml.TryGetTableForHeader(headers, skillName, skillName) is { } descriptionTable
                 ? new PoeDbSkillDescription(header.ParentElement!.Text(), ParseRelatedGemsTable(descriptionTable).ToImmutableArray())
                 : null;
+
             var skillStats = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Attribute", logger) is { } attributeTable
                 ? ParseInfoTable(attributeTable)
                 : pane.QuerySelector(":scope > table.table") is IHtmlTableElement infoTable
                 ? ParseInfoTable(infoTable)
                 : throw new InvalidOperationException("Missing skill stats table");
 
+            var genus = PoeDbHtml.TryGetHeader(headers, skillName, "Genus", logger) is { } genusHeader
+                ? ParseGenusList(genusHeader)
+                : null;
+
             return new(
                 message,
+                image,
                 skillStats,
                 skillDescription,
                 qualities,
-                skillLevels
+                skillLevels,
+                genus
             );
+
         }
 
         static IEnumerable<PoeDbGemQuality> ParseQualitiesTable(IHtmlTableElement qualitiesTable)
@@ -183,6 +200,23 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 acronyms.ToImmutableArray(),
                 metadata,
                 references.ToImmutableArray()
+            );
+        }
+
+        static PoeDbGenus? ParseGenusList(IHtmlHeadingElement genusHeader)
+        {
+            if (genusHeader.NextElementSibling is not IHtmlDivElement genusBody || !genusBody.ClassList.Contains("card-body"))
+            {
+                return null;
+            }
+
+            var skills = genusBody
+                .QuerySelectorAll(":scope > a")
+                .OfType<IHtmlAnchorElement>()
+                .Select(a => new PoeDbSkillName(a.TextContent, a.Href))
+                .ToImmutableArray();
+            return new(
+                skills
             );
         }
     }

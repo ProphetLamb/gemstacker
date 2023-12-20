@@ -23,6 +23,7 @@ internal sealed record PoeDbLink(string Label, string Link);
 
 internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, ImmutableArray<PoeDbLink> Acronyms, string Metadata, ImmutableArray<PoeDbLink> ReferenceUrls);
 
-[BsonIgnoreExtraElements]
-internal sealed record PoeDbSkill(PoeDbSkillName Name, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects);
+internal sealed record PoeDbGenus(ImmutableArray<PoeDbSkillName> Skills);
 
+[BsonIgnoreExtraElements]
+internal sealed record PoeDbSkill(PoeDbSkillName Name, string? IconUrl, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects, PoeDbGenus? Genus);

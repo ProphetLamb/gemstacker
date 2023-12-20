@@ -50,7 +50,13 @@ public static partial class PoeDbHtml
 
     public static bool IsHeaderTextEqual(IElement header, ReadOnlySpan<char> expectedText)
     {
-        return GetHeaderTextValueRegex().Match(header.TextContent ?? "") is { Success: true } match
+        var input = header.TextContent ?? "";
+        if (input.AsSpan().Equals(expectedText, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return true;
+        }
+
+        return GetHeaderTextValueRegex().Match(input) is { Success: true } match
             && match.Groups[1].ValueSpan.StartsWith(expectedText, StringComparison.OrdinalIgnoreCase);
     }
 }
