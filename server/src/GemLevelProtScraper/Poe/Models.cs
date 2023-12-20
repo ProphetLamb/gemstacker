@@ -23,45 +23,46 @@ public static class LeagueModeHelper
 {
     public static bool TryParse(ReadOnlySpan<char> text, ReadOnlySpan<char> league, out LeaugeMode mode)
     {
-        mode = default;
-        if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
+        mode = LeaugeMode.None;
+        if (IsEqual(text, league))
         {
-            mode |= LeaugeMode.HardcoreRuthless;
+            mode = LeaugeMode.League | LeaugeMode.Softcore;
         }
-        else if (EqualsTrimmedOrStartsWith("Hardcore ", text))
+        else if (IsEqual(text, $"Hardcore {league}"))
         {
-            mode |= LeaugeMode.Hardcore;
+            mode = LeaugeMode.League | LeaugeMode.Hardcore;
         }
-        else if (EqualsTrimmedOrStartsWith("Ruthless ", text))
+        else if (IsEqual(text, $"Ruthless {league}"))
         {
-            mode |= LeaugeMode.Ruthless;
+            mode = LeaugeMode.League | LeaugeMode.Ruthless;
         }
-        else
+        else if (IsEqual(text, $"HC Ruthless {league}"))
         {
-            mode |= LeaugeMode.Softcore;
+            mode = LeaugeMode.League | LeaugeMode.HardcoreRuthless;
+        }
+        else if (IsEqual(text, "Standard"))
+        {
+            mode = LeaugeMode.Standard | LeaugeMode.Softcore;
+        }
+        else if (IsEqual(text, "Hardcore"))
+        {
+            mode = LeaugeMode.Standard | LeaugeMode.Hardcore;
+        }
+        else if (IsEqual(text, "Ruthless"))
+        {
+            mode = LeaugeMode.Softcore | LeaugeMode.Ruthless;
+        }
+        else if (IsEqual(text, "Hardcore Ruthless"))
+        {
+            mode = LeaugeMode.Softcore | LeaugeMode.Ruthless;
         }
 
-        if (EqualsTrimmedOrEndsWith(" Standard", text))
-        {
-            mode |= LeaugeMode.Standard;
-        }
-        else if (EqualsTrimmedOrEndsWith(league, text))
-        {
-            mode |= LeaugeMode.League;
-        }
         return (mode & (LeaugeMode.Standard | LeaugeMode.League)) != 0;
 
-        static bool EqualsTrimmedOrStartsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
+        static bool IsEqual(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
         {
             var probeTrimmed = probeWithSpace.Trim();
-            return text.StartsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
-                || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
-        }
-        static bool EqualsTrimmedOrEndsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
-        {
-            var probeTrimmed = probeWithSpace.Trim();
-            return text.EndsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
-                || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
+            return text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 
