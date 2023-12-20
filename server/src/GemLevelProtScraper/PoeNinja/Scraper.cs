@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GemLevelProtScraper.Poe;
+using MongoDB.Migration;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeNinja;
@@ -21,7 +22,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
                 ScrapeTradeLeague(scope, LeaugeMode.Standard | LeaugeMode.HardcoreRuthless, stoppingToken)
             ).ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromHours(4), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
         }
 
@@ -67,5 +68,29 @@ internal sealed class PoeNinjaSink(PoeNinjaRepository repository) : IDataflowHan
     public async ValueTask HandleAsync(PoeNinjaApiLeaugeGemPrice newGem, CancellationToken cancellationToken = default)
     {
         _ = await repository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemClock clock) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
+{
+    private DateTime? _startTimestamp;
+
+    public ValueTask HandleAsync(PoeNinjaList message, CancellationToken cancellationToken = default)
+    {
+        _startTimestamp = clock.UtcNow.UtcDateTime;
+        return default;
+    }
+
+    public async ValueTask HandleAsync(PoeNinjaListCompleted message, CancellationToken cancellationToken = default)
+    {
+        var endTs = clock.UtcNow.UtcDateTime;
+        if (_startTimestamp is not { } startTs || startTs > endTs)
+        {
+            return;
+        }
+
+        var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
+
+        _ = await repository.RemoveOlderThanAsync(oldestTs, cancellationToken).ConfigureAwait(false);
     }
 }
