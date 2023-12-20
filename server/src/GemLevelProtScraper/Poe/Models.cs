@@ -55,11 +55,11 @@ public static class LeagueModeHelper
         }
         else if (IsEqual(text, "Ruthless"))
         {
-            mode = LeaugeMode.Softcore | LeaugeMode.Ruthless;
+            mode = LeaugeMode.Standard | LeaugeMode.Ruthless;
         }
         else if (IsEqual(text, "Hardcore Ruthless"))
         {
-            mode = LeaugeMode.Softcore | LeaugeMode.Ruthless;
+            mode = LeaugeMode.Standard | LeaugeMode.Ruthless;
         }
 
         return (mode & (LeaugeMode.Standard | LeaugeMode.League)) != 0;
