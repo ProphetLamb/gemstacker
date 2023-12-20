@@ -45,22 +45,25 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
             .Concat(card.QuerySelectorAll("a.gem_red"))
             .OfType<IHtmlAnchorElement>()
             .Select(a => new PoeDbSkillName(a.Text, a.Href))
-            .SelectTruthy(s =>
-            {
-                if (string.IsNullOrWhiteSpace(s.Name))
-                {
-                    return null;
-                }
-                if (!Uri.TryCreate(s.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
-                {
-                    return null;
-                }
-                return s with { RelativeUrl = uri.PathAndQuery };
-            });
+            .SelectTruthy(ParseSkillNameFromRelative);
         var tasks = items
             .Select(s => activeSkillPublisher.PublishAsync(s, cancellationToken))
             .SelectTruthy(t => t.IsCompletedSuccessfully ? null : t.AsTask());
         await Task.WhenAll(tasks).ConfigureAwait(false);
+
+
+        static PoeDbSkillName? ParseSkillNameFromRelative(PoeDbSkillName absoluteSkill)
+        {
+            if (string.IsNullOrWhiteSpace(absoluteSkill.Name))
+            {
+                return null;
+            }
+            if (!Uri.TryCreate(absoluteSkill.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                return null;
+            }
+            return absoluteSkill with { RelativeUrl = uri.PathAndQuery };
+        }
     }
 }
 

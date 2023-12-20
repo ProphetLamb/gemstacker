@@ -44,8 +44,17 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
         // var content = await pageLoader.LoadAsync(apiUrl, cancellationToken).ConfigureAwait(false);
         var response = await content.ReadFromJsonAsync<PoeLeagueListRepsonse>(_jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 
+        var league = response.Result.First().Id;
+
         var items = response.Result
-            .Select(item => new PoeLeauge(item.Id, item.Text, RealmHelper.Parse(item.Realm), LeagueModeHelper.Parse(item.Id)));
+            .Select(item => new PoeLeauge
+                (
+                    item.Id,
+                    item.Text,
+                    RealmHelper.Parse(item.Realm),
+                    LeagueModeHelper.Parse(item.Id, league)
+                )
+            );
 
         var tasks = items
             .Select(item => publisher.PublishAsync(item))
