@@ -1,12 +1,7 @@
-using System.Collections.Immutable;
 using System.Text.Json;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.Poe;
-
-internal record struct PoeLeagueListRepsonse(ImmutableArray<PoeLeagueListResponseItem> Result);
-internal sealed record PoeLeagueListResponseItem(string Id, string Realm, string Text);
-internal sealed record PoeLeagueListCompleted();
 
 internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {

@@ -1,8 +1,13 @@
+using System.Collections.Immutable;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.Poe;
 
 public sealed record PoeLeaugeList(string ApiUrl);
+internal record struct PoeLeagueListRepsonse(ImmutableArray<PoeLeagueListResponseItem> Result);
+internal sealed record PoeLeagueListResponseItem(string Id, string Realm, string Text);
+internal sealed record PoeLeagueListCompleted();
+
 [BsonIgnoreExtraElements]
 public sealed record PoeLeauge(string Name, string Text, Realm Realm, LeaugeMode Mode);
 
