@@ -56,17 +56,17 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
         static LeaugeMode ParseLeagueModes(string text)
         {
             LeaugeMode mode = default;
-            if (EqualsTrimmedOrStartsWith("Hardcore ", text))
+            if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
+            {
+                mode |= LeaugeMode.HardcoreRuthless;
+            }
+            else if (EqualsTrimmedOrStartsWith("Hardcore ", text))
             {
                 mode |= LeaugeMode.Hardcore;
             }
             else if (EqualsTrimmedOrStartsWith("Ruthless ", text))
             {
                 mode |= LeaugeMode.Ruthless;
-            }
-            else if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
-            {
-                mode |= LeaugeMode.HardcoreRuthless;
             }
             else
             {
@@ -79,17 +79,17 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
             }
             return mode;
 
-            static bool EqualsTrimmedOrStartsWith(string probeWithSpace, string text)
+            static bool EqualsTrimmedOrStartsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
             {
-                var probeTrimmed = probeWithSpace.AsSpan().Trim();
-                return probeWithSpace.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)
-                    || probeTrimmed.Equals(text, StringComparison.InvariantCultureIgnoreCase);
+                var probeTrimmed = probeWithSpace.Trim();
+                return text.StartsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
+                    || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
             }
-            static bool EqualsTrimmedOrEndsWith(string probeWithSpace, string text)
+            static bool EqualsTrimmedOrEndsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
             {
-                var probeTrimmed = probeWithSpace.AsSpan().Trim();
-                return probeWithSpace.EndsWith(text, StringComparison.InvariantCultureIgnoreCase)
-                    || probeTrimmed.Equals(text, StringComparison.InvariantCultureIgnoreCase);
+                var probeTrimmed = probeWithSpace.Trim();
+                return text.EndsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
+                    || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
             }
         }
 
