@@ -43,6 +43,16 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
+    {
+        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        var skillNameSet = skillNames.ToHashSet();
+        return await _gemPriceCollection
+            .Find(s => skillNameSet.Contains(s.Price.Name))
+            .Project(g => g.Price)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     internal async Task<long> RemoveOlderThanAsync(LeaugeMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
     {
         var utcTimestamp = oldestDateTime.UtcDateTime;
@@ -64,9 +74,9 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         }
         var names = await ListNamesAsync(cancellationToken).ConfigureAwait(false);
         var nameGlob = Glob.Parse(nameWildcard);
-        var validNamed = names.Where(nameGlob.IsMatch).Distinct();
-        var prices = await Task.WhenAll(validNamed.Select(n => GetByNameAsync(n, cancellationToken))).ConfigureAwait(false);
-        return prices.SelectMany(p => p).ToArray();
+        var validNamed = names.Where(nameGlob.IsMatch);
+        var prices = await GetByNameListAsync(validNamed, cancellationToken).ConfigureAwait(false);
+        return prices;
     }
 
 
