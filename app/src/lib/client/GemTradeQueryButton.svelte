@@ -6,12 +6,14 @@
 
 	let buyTradeUrl = getTradeQueryUrl(
 		gemPrice.name,
+		gemPrice.discriminator,
 		gemPrice.min.level,
 		gemPrice.max.level,
 		gemPrice.min.quality
 	);
 	let sellTradeUrl = getTradeQueryUrl(
 		gemPrice.name,
+		gemPrice.discriminator,
 		gemPrice.max.level,
 		undefined,
 		gemPrice.max.quality
@@ -19,6 +21,7 @@
 
 	function getTradeQueryUrl(
 		name: string,
+		discriminator?: string,
 		min_level?: number,
 		max_level?: number,
 		min_quality?: number
@@ -26,6 +29,7 @@
 		let body = JSON.stringify(
 			createGemTradeQueryBody({
 				name,
+				discriminator,
 				corrupted: false,
 				max_level,
 				min_level,
