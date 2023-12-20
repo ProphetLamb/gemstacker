@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace GemLevelProtScraper;
@@ -85,5 +86,48 @@ public static class EnumerableExtensions
         {
             action(item);
         }
+    }
+
+    public static bool TryGetFirstAndLast<T>(
+        this IEnumerable<T> sequence,
+        [MaybeNullWhen(false)] out T first,
+        [MaybeNullWhen(false)] out T last
+    )
+    {
+        if (sequence.TryGetNonEnumeratedCount(out var count) && count == 0)
+        {
+            first = default;
+            last = default;
+            return false;
+        }
+
+        if (sequence is IReadOnlyList<T> roList && roList.Count > 0)
+        {
+            first = roList[0];
+            last = roList[roList.Count - 1];
+            return true;
+        }
+
+        if (sequence is IList<T> list && list.Count > 0)
+        {
+            first = list[0];
+            last = list[list.Count - 1];
+            return true;
+        }
+
+        using var en = sequence.GetEnumerator();
+        if (!en.MoveNext())
+        {
+            first = default;
+            last = default;
+            return false;
+        }
+        first = en.Current;
+        last = first;
+        while (en.MoveNext())
+        {
+            last = en.Current;
+        }
+        return true;
     }
 }

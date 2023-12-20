@@ -38,30 +38,26 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
     internal static ProfitMargin? ComputeSkillProfitMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
     {
         var pricesWithExperience = prices
-            .OrderBy(p => p.ChaosValue)
             .Select(p => (
-                p,
-                skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
+                Price: p,
+                Exp: skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
             ))
-            .ToImmutableArray();
-        if (pricesWithExperience.IsDefaultOrEmpty)
-        {
-            return null;
-        }
-        var (min, minExp) = pricesWithExperience.First();
-        var (max, maxExp) = pricesWithExperience.Last();
+            .OrderBy(t => t.Price.ChaosValue)
+            .TryGetFirstAndLast(out var min, out var max);
+        var (minPrice, minExp) = min;
+        var (maxPrice, maxExp) = max;
         var requiredExp = maxExp - minExp;
-        var levelEarning = max.ChaosValue - min.ChaosValue;
+        var levelEarning = maxPrice.ChaosValue - minPrice.ChaosValue;
         // penalize quality upgrades
-        var qualityCost = Math.Max(0, max.GemQuality - min.GemQuality);
+        var qualityCost = Math.Max(0, maxPrice.GemQuality - minPrice.GemQuality);
 
         var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
 
         var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
         return new(
             margin,
-            (min, minExp),
-            (max, maxExp),
+            (minPrice, minExp),
+            (maxPrice, maxExp),
             skill
         );
     }
