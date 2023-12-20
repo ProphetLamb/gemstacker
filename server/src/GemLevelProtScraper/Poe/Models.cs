@@ -11,16 +11,17 @@ public enum LeaugeMode
 {
     None = 0,
     Standard = 1 << 0,
-    Softcore = 1 << 1,
-    Hardcore = 1 << 2,
-    Ruthless = 1 << 3,
+    League = 1 << 1,
+    Softcore = 1 << 2,
+    Hardcore = 1 << 3,
+    Ruthless = 1 << 4,
     HardcoreRuthless = Hardcore | Ruthless
 }
 public enum Realm { Pc, Xbox, Sony }
 
 public static class LeagueModeHelper
 {
-    public static bool TryParse(ReadOnlySpan<char> text, out LeaugeMode mode)
+    public static bool TryParse(ReadOnlySpan<char> text, ReadOnlySpan<char> league, out LeaugeMode mode)
     {
         mode = default;
         if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
@@ -44,7 +45,11 @@ public static class LeagueModeHelper
         {
             mode |= LeaugeMode.Standard;
         }
-        return true;
+        else if (EqualsTrimmedOrEndsWith(league, text))
+        {
+            mode |= LeaugeMode.League;
+        }
+        return (mode & (LeaugeMode.Standard | LeaugeMode.League)) != 0;
 
         static bool EqualsTrimmedOrStartsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
         {
@@ -60,13 +65,13 @@ public static class LeagueModeHelper
         }
     }
 
-    public static LeaugeMode Parse(ReadOnlySpan<char> text)
+    public static LeaugeMode Parse(ReadOnlySpan<char> text, ReadOnlySpan<char> league)
     {
-        if (TryParse(text, out var mode))
+        if (TryParse(text, league, out var mode))
         {
             return mode;
         }
-        throw new ArgumentException($"Failed to parse {nameof(LeaugeMode)} from text", nameof(text));
+        throw new ArgumentException($"Failed to parse {nameof(LeaugeMode)} from text in league `{league}`", nameof(text));
     }
 }
 
