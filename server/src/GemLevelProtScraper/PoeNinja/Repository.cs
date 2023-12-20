@@ -12,10 +12,10 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         .GetDatabase(settings.Value.DatabaseName)
         .GetCollection<PoeNinjaApiLeaugeGemPrice>(settings.Value.GemPriceCollectionName);
 
-    internal async Task<PoeNinjaApiGemPrice> AddOrUpdateAsync(LeaugeMode leaugeMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(LeaugeMode leaugeMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
         // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
-        var gem = await _gemPriceCollection.FindOneAndReplaceAsync(
+        _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gem
                 => gem.Leauge == leaugeMode
                 && gem.Price.GemLevel == newGemPrice.GemLevel
@@ -25,7 +25,6 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
             new() { IsUpsert = true },
             cancellationToken
         ).ConfigureAwait(false);
-        return gem.Price;
     }
 
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)

@@ -99,6 +99,6 @@ internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeaugeGemPrice>
 
     public async ValueTask HandleAsync(PoeNinjaApiLeaugeGemPrice newGem, CancellationToken cancellationToken = default)
     {
-        _ = await _poeNinjaRepository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
+        await _poeNinjaRepository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
     }
 }
