@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using MongoDB.Driver;
@@ -100,6 +101,11 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 .Select(img => img.Source)
                 .FirstOrDefault();
 
+            var discriminator = pane
+                .QuerySelectorAll("ul.nav.nav-tabs a.nav-link > small")
+                .Select(ParseDiscriminator)
+                .FirstOrDefault();
+
             var headers = pane.QuerySelectorAll("div.card > h5.card-header");
 
             var qualities = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
@@ -127,6 +133,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 
             return new(
                 message,
+                discriminator,
                 image,
                 skillStats,
                 skillDescription,
@@ -134,7 +141,6 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 skillLevels,
                 genus
             );
-
         }
 
         static IEnumerable<PoeDbGemQuality> ParseQualitiesTable(IHtmlTableElement qualitiesTable)
@@ -219,7 +225,25 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 skills
             );
         }
+
+        static string? ParseDiscriminator(IElement e)
+        {
+            var match = MatchAltDiscriminatorRegex().Match(e.TextContent);
+            if (!match.Success || match.Groups.Count <= 1)
+            {
+                return null;
+            }
+
+            if (match.Groups[1] is not { Success: true } group)
+            {
+                return null;
+            }
+            return group.Value;
+        }
     }
+
+    [GeneratedRegex("_(alt_[xyz])")]
+    private static partial Regex MatchAltDiscriminatorRegex();
 }
 
 internal sealed class PoeDbSink(PoeDbRepository repository) : IDataflowHandler<PoeDbSkill>

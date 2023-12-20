@@ -26,4 +26,4 @@ internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, Immutab
 internal sealed record PoeDbGenus(ImmutableArray<PoeDbSkillName> Skills);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeDbSkill(PoeDbSkillName Name, string? IconUrl, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects, PoeDbGenus? Genus);
+internal sealed record PoeDbSkill(PoeDbSkillName Name, string? IconUrl, string? Discriminator, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects, PoeDbGenus? Genus);
