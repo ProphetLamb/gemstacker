@@ -63,14 +63,6 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
     }
 }
 
-internal sealed class PoeNinjaSink(PoeNinjaRepository repository) : IDataflowHandler<PoeNinjaApiLeaugeGemPrice>
-{
-    public async ValueTask HandleAsync(PoeNinjaApiLeaugeGemPrice newGem, CancellationToken cancellationToken = default)
-    {
-        _ = await repository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
-    }
-}
-
 internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemClock clock) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
 {
     private readonly Dictionary<LeaugeMode, DateTime> _startTimestamp = new();
@@ -93,5 +85,20 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemCloc
         var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
 
         _ = await repository.RemoveOlderThanAsync(oldestTs, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeaugeGemPrice>
+{
+    private readonly PoeNinjaRepository _poeNinjaRepository;
+
+    public PoeNinjaSink(PoeNinjaRepository poeNinjaRepository)
+    {
+        _poeNinjaRepository = poeNinjaRepository ?? throw new ArgumentNullException(nameof(poeNinjaRepository));
+    }
+
+    public async ValueTask HandleAsync(PoeNinjaApiLeaugeGemPrice newGem, CancellationToken cancellationToken = default)
+    {
+        _ = await _poeNinjaRepository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
     }
 }
