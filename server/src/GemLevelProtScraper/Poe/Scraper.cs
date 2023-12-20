@@ -45,7 +45,7 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
         var response = await content.ReadFromJsonAsync<PoeLeagueListRepsonse>(_jsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 
         var items = response.Result
-            .Select(item => new PoeLeauge(item.Id, item.Text, ParseRealm(item.Realm), ParseLeagueModes(item.Id)));
+            .Select(item => new PoeLeauge(item.Id, item.Text, RealmHelper.Parse(item.Realm), LeagueModeHelper.Parse(item.Id)));
 
         var tasks = items
             .Select(item => publisher.PublishAsync(item))
@@ -53,62 +53,6 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
 
         await Task.WhenAll(tasks).ConfigureAwait(false);
 
-        static LeaugeMode ParseLeagueModes(string text)
-        {
-            LeaugeMode mode = default;
-            if (EqualsTrimmedOrStartsWith("HC Ruthless ", text) || EqualsTrimmedOrStartsWith("Hardcore Ruthless ", text))
-            {
-                mode |= LeaugeMode.HardcoreRuthless;
-            }
-            else if (EqualsTrimmedOrStartsWith("Hardcore ", text))
-            {
-                mode |= LeaugeMode.Hardcore;
-            }
-            else if (EqualsTrimmedOrStartsWith("Ruthless ", text))
-            {
-                mode |= LeaugeMode.Ruthless;
-            }
-            else
-            {
-                mode |= LeaugeMode.Softcore;
-            }
-
-            if (EqualsTrimmedOrEndsWith(" Standard", text))
-            {
-                mode |= LeaugeMode.Standard;
-            }
-            return mode;
-
-            static bool EqualsTrimmedOrStartsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
-            {
-                var probeTrimmed = probeWithSpace.Trim();
-                return text.StartsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
-                    || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
-            }
-            static bool EqualsTrimmedOrEndsWith(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
-            {
-                var probeTrimmed = probeWithSpace.Trim();
-                return text.EndsWith(probeWithSpace, StringComparison.InvariantCultureIgnoreCase)
-                    || text.Equals(probeTrimmed, StringComparison.InvariantCultureIgnoreCase);
-            }
-        }
-
-        static Realm ParseRealm(string text)
-        {
-            if (text.Equals("pc", StringComparison.OrdinalIgnoreCase))
-            {
-                return Realm.Pc;
-            }
-            if (text.Equals("xbox", StringComparison.OrdinalIgnoreCase))
-            {
-                return Realm.Xbox;
-            }
-            if (text.Equals("sony", StringComparison.OrdinalIgnoreCase))
-            {
-                return Realm.Sony;
-            }
-            throw new ArgumentException("Unknown realm text", nameof(text));
-        }
     }
 }
 
