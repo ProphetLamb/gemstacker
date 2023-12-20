@@ -44,6 +44,15 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    internal async Task<long> RemoveOlderThanAsync(DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
+    {
+        var utcTimestamp = oldestDateTime.UtcDateTime;
+        var result = await _gemPriceCollection
+            .DeleteManyAsync(g => g.UtcTimestamp < utcTimestamp, cancellationToken)
+            .ConfigureAwait(false);
+        return result.IsAcknowledged ? result.DeletedCount : -1;
+    }
+
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(string? nameWildcard, CancellationToken cancellationToken = default)
     {
         if (nameWildcard == "*")

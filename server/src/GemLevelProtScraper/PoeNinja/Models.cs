@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-internal sealed record PoeNinjaList(LeaugeMode Mode, string GemPriceUrl);
+internal sealed record PoeNinjaList(LeaugeMode League, string GemPriceUrl);
 
 internal sealed record PoeNinjaListCompleted(LeaugeMode Mode);
 
