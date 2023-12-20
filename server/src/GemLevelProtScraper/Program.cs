@@ -22,6 +22,7 @@ builder.Services
     .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
     .Configure<PoeDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDatabaseSettings"))
     .AddMigrations()
+    .AddSystemClock()
     .AddSingleton<SignalTaskStorage>()
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaRepository>()
