@@ -46,11 +46,8 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
             .OfType<IHtmlAnchorElement>()
             .Select(a => new PoeDbSkillName(a.Text, a.Href))
             .SelectTruthy(ParseSkillNameFromRelative);
-        var tasks = items
-            .Select(s => activeSkillPublisher.PublishAsync(s, cancellationToken))
-            .SelectTruthy(t => t.IsCompletedSuccessfully ? null : t.AsTask());
-        await Task.WhenAll(tasks).ConfigureAwait(false);
 
+        await activeSkillPublisher.PublishAllAsync(items, cancellationToken).ConfigureAwait(false);
 
         static PoeDbSkillName? ParseSkillNameFromRelative(PoeDbSkillName absoluteSkill)
         {

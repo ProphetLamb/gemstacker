@@ -55,10 +55,9 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
         await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPricesEnvelope");
-        await Task.WhenAll(
-            envelope.Lines
-                .Select(gemPrice => gemPublisher.PublishAsync(new(root.League, default, gemPrice)))
-                .SelectTruthy(task => task.IsCompletedSuccessfully ? null : task.AsTask())
+        await gemPublisher.PublishAllAsync(
+            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeaugeGemPrice(root.League, default, gemPrice)),
+            cancellationToken
         ).ConfigureAwait(false);
     }
 }

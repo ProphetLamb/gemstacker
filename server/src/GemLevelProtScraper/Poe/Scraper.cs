@@ -51,12 +51,7 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
                 )
             );
 
-        var tasks = items
-            .Select(item => publisher.PublishAsync(item))
-            .SelectTruthy(task => task.IsCompletedSuccessfully ? null : task.AsTask());
-
-        await Task.WhenAll(tasks).ConfigureAwait(false);
-
+        await publisher.PublishAllAsync(items, cancellationToken).ConfigureAwait(false);
     }
 }
 
