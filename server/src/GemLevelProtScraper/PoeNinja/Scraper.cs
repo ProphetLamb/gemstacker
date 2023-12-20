@@ -89,7 +89,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemCloc
         }
         var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
 
-        _ = await repository.RemoveOlderThanAsync(oldestTs, cancellationToken).ConfigureAwait(false);
+        _ = await repository.RemoveOlderThanAsync(message.League, oldestTs, cancellationToken).ConfigureAwait(false);
     }
 }
 
