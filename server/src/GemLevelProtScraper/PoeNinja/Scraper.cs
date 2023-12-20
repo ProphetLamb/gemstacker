@@ -9,9 +9,14 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var isInitial = true;
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
+            if (isInitial)
+            {
+                await PoeLeagueListInitialized(scope, stoppingToken).ConfigureAwait(false);
+            }
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
             var league = await GetCurrentPcLeauge(scope, LeaugeMode.Softcore, stoppingToken).ConfigureAwait(false);
@@ -20,15 +25,20 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
 
             await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
+            isInitial = false;
         }
 
         static async Task<PoeLeauge> GetCurrentPcLeauge(AsyncServiceScope scope, LeaugeMode league, CancellationToken stoppingToken)
         {
             var poeRepository = scope.ServiceProvider.GetRequiredService<PoeRepository>();
-            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
-            _ = await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
             var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
             return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException($"No leauge for mode '{league}' found");
+        }
+
+        static async Task PoeLeagueListInitialized(AsyncServiceScope scope, CancellationToken stoppingToken)
+        {
+            var poeLeagueListInitialCompletedSignal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeLeagueListCompleted>>();
+            _ = await poeLeagueListInitialCompletedSignal.WaitAsync(stoppingToken).ConfigureAwait(false);
         }
     }
 }
