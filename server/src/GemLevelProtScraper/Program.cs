@@ -47,7 +47,7 @@ builder.Services
     .AddMemoryCache()
     .AddOutputCache(o =>
     {
-        o.AddBasePolicy(b => b.Expire(TimeSpan.FromSeconds(10)));
+        o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(10)));
         o.AddPolicy("expire30min", b => b.Cache().Expire(TimeSpan.FromMinutes(30)));
     });
 
