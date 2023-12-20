@@ -35,33 +35,6 @@ internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPric
 
 public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
 {
-    internal static ProfitMargin? ComputeSkillProfitMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
-    {
-        var pricesWithExperience = prices
-            .Select(p => (
-                Price: p,
-                Exp: skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
-            ))
-            .OrderBy(t => t.Price.ChaosValue)
-            .TryGetFirstAndLast(out var min, out var max);
-        var (minPrice, minExp) = min;
-        var (maxPrice, maxExp) = max;
-        var requiredExp = maxExp - minExp;
-        var levelEarning = maxPrice.ChaosValue - minPrice.ChaosValue;
-        // penalize quality upgrades
-        var qualityCost = Math.Max(0, maxPrice.GemQuality - minPrice.GemQuality);
-
-        var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
-
-        var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
-        return new(
-            margin,
-            (minPrice, minExp),
-            (maxPrice, maxExp),
-            skill
-        );
-    }
-
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
     {
         var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
@@ -108,5 +81,38 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
+
+        ProfitMargin? ComputeSkillProfitMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        {
+            var pricesWithExperience = prices
+                .Select(p => (
+                    Price: p,
+                    Exp: skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
+                ))
+                .OrderBy(t => t.Price.ChaosValue)
+                .TryGetFirstAndLast(out var min, out var max);
+            var (minPrice, minExp) = min;
+            var (maxPrice, maxExp) = max;
+            var requiredExp = maxExp - minExp;
+
+            if (requiredExp < request.MinExperienceDelta)
+            {
+                return null;
+            }
+
+            var levelEarning = maxPrice.ChaosValue - minPrice.ChaosValue;
+            // penalize quality upgrades
+            var qualityCost = Math.Max(0, maxPrice.GemQuality - minPrice.GemQuality);
+
+            var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
+
+            var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
+            return new(
+                margin,
+                (minPrice, minExp),
+                (maxPrice, maxExp),
+                skill
+            );
+        }
     }
 }
