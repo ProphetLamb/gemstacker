@@ -73,21 +73,22 @@ internal sealed class PoeNinjaSink(PoeNinjaRepository repository) : IDataflowHan
 
 internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemClock clock) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
 {
-    private DateTime? _startTimestamp;
+    private readonly Dictionary<LeaugeMode, DateTime> _startTimestamp = new();
 
     public ValueTask HandleAsync(PoeNinjaList message, CancellationToken cancellationToken = default)
     {
-        _startTimestamp = clock.UtcNow.UtcDateTime;
+        _startTimestamp[message.League] = clock.UtcNow.UtcDateTime;
         return default;
     }
 
     public async ValueTask HandleAsync(PoeNinjaListCompleted message, CancellationToken cancellationToken = default)
     {
         var endTs = clock.UtcNow.UtcDateTime;
-        if (_startTimestamp is not { } startTs || startTs > endTs)
+        if (!_startTimestamp.TryGetValue(message.League, out var startTs) || startTs > endTs)
         {
             return;
         }
+        _ = _startTimestamp.Remove(message.League);
 
         var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
 

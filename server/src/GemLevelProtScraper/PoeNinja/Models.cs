@@ -6,7 +6,7 @@ namespace GemLevelProtScraper.PoeNinja;
 
 internal sealed record PoeNinjaList(LeaugeMode League, string GemPriceUrl);
 
-internal sealed record PoeNinjaListCompleted(LeaugeMode Mode);
+internal sealed record PoeNinjaListCompleted(LeaugeMode League);
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<decimal?> Data, decimal TotalChange);
 
