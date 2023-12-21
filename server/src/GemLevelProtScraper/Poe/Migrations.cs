@@ -37,3 +37,33 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
         return database.GetCollection<PoeLeague>(LeaguesCollectionName);
     }
 }
+
+
+[MongoMigration(PoeDatabaseSettings.Alias, 0, 1, Description = $"Add unique index {LeagueNameRealmIndexName}.")]
+public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public const string LeagueNameRealmIndexName = "NameRealm";
+
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetLeagueCollection(database);
+        await col.Indexes.DropOneAsync(LeagueNameRealmIndexName, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetLeagueCollection(database);
+        IndexKeysDefinitionBuilder<PoeLeague> builder = new();
+        var index = builder.Combine(
+            builder.Text(e => e.Realm),
+            builder.Text(e => e.Name)
+        );
+
+        CreateIndexModel<PoeLeague> model = new(index, new()
+        {
+            Unique = true,
+            Name = LeagueNameRealmIndexName
+        });
+        _ = await col.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+    }
+}
