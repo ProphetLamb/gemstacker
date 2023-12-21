@@ -13,7 +13,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _skillCollection.FindOneAndReplaceAsync(
-            e => e.Skill.Name.RelativeUrl == newSkill.Name.RelativeUrl,
+            e => e.Skill.Name.Id == newSkill.Name.Id,
             new(clock.UtcNow.UtcDateTime, newSkill),
             new() { IsUpsert = true },
             cancellationToken
