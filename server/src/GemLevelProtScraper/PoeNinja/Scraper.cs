@@ -96,14 +96,9 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     }
 }
 
-internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiGemPriceEnvalope>
+internal sealed class PoeNinjaSink(PoeNinjaRepository poeNinjaRepository) : IDataflowHandler<PoeNinjaApiGemPriceEnvalope>
 {
-    private readonly PoeNinjaRepository _poeNinjaRepository;
-
-    public PoeNinjaSink(PoeNinjaRepository poeNinjaRepository)
-    {
-        _poeNinjaRepository = poeNinjaRepository ?? throw new ArgumentNullException(nameof(poeNinjaRepository));
-    }
+    private readonly PoeNinjaRepository _poeNinjaRepository = poeNinjaRepository ?? throw new ArgumentNullException(nameof(poeNinjaRepository));
 
     public async ValueTask HandleAsync(PoeNinjaApiGemPriceEnvalope newGem, CancellationToken cancellationToken = default)
     {
