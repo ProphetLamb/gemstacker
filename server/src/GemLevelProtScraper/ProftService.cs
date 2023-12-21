@@ -130,7 +130,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
                 return skill.Name;
             }
 
-            var maybePrimaryGenus = genus.Append(skill.Name).MinBy(s => s.Id.Length)!;
+            return genus.Append(skill.Name).MinBy(s => s.Id.Length)!;
         }
     }
 }
