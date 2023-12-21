@@ -6,12 +6,13 @@ namespace GemLevelProtScraper;
 public static class DataFlowExtensions
 {
 
-    public static async Task PublishAllAsync<T>(this IDataflowPublisher<T> publisher, IEnumerable<T> seq, CancellationToken cancellationToken = default)
+    public static Task PublishAllAsync<T>(this IDataflowPublisher<T> publisher, IEnumerable<T> seq, CancellationToken cancellationToken = default)
     {
-        foreach (var item in seq)
+        return PublishAllAsync(publisher, seq, new ParallelOptions()
         {
-            await publisher.PublishAsync(item, cancellationToken).ConfigureAwait(false);
-        }
+            CancellationToken = cancellationToken,
+            MaxDegreeOfParallelism = Environment.ProcessorCount,
+        });
     }
 
     public static async Task PublishAllAsync<T>(this IDataflowPublisher<T> publisher, IEnumerable<T> seq, ParallelOptions parallelOptions)
