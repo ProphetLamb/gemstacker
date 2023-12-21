@@ -249,6 +249,28 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
     private static partial Regex MatchAltDiscriminatorRegex();
 }
 
+internal sealed class PoeDbCleanup(PoeDbRepository repository) : IDataflowHandler<PoeDbList>, IDataflowHandler<PoeDbListCompleted>
+{
+    private DateTime? _startTimestamp;
+
+    public ValueTask HandleAsync(PoeDbList message, CancellationToken cancellationToken = default)
+    {
+        _startTimestamp = message.Timestamp.UtcDateTime;
+        return default;
+    }
+
+    public async ValueTask HandleAsync(PoeDbListCompleted message, CancellationToken cancellationToken = default)
+    {
+        var endTs = message.Timestamp.UtcDateTime;
+        if (_startTimestamp is not { } startTs || startTs >= endTs)
+        {
+            return;
+        }
+
+        _ = await repository.RemoveOlderThanAsync(startTs, cancellationToken).ConfigureAwait(false);
+    }
+}
+
 internal sealed class PoeDbSink(PoeDbRepository repository) : IDataflowHandler<PoeDbSkill>
 {
     public async ValueTask HandleAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)

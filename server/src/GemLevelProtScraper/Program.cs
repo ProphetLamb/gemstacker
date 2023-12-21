@@ -39,6 +39,7 @@ builder.Services
         .AddDataFlow<PoeNinjaSink>()
         .AddDataFlow<PoeDbSkillNameSpider>()
         .AddDataFlow<PoeDbSkillSpider>()
+        .AddDataFlow<PoeDbCleanup>()
         .AddDataFlow<PoeDbSink>()
         .AddDataFlow<PoeLeaguesSpider>()
         .AddDataFlow<PoeSink>()

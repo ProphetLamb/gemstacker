@@ -22,6 +22,15 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
         ).ConfigureAwait(false);
     }
 
+    internal async Task<long> RemoveOlderThanAsync(DateTimeOffset oldestTimestamp, CancellationToken cancellationToken = default)
+    {
+        var result = await _skillCollection.DeleteManyAsync(
+            e => e.UtcTimestamp < oldestTimestamp,
+            cancellationToken
+        ).ConfigureAwait(false);
+        return result.IsAcknowledged ? result.DeletedCount : -1;
+    }
+
     internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
