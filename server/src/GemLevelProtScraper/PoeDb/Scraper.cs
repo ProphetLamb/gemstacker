@@ -16,9 +16,13 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory, ISy
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbList>>();
+            var activePublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbActiveSkillList>>();
+            var supportPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbSupportSkillList>>();
             var completionPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbListCompleted>>();
-            await rootPublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).ConfigureAwait(false);
+            await Task.WhenAll(
+                activePublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).AsTask(),
+                supportPublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Skill_Gems#SkillGemsGem"), stoppingToken).AsTask()
+            ).ConfigureAwait(false);
             await completionPublisher.PublishAsync(new(clock.UtcNow), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromHours(12), stoppingToken).ConfigureAwait(false);
@@ -27,19 +31,28 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory, ISy
     }
 }
 
-internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IAngleSharpStaticPageLoader pageLoader, ILogger<PoeDbSkillSpider> logger) : IDataflowHandler<PoeDbList>
+internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IAngleSharpStaticPageLoader pageLoader, ILogger<PoeDbSkillSpider> logger) : IDataflowHandler<PoeDbActiveSkillList>, IDataflowHandler<PoeDbSupportSkillList>
 {
-    public async ValueTask HandleAsync(PoeDbList message, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeDbActiveSkillList message, CancellationToken cancellationToken = default)
     {
-        var body = await pageLoader.LoadAsync(new(message.ActiveSkillUrl), cancellationToken).ConfigureAwait(false);
+        await ParseSkillListAsync(new(message.ActiveSkillUrl), "Skill Gems Gem", cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask HandleAsync(PoeDbSupportSkillList message, CancellationToken cancellationToken = default)
+    {
+        await ParseSkillListAsync(new(message.SupportSkillUrl), "Support Gems Gem", cancellationToken).ConfigureAwait(false);
+    }
+    private async ValueTask ParseSkillListAsync(Uri url, string headerText, CancellationToken cancellationToken)
+    {
+        var body = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
         var headers = body.QuerySelectorAll("div.card > h5.card-header");
         var card = headers
-            .Where(h => PoeDbHtml.IsHeaderTextEqual(h, "Skill Gems Gem"))
+            .Where(h => PoeDbHtml.IsHeaderTextEqual(h, headerText))
             .SelectMany(h => h.NextElementSiblings(s => s.ClassList.Contains("card-body")))
             .FirstOrDefault();
         if (card is null)
         {
-            logger.LogWarning("No card body found for {SkillGems}", message.ActiveSkillUrl);
+            logger.LogWarning("No card body found for {SkillGems}", url);
             return;
         }
         var items = card.QuerySelectorAll("a.gemitem")
@@ -237,11 +250,11 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
     private static partial Regex MatchAltDiscriminatorRegex();
 }
 
-internal sealed class PoeDbCleanup(PoeDbRepository repository) : IDataflowHandler<PoeDbList>, IDataflowHandler<PoeDbListCompleted>
+internal sealed class PoeDbCleanup(PoeDbRepository repository) : IDataflowHandler<PoeDbActiveSkillList>, IDataflowHandler<PoeDbListCompleted>
 {
     private DateTime? _startTimestamp;
 
-    public ValueTask HandleAsync(PoeDbList message, CancellationToken cancellationToken = default)
+    public ValueTask HandleAsync(PoeDbActiveSkillList message, CancellationToken cancellationToken = default)
     {
         _startTimestamp = message.Timestamp.UtcDateTime;
         return default;
