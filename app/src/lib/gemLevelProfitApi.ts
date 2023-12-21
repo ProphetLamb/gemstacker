@@ -10,6 +10,7 @@ export interface GemProfitRequestParameter {
 }
 
 export const gemProfitRequestParameterSchema = z.object({
+	league: z.string(),
 	gem_name: z.string().optional(),
 	min_sell_price_chaos: z.number().optional(),
 	max_buy_price_chaos: z.number().optional(),
@@ -45,11 +46,11 @@ export interface GemProfitResponseItem {
 
 export const gemProfitResponseItemSchema = z.object({
 	name: z.string(),
-	icon: z.string().optional(),
+	icon: z.string().nullable(),
 	min: gemProfitResponseItemPriceSchema,
 	max: gemProfitResponseItemPriceSchema,
 	gain_margin: z.number(),
-	discriminator: z.string().optional(),
+	discriminator: z.string().nullable(),
 });
 
 export type GemProfitResponse = GemProfitResponseItem[]

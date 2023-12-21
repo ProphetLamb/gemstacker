@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import AnimatedSearchButton from './../lib/client/AnimatedSearchButton.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
 	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
@@ -30,6 +29,14 @@
 			>.
 		</h1>
 		<form class="space-y-2" use:enhance method="POST" action="?/getGemLevelProfit">
+			<label class="label">
+				<span>PC League</span>
+				<select name="league" class="select rounded-full">
+					{#each data.leagues.filter((l) => l.realm == 'pc') as league}
+						<option value={league.text}>{league.id}</option>
+					{/each}
+				</select>
+			</label>
 			<label class="label">
 				<span>Gem Name</span>
 				<input
@@ -114,7 +121,7 @@
 							<tr class="h-12">
 								<td class="pr-2">
 									<div class="badge-icon variant-soft-primary h-11 w-11">
-										<img src={gemPrice.icon} loading="lazy" alt={`${idx + 1}`} />
+										<img src={gemPrice.icon} alt={`${idx + 1}`} />
 									</div>
 								</td>
 								<td class="flex-auto">{gemPrice.name}</td>
