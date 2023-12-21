@@ -11,8 +11,8 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task AddOrUpdateAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
-        // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
-        await _skillCollection.FindOneAndReplaceAsync(
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await _skillCollection.FindOneAndReplaceAsync(
             e => e.Skill.Name.RelativeUrl == newSkill.Name.RelativeUrl,
             new(clock.UtcNow.UtcDateTime, newSkill),
             new() { IsUpsert = true },
@@ -22,6 +22,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<long> RemoveOlderThanAsync(DateTimeOffset oldestTimestamp, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var utcTimestamp = oldestTimestamp.UtcDateTime;
         var result = await _skillCollection.DeleteManyAsync(
             e => e.UtcTimestamp < utcTimestamp,
@@ -32,7 +33,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)
     {
-        // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
         {
             return await _skillCollection
@@ -48,6 +49,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameListAsync(IEnumerable<string> nameList, CancellationToken cancellationToken)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var nameSet = nameList.ToHashSet();
         return await _skillCollection
             .Find(e => nameSet.Contains(e.Skill.Name.Id))
@@ -57,6 +59,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<IReadOnlyList<PoeDbSkill>> GetByNameGlobAsync(string? nameWildcard, CancellationToken cancellationToken)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (nameWildcard == "*")
         {
             nameWildcard = null;
@@ -74,6 +77,7 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _skillCollection
             .Find(FilterDefinition<PoeDbSkillEnvalope>.Empty)
             .Project(e => e.Skill.Name.Id).ToListAsync(cancellationToken).ConfigureAwait(false);

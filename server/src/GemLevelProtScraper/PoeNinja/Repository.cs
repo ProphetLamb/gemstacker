@@ -12,7 +12,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
-        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gem
                 => gem.League == leagueMode
@@ -27,7 +27,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(LeagueMode league, string? skillName, CancellationToken cancellationToken = default)
     {
-        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
         {
             return await _gemPriceCollection
@@ -43,7 +43,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
     {
-        // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var skillNameSet = skillNames.ToHashSet();
         return await _gemPriceCollection
             .Find(s => s.League == league && skillNameSet.Contains(s.Price.Name))
@@ -53,6 +53,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task<long> RemoveOlderThanAsync(LeagueMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var utcTimestamp = oldestDateTime.UtcDateTime;
         var result = await _gemPriceCollection
             .DeleteManyAsync(g => g.League == league && g.UtcTimestamp < utcTimestamp, cancellationToken)
@@ -62,6 +63,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (nameWildcard == "*")
         {
             nameWildcard = null;
@@ -80,6 +82,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
 
     internal async Task<IReadOnlyList<string>> ListNamesAsync(LeagueMode league, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _gemPriceCollection
             .Find(e => e.League == league)
             .Project(s => s.Price.Name)

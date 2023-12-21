@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Migration;
 
 namespace GemLevelProtScraper.Poe;
 
-public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, DataflowSignal<PoeLeagueListCompleted> poeLeagueListCompleted)
+public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, IMongoMigrationCompletion completion, DataflowSignal<PoeLeagueListCompleted> poeLeagueListCompleted)
 {
     private readonly IMongoCollection<PoeLeague> _leagueCollection = new MongoClient(settings.Value.ConnectionString)
             .GetDatabase(settings.Value.DatabaseName)
@@ -12,7 +13,7 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, Datafl
 
     internal async Task<PoeLeague> AddOrUpdateAsync(PoeLeague newLeague, CancellationToken cancellationToken = default)
     {
-        // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _leagueCollection.FindOneAndReplaceAsync(
             league => league.Mode == newLeague.Mode && league.Realm == newLeague.Realm,
             newLeague,
@@ -23,6 +24,7 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, Datafl
 
     internal async Task<PoeLeague?> GetByModeAndRealmAsync(LeagueMode mode, Realm realm, CancellationToken cancellationToken = default)
     {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         await poeLeagueListCompleted.WaitInitialAsync(cancellationToken).ConfigureAwait(false);
         return await _leagueCollection
             .Find(l => l.Mode == mode && l.Realm == realm)
