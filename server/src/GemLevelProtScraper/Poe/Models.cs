@@ -3,16 +3,16 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.Poe;
 
-public sealed record PoeLeaugeList(string ApiUrl);
+public sealed record PoeLeagueList(string ApiUrl);
 internal record struct PoeLeagueListRepsonse(ImmutableArray<PoeLeagueListResponseItem> Result);
 internal sealed record PoeLeagueListResponseItem(string Id, string Realm, string Text);
 public sealed record PoeLeagueListCompleted();
 
 [BsonIgnoreExtraElements]
-public sealed record PoeLeauge(string Name, string Text, Realm Realm, LeaugeMode Mode);
+public sealed record PoeLeague(string Name, string Text, Realm Realm, LeagueMode Mode);
 
 [Flags]
-public enum LeaugeMode
+public enum LeagueMode
 {
     None = 0,
     Standard = 1 << 0,
@@ -26,43 +26,43 @@ public enum Realm { Pc, Xbox, Sony }
 
 public static class LeagueModeHelper
 {
-    public static bool TryParse(ReadOnlySpan<char> text, ReadOnlySpan<char> league, out LeaugeMode mode)
+    public static bool TryParse(ReadOnlySpan<char> text, ReadOnlySpan<char> league, out LeagueMode mode)
     {
-        mode = LeaugeMode.None;
+        mode = LeagueMode.None;
         if (IsEqual(text, league))
         {
-            mode = LeaugeMode.League | LeaugeMode.Softcore;
+            mode = LeagueMode.League | LeagueMode.Softcore;
         }
         else if (IsEqual(text, $"Hardcore {league}"))
         {
-            mode = LeaugeMode.League | LeaugeMode.Hardcore;
+            mode = LeagueMode.League | LeagueMode.Hardcore;
         }
         else if (IsEqual(text, $"Ruthless {league}"))
         {
-            mode = LeaugeMode.League | LeaugeMode.Ruthless;
+            mode = LeagueMode.League | LeagueMode.Ruthless;
         }
         else if (IsEqual(text, $"HC Ruthless {league}"))
         {
-            mode = LeaugeMode.League | LeaugeMode.HardcoreRuthless;
+            mode = LeagueMode.League | LeagueMode.HardcoreRuthless;
         }
         else if (IsEqual(text, "Standard"))
         {
-            mode = LeaugeMode.Standard | LeaugeMode.Softcore;
+            mode = LeagueMode.Standard | LeagueMode.Softcore;
         }
         else if (IsEqual(text, "Hardcore"))
         {
-            mode = LeaugeMode.Standard | LeaugeMode.Hardcore;
+            mode = LeagueMode.Standard | LeagueMode.Hardcore;
         }
         else if (IsEqual(text, "Ruthless"))
         {
-            mode = LeaugeMode.Standard | LeaugeMode.Ruthless;
+            mode = LeagueMode.Standard | LeagueMode.Ruthless;
         }
         else if (IsEqual(text, "Hardcore Ruthless"))
         {
-            mode = LeaugeMode.Standard | LeaugeMode.HardcoreRuthless;
+            mode = LeagueMode.Standard | LeagueMode.HardcoreRuthless;
         }
 
-        return (mode & (LeaugeMode.Standard | LeaugeMode.League)) != 0;
+        return (mode & (LeagueMode.Standard | LeagueMode.League)) != 0;
 
         static bool IsEqual(ReadOnlySpan<char> probeWithSpace, ReadOnlySpan<char> text)
         {
@@ -71,13 +71,13 @@ public static class LeagueModeHelper
         }
     }
 
-    public static LeaugeMode Parse(ReadOnlySpan<char> text, ReadOnlySpan<char> league)
+    public static LeagueMode Parse(ReadOnlySpan<char> text, ReadOnlySpan<char> league)
     {
         if (TryParse(text, league, out var mode))
         {
             return mode;
         }
-        throw new ArgumentException($"Failed to parse {nameof(LeaugeMode)} from text in league `{league}`", nameof(text));
+        throw new ArgumentException($"Failed to parse {nameof(LeagueMode)} from text in league `{league}`", nameof(text));
     }
 }
 

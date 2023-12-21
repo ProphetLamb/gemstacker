@@ -10,7 +10,7 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeaugeList>>();
+            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeagueList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeagueListCompleted>>();
             await rootPublisher.PublishAsync(new("https://www.pathofexile.com/api"), stoppingToken).ConfigureAwait(false);
             await completedPublisher.PublishAsync(new(), stoppingToken).ConfigureAwait(false);
@@ -21,10 +21,10 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
     }
 }
 
-public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IStaticPageLoader pageLoader, IHttpClientFactory httpClientFactory) : IDataflowHandler<PoeLeaugeList>
+public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeague> publisher, IStaticPageLoader pageLoader, IHttpClientFactory httpClientFactory) : IDataflowHandler<PoeLeagueList>
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
-    public async ValueTask HandleAsync(PoeLeaugeList message, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeLeagueList message, CancellationToken cancellationToken = default)
     {
         Uri apiUrl = new($"{message.ApiUrl}/trade/data/leagues");
         HttpRequestMessage req = new(HttpMethod.Get, apiUrl);
@@ -42,7 +42,7 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
         var league = response.Result.First().Id;
 
         var items = response.Result
-            .Select(item => new PoeLeauge
+            .Select(item => new PoeLeague
                 (
                     item.Id,
                     item.Text,
@@ -55,9 +55,9 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeauge> publisher, IS
     }
 }
 
-public sealed class PoeSink(PoeRepository repository) : IDataflowHandler<PoeLeauge>
+public sealed class PoeSink(PoeRepository repository) : IDataflowHandler<PoeLeague>
 {
-    public async ValueTask HandleAsync(PoeLeauge message, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeLeague message, CancellationToken cancellationToken = default)
     {
         _ = await repository.AddOrUpdateAsync(message, cancellationToken).ConfigureAwait(false);
     }

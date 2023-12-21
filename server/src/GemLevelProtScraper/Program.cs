@@ -81,7 +81,7 @@ app
         CancellationToken cancellationToken = default
     ) =>
     {
-        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeaugeMode.League, Realm.Pc, cancellationToken).ConfigureAwait(false);
+        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeagueMode.League, Realm.Pc, cancellationToken).ConfigureAwait(false);
         if (baseLeague is null)
         {
             return Results.BadRequest(new
@@ -91,7 +91,7 @@ app
             });
         }
 
-        if (!LeagueModeHelper.TryParse(league, baseLeague.Name, out var leaugeMode))
+        if (!LeagueModeHelper.TryParse(league, baseLeague.Name, out var leagueMode))
         {
             return Results.BadRequest(new
             {
@@ -102,7 +102,7 @@ app
 
         ProfitRequest request = new()
         {
-            League = leaugeMode,
+            League = leagueMode,
             GemNameWindcard = gemNameWindcard,
             MinSellPriceChaos = minSellPriceChaos,
             MaxBuyPriceChaos = maxBuyPriceChaos,

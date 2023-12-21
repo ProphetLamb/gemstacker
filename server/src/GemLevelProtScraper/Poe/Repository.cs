@@ -18,12 +18,12 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, Datafl
         return _poeLeagueListCompletedTask.WaitAsync(cancellationToken);
     }
 
-    private readonly IMongoCollection<PoeLeauge> _leagueCollection = new MongoClient(settings.Value.ConnectionString)
+    private readonly IMongoCollection<PoeLeague> _leagueCollection = new MongoClient(settings.Value.ConnectionString)
             .GetDatabase(settings.Value.DatabaseName)
-            .GetCollection<PoeLeauge>(settings.Value.LeaguesCollectionName);
+            .GetCollection<PoeLeague>(settings.Value.LeaguesCollectionName);
 
 
-    internal async Task<PoeLeauge> AddOrUpdateAsync(PoeLeauge newLeague, CancellationToken cancellationToken = default)
+    internal async Task<PoeLeague> AddOrUpdateAsync(PoeLeague newLeague, CancellationToken cancellationToken = default)
     {
         // _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _leagueCollection.FindOneAndReplaceAsync(
@@ -34,7 +34,7 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, Datafl
         ).ConfigureAwait(false);
     }
 
-    internal async Task<PoeLeauge?> GetByModeAndRealmAsync(LeaugeMode mode, Realm realm, CancellationToken cancellationToken = default)
+    internal async Task<PoeLeague?> GetByModeAndRealmAsync(LeagueMode mode, Realm realm, CancellationToken cancellationToken = default)
     {
         await WaitForLeagueListInitializedAsync(cancellationToken).ConfigureAwait(false);
         return await _leagueCollection

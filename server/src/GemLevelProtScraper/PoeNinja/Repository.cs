@@ -8,20 +8,20 @@ namespace GemLevelProtScraper.PoeNinja;
 
 public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
-    private readonly IMongoCollection<PoeNinjaApiLeaugeGemPrice> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
+    private readonly IMongoCollection<PoeNinjaApiLeagueGemPrice> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
         .GetDatabase(settings.Value.DatabaseName)
-        .GetCollection<PoeNinjaApiLeaugeGemPrice>(settings.Value.GemPriceCollectionName);
+        .GetCollection<PoeNinjaApiLeagueGemPrice>(settings.Value.GemPriceCollectionName);
 
-    internal async Task AddOrUpdateAsync(LeaugeMode leaugeMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
         // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemPriceCollection.FindOneAndReplaceAsync(
             gem
-                => gem.Leauge == leaugeMode
+                => gem.League == leagueMode
                 && gem.Price.GemLevel == newGemPrice.GemLevel
                 && gem.Price.GemQuality == newGemPrice.GemQuality
                 && gem.Price.Name == newGemPrice.Name,
-            new(leaugeMode, clock.UtcNow.UtcDateTime, newGemPrice),
+            new(leagueMode, clock.UtcNow.UtcDateTime, newGemPrice),
             new() { IsUpsert = true },
             cancellationToken
         ).ConfigureAwait(false);
@@ -33,7 +33,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         if (string.IsNullOrEmpty(skillName))
         {
             return await _gemPriceCollection
-                .Find(FilterDefinition<PoeNinjaApiLeaugeGemPrice>.Empty)
+                .Find(FilterDefinition<PoeNinjaApiLeagueGemPrice>.Empty)
                 .Project(g => g.Price)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -53,11 +53,11 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<long> RemoveOlderThanAsync(LeaugeMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
+    internal async Task<long> RemoveOlderThanAsync(LeagueMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
     {
         var utcTimestamp = oldestDateTime.UtcDateTime;
         var result = await _gemPriceCollection
-            .DeleteManyAsync(g => g.Leauge == league && g.UtcTimestamp < utcTimestamp, cancellationToken)
+            .DeleteManyAsync(g => g.League == league && g.UtcTimestamp < utcTimestamp, cancellationToken)
             .ConfigureAwait(false);
         return result.IsAcknowledged ? result.DeletedCount : -1;
     }
@@ -83,7 +83,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
     internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
     {
         return await _gemPriceCollection
-            .Find(FilterDefinition<PoeNinjaApiLeaugeGemPrice>.Empty)
+            .Find(FilterDefinition<PoeNinjaApiLeagueGemPrice>.Empty)
             .Project(s => s.Price.Name)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }

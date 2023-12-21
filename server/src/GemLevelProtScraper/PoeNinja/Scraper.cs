@@ -14,37 +14,37 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             await Task.WhenAll(
-                ScrapeTradeLeague(scope, LeaugeMode.League | LeaugeMode.Softcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeaugeMode.League | LeaugeMode.Hardcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeaugeMode.League | LeaugeMode.HardcoreRuthless, stoppingToken),
-                ScrapeTradeLeague(scope, LeaugeMode.Standard | LeaugeMode.Softcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeaugeMode.Standard | LeaugeMode.Hardcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeaugeMode.Standard | LeaugeMode.HardcoreRuthless, stoppingToken)
+                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.Softcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.Hardcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.HardcoreRuthless, stoppingToken),
+                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.Softcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.Hardcore, stoppingToken),
+                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.HardcoreRuthless, stoppingToken)
             ).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromHours(4), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
         }
 
-        static async Task<PoeLeauge> GetCurrentPcLeauge(AsyncServiceScope scope, LeaugeMode league, CancellationToken stoppingToken)
+        static async Task<PoeLeague> GetCurrentPcLeague(AsyncServiceScope scope, LeagueMode league, CancellationToken stoppingToken)
         {
             var poeRepository = scope.ServiceProvider.GetRequiredService<PoeRepository>();
-            var currentSoftcoreTradePcLeauge = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
-            return currentSoftcoreTradePcLeauge ?? throw new InvalidOperationException($"No leauge for mode '{league}' found");
+            var currentSoftcoreTradePcLeague = await poeRepository.GetByModeAndRealmAsync(league, Realm.Pc, stoppingToken).ConfigureAwait(false);
+            return currentSoftcoreTradePcLeague ?? throw new InvalidOperationException($"No league for mode '{league}' found");
         }
-        static async Task ScrapeTradeLeague(AsyncServiceScope scope, LeaugeMode leagueMode, CancellationToken stoppingToken)
+        static async Task ScrapeTradeLeague(AsyncServiceScope scope, LeagueMode leagueMode, CancellationToken stoppingToken)
         {
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
             var clock = scope.ServiceProvider.GetRequiredService<ISystemClock>();
-            var league = await GetCurrentPcLeauge(scope, leagueMode, stoppingToken).ConfigureAwait(false);
+            var league = await GetCurrentPcLeague(scope, leagueMode, stoppingToken).ConfigureAwait(false);
             await rootPublisher.PublishAsync(new(clock.UtcNow, league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
             await completedPublisher.PublishAsync(new(clock.UtcNow, league.Mode), stoppingToken).ConfigureAwait(false);
         }
     }
 }
 
-internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiLeaugeGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaList>
+internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiLeagueGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
@@ -57,7 +57,7 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPricesEnvelope");
         await gemPublisher.PublishAllAsync(
-            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeaugeGemPrice(root.League, default, gemPrice)),
+            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeagueGemPrice(root.League, default, gemPrice)),
             cancellationToken
         ).ConfigureAwait(false);
     }
@@ -65,7 +65,7 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
 
 internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
 {
-    private readonly Dictionary<LeaugeMode, DateTime> _startTimestamp = new();
+    private readonly Dictionary<LeagueMode, DateTime> _startTimestamp = new();
 
     public ValueTask HandleAsync(PoeNinjaList message, CancellationToken cancellationToken = default)
     {
@@ -93,7 +93,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     }
 }
 
-internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeaugeGemPrice>
+internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeagueGemPrice>
 {
     private readonly PoeNinjaRepository _poeNinjaRepository;
 
@@ -102,8 +102,8 @@ internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeaugeGemPrice>
         _poeNinjaRepository = poeNinjaRepository ?? throw new ArgumentNullException(nameof(poeNinjaRepository));
     }
 
-    public async ValueTask HandleAsync(PoeNinjaApiLeaugeGemPrice newGem, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeNinjaApiLeagueGemPrice newGem, CancellationToken cancellationToken = default)
     {
-        await _poeNinjaRepository.AddOrUpdateAsync(newGem.Leauge, newGem.Price, cancellationToken).ConfigureAwait(false);
+        await _poeNinjaRepository.AddOrUpdateAsync(newGem.League, newGem.Price, cancellationToken).ConfigureAwait(false);
     }
 }
