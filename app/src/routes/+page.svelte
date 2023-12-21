@@ -61,7 +61,7 @@
 				<span>PC League</span>
 				<select name="league" class="select rounded-full">
 					{#each data.leagues.filter((l) => l.realm == 'pc') as league}
-						<option value={league.text}>{league.id}</option>
+						<option value={league.id}>{league.text}</option>
 					{/each}
 				</select>
 			</label>
