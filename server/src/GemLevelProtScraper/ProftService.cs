@@ -22,7 +22,9 @@ public sealed record ProfitResponse
     public required ProfitLevelResponse Min { get; init; }
     public required ProfitLevelResponse Max { get; init; }
     public required decimal GainMargin { get; init; }
+    public required string Type { get; init; }
     public required string? Discriminator { get; init; }
+    public required string ForeignInfoUrl { get; init; }
 }
 
 public sealed record ProfitLevelResponse
@@ -71,7 +73,9 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
             GainMargin = t.Margin,
-            Discriminator = t.Data.Discriminator
+            Type = GetBaseTypeName(t.Data).Id,
+            Discriminator = t.Data.Discriminator,
+            ForeignInfoUrl = $"https://poedb.tw{t.Data.Name.RelativeUrl}"
         });
 
         var result = responses.ToImmutableArray();
@@ -117,6 +121,16 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
                 (maxPrice, maxExp),
                 skill
             );
+        }
+
+        static PoeDbSkillName GetBaseTypeName(PoeDbSkill skill)
+        {
+            if (skill.Genus?.Skills is not { } genus || genus.IsDefaultOrEmpty)
+            {
+                return skill.Name;
+            }
+
+            return genus.MinBy(s => s.Id.Length)!;
         }
     }
 }
