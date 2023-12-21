@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using MongoDB.Migration;
 using MongoDB.Migration.Core;
 
@@ -10,6 +11,8 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     public required string DatabaseName { get; init; }
     public required string LeaguesCollectionName { get; init; }
 
+    public const string Alias = "Poe";
+
     PoeDatabaseSettings IOptions<PoeDatabaseSettings>.Value => this;
 
     public MongoMigrableDefinition GetMigratableDefinition()
@@ -17,8 +20,20 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
         return new()
         {
             ConnectionString = ConnectionString,
-            Database = new("Poe", DatabaseName),
+            Database = new(Alias, DatabaseName),
             MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
         };
+    }
+
+    internal IMongoCollection<PoeLeague> GetLeagueCollection()
+    {
+        MongoClient client = new(ConnectionString);
+        var database = client.GetDatabase(DatabaseName);
+        return GetLeagueCollection(database);
+    }
+
+    internal IMongoCollection<PoeLeague> GetLeagueCollection(IMongoDatabase database)
+    {
+        return database.GetCollection<PoeLeague>(LeaguesCollectionName);
     }
 }
