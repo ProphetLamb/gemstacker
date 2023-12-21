@@ -20,8 +20,8 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory, ISy
             var supportPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbSupportSkillList>>();
             var completionPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbListCompleted>>();
             await Task.WhenAll(
-                activePublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).AsTask(),
-                supportPublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Skill_Gems#SkillGemsGem"), stoppingToken).AsTask()
+                activePublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Skill_Gems#SkillGemsGem"), stoppingToken).AsTask(),
+                supportPublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Support_Gems#SupportGemsGem"), stoppingToken).AsTask()
             ).ConfigureAwait(false);
             await completionPublisher.PublishAsync(new(clock.UtcNow), stoppingToken).ConfigureAwait(false);
 
@@ -256,7 +256,7 @@ internal sealed class PoeDbCleanup(PoeDbRepository repository) : IDataflowHandle
 
     public ValueTask HandleAsync(PoeDbActiveSkillList message, CancellationToken cancellationToken = default)
     {
-        _startTimestamp = message.Timestamp.UtcDateTime;
+        _startTimestamp ??= message.Timestamp.UtcDateTime;
         return default;
     }
 
@@ -267,6 +267,7 @@ internal sealed class PoeDbCleanup(PoeDbRepository repository) : IDataflowHandle
         {
             return;
         }
+        _startTimestamp = null;
 
         _ = await repository.RemoveOlderThanAsync(startTs, cancellationToken).ConfigureAwait(false);
     }
