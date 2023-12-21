@@ -36,9 +36,10 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
+            var clock = scope.ServiceProvider.GetRequiredService<ISystemClock>();
             var league = await GetCurrentPcLeauge(scope, leagueMode, stoppingToken).ConfigureAwait(false);
-            await rootPublisher.PublishAsync(new(league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
-            await completedPublisher.PublishAsync(new(league.Mode), stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new(clock.UtcNow, league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
+            await completedPublisher.PublishAsync(new(clock.UtcNow, league.Mode), stoppingToken).ConfigureAwait(false);
         }
     }
 }
@@ -62,7 +63,7 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
     }
 }
 
-internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemClock clock) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
+internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
 {
     private readonly Dictionary<LeaugeMode, DateTime> _startTimestamp = new();
 
@@ -70,14 +71,14 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository, ISystemCloc
     {
         lock (_startTimestamp)
         {
-            _startTimestamp[message.League] = clock.UtcNow.UtcDateTime;
+            _startTimestamp[message.League] = message.Timestamp.UtcDateTime;
         }
         return default;
     }
 
     public async ValueTask HandleAsync(PoeNinjaListCompleted message, CancellationToken cancellationToken = default)
     {
-        var endTs = clock.UtcNow.UtcDateTime;
+        var endTs = message.Timestamp.UtcDateTime;
         lock (_startTimestamp)
         {
             if (!_startTimestamp.TryGetValue(message.League, out var startTs) || startTs > endTs)
