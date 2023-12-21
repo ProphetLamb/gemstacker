@@ -136,8 +136,8 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 
             return new(
                 message,
-                discriminator,
                 image,
+                discriminator,
                 skillStats,
                 skillDescription,
                 qualities,
