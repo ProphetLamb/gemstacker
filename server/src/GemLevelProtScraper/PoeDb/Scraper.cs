@@ -98,15 +98,15 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 
         PoeDbSkill ParseSkill()
         {
+            var discriminator = body
+                .QuerySelectorAll("ul.nav.nav-tabs a.nav-link > small")
+                .Select(ParseDiscriminator)
+                .FirstOrDefault();
+
             var image = pane
                 .QuerySelectorAll("div.itemboximage > img")
                 .OfType<IHtmlImageElement>()
                 .Select(img => img.Source)
-                .FirstOrDefault();
-
-            var discriminator = pane
-                .QuerySelectorAll("ul.nav.nav-tabs a.nav-link > small")
-                .Select(ParseDiscriminator)
                 .FirstOrDefault();
 
             var headers = pane.QuerySelectorAll("div.card > h5.card-header");
