@@ -38,8 +38,8 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeNinjaListCompleted>>();
             var clock = scope.ServiceProvider.GetRequiredService<ISystemClock>();
             var league = await GetCurrentPcLeague(scope, leagueMode, stoppingToken).ConfigureAwait(false);
-            await rootPublisher.PublishAsync(new(clock.UtcNow, league.Mode, $"https://poe.ninja/api/data/itemoverview?league={league.Name}&type=SkillGem&language=en"), stoppingToken).ConfigureAwait(false);
-            await completedPublisher.PublishAsync(new(clock.UtcNow, league.Mode), stoppingToken).ConfigureAwait(false);
+            await rootPublisher.PublishAsync(new(clock.UtcNow, league, "https://poe.ninja/api"), stoppingToken).ConfigureAwait(false);
+            await completedPublisher.PublishAsync(new(clock.UtcNow, league), stoppingToken).ConfigureAwait(false);
         }
     }
 }
@@ -50,14 +50,15 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
 
     public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
     {
+        var url = $"{root.ApiUrl}/data/itemoverview?league={root.League.Name}&type=SkillGem&language=en";
         var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.GetAsync(root.GemPriceUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         _ = response.EnsureSuccessStatusCode();
         await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPricesEnvelope");
         await gemPublisher.PublishAllAsync(
-            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeagueGemPrice(root.League, default, gemPrice)),
+            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeagueGemPrice(root.League.Mode, default, gemPrice)),
             cancellationToken
         ).ConfigureAwait(false);
     }
@@ -71,7 +72,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     {
         lock (_startTimestamp)
         {
-            _startTimestamp[message.League] = message.Timestamp.UtcDateTime;
+            _startTimestamp[message.League.Mode] = message.Timestamp.UtcDateTime;
         }
         return default;
     }
@@ -79,17 +80,18 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     public async ValueTask HandleAsync(PoeNinjaListCompleted message, CancellationToken cancellationToken = default)
     {
         var endTs = message.Timestamp.UtcDateTime;
+        var mode = message.League.Mode;
         lock (_startTimestamp)
         {
-            if (!_startTimestamp.TryGetValue(message.League, out var startTs) || startTs > endTs)
+            if (!_startTimestamp.TryGetValue(mode, out var startTs) || startTs > endTs)
             {
                 return;
             }
-            _ = _startTimestamp.Remove(message.League);
+            _ = _startTimestamp.Remove(mode);
         }
         var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
 
-        _ = await repository.RemoveOlderThanAsync(message.League, oldestTs, cancellationToken).ConfigureAwait(false);
+        _ = await repository.RemoveOlderThanAsync(mode, oldestTs, cancellationToken).ConfigureAwait(false);
     }
 }
 

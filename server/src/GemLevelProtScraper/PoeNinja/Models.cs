@@ -4,9 +4,9 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-internal sealed record PoeNinjaList(DateTimeOffset Timestamp, LeagueMode League, string GemPriceUrl);
+internal sealed record PoeNinjaList(DateTimeOffset Timestamp, PoeLeague League, string ApiUrl);
 
-internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, LeagueMode League);
+internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague League);
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<decimal?> Data, decimal TotalChange);
 
