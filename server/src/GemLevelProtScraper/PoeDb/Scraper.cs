@@ -48,22 +48,9 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
             .Concat(card.QuerySelectorAll("a.gem_red"))
             .OfType<IHtmlAnchorElement>()
             .Select(a => new PoeDbSkillName(a.Text, a.Href))
-            .SelectTruthy(ParseSkillNameFromRelative);
+            .SelectTruthy(PoeDbHtml.NormalizeRelative);
 
         await activeSkillPublisher.PublishAllAsync(items, cancellationToken).ConfigureAwait(false);
-
-        static PoeDbSkillName? ParseSkillNameFromRelative(PoeDbSkillName absoluteSkill)
-        {
-            if (string.IsNullOrWhiteSpace(absoluteSkill.Id))
-            {
-                return null;
-            }
-            if (!Uri.TryCreate(absoluteSkill.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
-            {
-                return null;
-            }
-            return absoluteSkill with { RelativeUrl = uri.PathAndQuery };
-        }
     }
 }
 
@@ -223,6 +210,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 .QuerySelectorAll(":scope > a")
                 .OfType<IHtmlAnchorElement>()
                 .Select(a => new PoeDbSkillName(a.TextContent, a.Href))
+                .SelectTruthy(PoeDbHtml.NormalizeRelative)
                 .ToImmutableArray();
             return new(
                 skills

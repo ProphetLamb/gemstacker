@@ -6,6 +6,18 @@ namespace GemLevelProtScraper.PoeDb;
 
 public static partial class PoeDbHtml
 {
+    internal static PoeDbSkillName? NormalizeRelative(PoeDbSkillName absoluteSkill)
+    {
+        if (string.IsNullOrWhiteSpace(absoluteSkill.Id))
+        {
+            return null;
+        }
+        if (!Uri.TryCreate(absoluteSkill.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
+        {
+            return null;
+        }
+        return absoluteSkill with { RelativeUrl = uri.PathAndQuery };
+    }
 
     public static IHtmlHeadingElement? TryGetHeader(IHtmlCollection<IElement> headers, string skillName, string headerName, ILogger? logger = null)
     {
