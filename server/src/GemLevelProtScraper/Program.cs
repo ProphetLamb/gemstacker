@@ -44,7 +44,11 @@ builder.Services
         .AddDataFlow<PoeLeaguesSpider>()
         .AddDataFlow<PoeSink>()
         .AddDataFlow<DataflowSignal<PoeLeagueListCompleted>>()
-        .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o => o.ApiKey = webShareKey))
+        .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o =>
+        {
+            o.ApiKey = webShareKey;
+            o.CacheExpiration = TimeSpan.FromMinutes(30);
+        }))
     )
     .AddHttpContextAccessor()
     .AddMemoryCache()
@@ -82,7 +86,7 @@ app
         CancellationToken cancellationToken = default
     ) =>
     {
-        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeagueMode.League, Realm.Pc, cancellationToken).ConfigureAwait(false);
+        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeagueMode.League | LeagueMode.Softcore, Realm.Pc, cancellationToken).ConfigureAwait(false);
         if (baseLeague is null)
         {
             return Results.BadRequest(new
