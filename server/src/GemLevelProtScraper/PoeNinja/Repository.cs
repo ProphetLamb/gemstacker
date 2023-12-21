@@ -8,9 +8,9 @@ namespace GemLevelProtScraper.PoeNinja;
 
 public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
-    private readonly IMongoCollection<PoeNinjaApiLeagueGemPrice> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
+    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
         .GetDatabase(settings.Value.DatabaseName)
-        .GetCollection<PoeNinjaApiLeagueGemPrice>(settings.Value.GemPriceCollectionName);
+        .GetCollection<PoeNinjaApiGemPriceEnvalope>(settings.Value.GemPriceCollectionName);
 
     internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
@@ -33,7 +33,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         if (string.IsNullOrEmpty(skillName))
         {
             return await _gemPriceCollection
-                .Find(FilterDefinition<PoeNinjaApiLeagueGemPrice>.Empty)
+                .Find(FilterDefinition<PoeNinjaApiGemPriceEnvalope>.Empty)
                 .Project(g => g.Price)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -83,7 +83,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
     internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
     {
         return await _gemPriceCollection
-            .Find(FilterDefinition<PoeNinjaApiLeagueGemPrice>.Empty)
+            .Find(FilterDefinition<PoeNinjaApiGemPriceEnvalope>.Empty)
             .Project(s => s.Price.Name)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }

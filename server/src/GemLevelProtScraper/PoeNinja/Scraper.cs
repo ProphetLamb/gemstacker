@@ -44,7 +44,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
     }
 }
 
-internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiLeagueGemPrice> gemPublisher) : IDataflowHandler<PoeNinjaList>
+internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiGemPriceEnvalope> gemPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
@@ -55,10 +55,10 @@ internal sealed class PoeNinjaSpider(IHttpClientFactory httpClientFactory, IData
         var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         _ = response.EnsureSuccessStatusCode();
         await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPricesEnvelope>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
+        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemPriceResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPricesEnvelope");
         await gemPublisher.PublishAllAsync(
-            envelope.Lines.Select(gemPrice => new PoeNinjaApiLeagueGemPrice(root.League.Mode, default, gemPrice)),
+            envelope.Lines.Select(gemPrice => new PoeNinjaApiGemPriceEnvalope(root.League.Mode, default, gemPrice)),
             cancellationToken
         ).ConfigureAwait(false);
     }
@@ -96,7 +96,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     }
 }
 
-internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeagueGemPrice>
+internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiGemPriceEnvalope>
 {
     private readonly PoeNinjaRepository _poeNinjaRepository;
 
@@ -105,7 +105,7 @@ internal sealed class PoeNinjaSink : IDataflowHandler<PoeNinjaApiLeagueGemPrice>
         _poeNinjaRepository = poeNinjaRepository ?? throw new ArgumentNullException(nameof(poeNinjaRepository));
     }
 
-    public async ValueTask HandleAsync(PoeNinjaApiLeagueGemPrice newGem, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeNinjaApiGemPriceEnvalope newGem, CancellationToken cancellationToken = default)
     {
         await _poeNinjaRepository.AddOrUpdateAsync(newGem.League, newGem.Price, cancellationToken).ConfigureAwait(false);
     }

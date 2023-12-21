@@ -24,8 +24,8 @@ internal sealed record PoeNinjaApiGemPrice(
 );
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiLeagueGemPrice(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
+internal sealed record PoeNinjaApiGemPriceEnvalope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
-internal sealed record PoeNinjaApiGemPricesEnvelope(
+internal sealed record PoeNinjaApiGemPriceResponse(
     ImmutableArray<PoeNinjaApiGemPrice> Lines
 );
