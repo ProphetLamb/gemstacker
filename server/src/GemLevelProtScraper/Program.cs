@@ -129,7 +129,7 @@ app
             MinimumListingCount = minListingCount
         };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        var count = Math.Max(data.Length, itemsCount);
+        var count = Math.Min(data.Length, itemsCount);
         return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
     }); //.CacheOutput("expire30min")
 app.Run();

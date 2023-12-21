@@ -32,7 +32,7 @@
 
 	const intlCompactNumber = Intl.NumberFormat('en-US', {
 		notation: 'compact',
-		maximumFractionDigits: 0
+		maximumFractionDigits: 2
 	});
 	const intlFractionNumber = Intl.NumberFormat('en-US', {
 		notation: 'standard',
@@ -114,7 +114,7 @@
 					class="input"
 					type="range"
 					min={5000000}
-					max={500000000}
+					max={2000000000}
 					step={5000000}
 					bind:value={$gemLevelsProfitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
