@@ -6,11 +6,15 @@
 	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
+	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
 	const {
 		form: gemLevelsProfitForm,
+		capture,
+		restore,
 		errors,
 		constraints,
 		enhance,
@@ -18,6 +22,8 @@
 	} = superForm(data.gemLevelsProfitForm, {
 		validators: gemProfitRequestParameterSchema
 	});
+
+	export const snapshot = { capture, restore };
 
 	const currencyGemQuality =
 		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png';
@@ -32,6 +38,13 @@
 		notation: 'standard',
 		maximumFractionDigits: 2,
 		minimumFractionDigits: 2
+	});
+
+	onMount(() => {
+		window.onbeforeunload = null;
+		window.addEventListener('beforeunload', function (event) {
+			event.stopImmediatePropagation();
+		});
 	});
 </script>
 
