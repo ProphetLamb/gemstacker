@@ -11,12 +11,12 @@ export interface GemProfitRequestParameter {
 
 export const gemProfitRequestParameterSchema = z.object({
 	league: z.string(),
-	gem_name: z.string().optional(),
-	min_sell_price_chaos: z.number().optional(),
-	max_buy_price_chaos: z.number().optional(),
+	gem_name: z.string().nullable().optional(),
+	min_sell_price_chaos: z.number().nullable().optional(),
+	max_buy_price_chaos: z.number().nullable().optional(),
 	min_experience_delta: z.number().min(5000000).max(500000000).default(200000000),
-	items_offset: z.number().optional().default(0),
-	items_count: z.number().optional().default(10)
+	items_offset: z.number().nullable().optional().default(0),
+	items_count: z.number().nullable().optional().default(10)
 });
 
 export interface GemProfitResponseItemPrice {
