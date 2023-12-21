@@ -55,8 +55,8 @@ public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeDatabaseSettings> 
         var col = optionsAccessor.Value.GetLeagueCollection(database);
         IndexKeysDefinitionBuilder<PoeLeague> builder = new();
         var index = builder.Combine(
-            builder.Text(e => e.Realm),
-            builder.Text(e => e.Name)
+            builder.Ascending(e => e.Name),
+            builder.Ascending(e => e.Realm)
         );
 
         CreateIndexModel<PoeLeague> model = new(index, new()

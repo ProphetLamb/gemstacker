@@ -53,7 +53,7 @@ public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeDbDatabaseSettings
     {
         var col = optionsAccessor.Value.GetSkillCollection(database);
         IndexKeysDefinitionBuilder<PoeDbSkillEnvalope> builder = new();
-        var index = builder.Text(e => e.Skill.Name.Id);
+        var index = builder.Ascending(e => e.Skill.Name.Id);
 
         CreateIndexModel<PoeDbSkillEnvalope> model = new(index, new()
         {

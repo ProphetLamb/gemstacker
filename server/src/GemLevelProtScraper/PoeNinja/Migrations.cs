@@ -78,7 +78,7 @@ public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeNinjaDatabaseSetti
     {
         var col = optionsAccessor.Value.GetGemPriceCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
-        var index = builder.Text(e => e.Price.Name);
+        var index = builder.Hashed(e => e.Price.Name);
 
         CreateIndexModel<PoeNinjaApiGemPriceEnvalope> model = new(index, new()
         {
@@ -104,7 +104,7 @@ public sealed class PoeNinjaAddIdentifierIndexMigration(IOptions<PoeNinjaDatabas
         var col = optionsAccessor.Value.GetGemPriceCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
         var index = builder.Combine(
-            builder.Text(e => e.Price.Name),
+            builder.Ascending(e => e.Price.Name),
             builder.Ascending(e => e.League),
             builder.Ascending(e => e.Price.GemLevel),
             builder.Ascending(e => e.Price.GemQuality)
