@@ -31,6 +31,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
     <PackageReference Include="ScrapeAAS" Version="0.1.1" />
     <PackageReference Include="ScrapeAAS.WebShare" Version="0.1.1" />
+    <PackageReference Include="Sentry.AspNet" Version="3.41.3" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Yoh.Text.Json.NamingPolicies" Version="1.0.0" />
   </ItemGroup>

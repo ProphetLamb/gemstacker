@@ -7,15 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
 using ScrapeAAS;
+using Sentry;
 using Yoh.Text.Json.NamingPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
-
-var apiKey = builder.Configuration["Authentication:ApiKey"];
+var apiKey = builder.Configuration["Authen1tication:ApiKey"];
 var webShareKey = builder.Configuration["Authentication:WebShareApiKey"];
+
+// BSON Serialization
+BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
+// Sentry
+var flush = SentrySdk.Init("https://bcf0ff9fab08594e449c0638263a731f@o4505884379250688.ingest.sentry.io/4505884389670912");
+AppDomain.CurrentDomain.FirstChanceException += (sender, args) => SentrySdk.CaptureException(args.Exception);
 
 builder.Services
     .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
