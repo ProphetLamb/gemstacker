@@ -24,8 +24,9 @@ public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IM
 
     internal async Task<long> RemoveOlderThanAsync(DateTimeOffset oldestTimestamp, CancellationToken cancellationToken = default)
     {
+        var utcTimestamp = oldestTimestamp.UtcDateTime;
         var result = await _skillCollection.DeleteManyAsync(
-            e => e.UtcTimestamp < oldestTimestamp,
+            e => e.UtcTimestamp < utcTimestamp,
             cancellationToken
         ).ConfigureAwait(false);
         return result.IsAcknowledged ? result.DeletedCount : -1;
