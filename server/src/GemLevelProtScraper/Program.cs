@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using GemLevelProtScraper;
@@ -94,6 +96,7 @@ app
         [FromQuery(Name = "max_buy_price_chaos")] decimal? maxBuyPriceChaos = null,
         [FromQuery(Name = "min_experience_delta")] decimal? minExperienceDelta = null,
         [FromQuery(Name = "min_listing_count")] int minListingCount = 4,
+        [FromQuery(Name = "items_count")] int itemsCount = 10,
         CancellationToken cancellationToken = default
     ) =>
     {
@@ -126,7 +129,7 @@ app
             MinimumListingCount = minListingCount
         };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        return Results.Ok(data);
+        return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, itemsCount));
     }); //.CacheOutput("expire30min")
 app.Run();
 
