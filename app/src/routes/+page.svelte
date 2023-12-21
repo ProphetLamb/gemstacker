@@ -18,6 +18,11 @@
 	} = superForm(data.gemLevelsProfitForm, {
 		validators: gemProfitRequestParameterSchema
 	});
+
+	const numberFormat = Intl.NumberFormat('en-US', {
+		notation: 'compact',
+		maximumFractionDigits: 0
+	});
 </script>
 
 <div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
@@ -85,13 +90,13 @@
 					name="min_experience_delta"
 					class="input"
 					type="range"
-					min={1000000}
-					max={100000000}
-					step={1000000}
+					min={5000000}
+					max={500000000}
+					step={5000000}
 					bind:value={$gemLevelsProfitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
-				<p>{$gemLevelsProfitForm.min_experience_delta}exp</p>
+				<p>{numberFormat.format($gemLevelsProfitForm.min_experience_delta)}&#916;exp</p>
 				{#if $errors.min_experience_delta}
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
@@ -118,6 +123,8 @@
 				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
 					<tbody>
 						{#each form.gemProfit as gemPrice, idx}
+							{@const deltaExp = gemPrice.max.experience - gemPrice.min.experience}
+							{@const deltaExpStr = numberFormat.format(deltaExp)}
 							<tr class="h-12">
 								<td class="pr-2">
 									<a
@@ -133,13 +140,29 @@
 										><span class="table-cell align-middle">{gemPrice.name}</span></a
 									></td
 								>
-								<td class="align-middle text-right">{gemPrice.min.price}c</td>
-								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+								<td class="text-right flex flex-row justify-end items-center h-full">
+									{gemPrice.min.price}
+									<img
+										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
+										alt="c"
+										class="table-cell align-middle w-4 h-4 mt-0.5"
+									/></td
+								>
 								<td class="align-middle text-left">lvl{gemPrice.min.level}</td>
 								<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
-								<td class="align-middle text-right">{gemPrice.max.price}c</td>
-								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
+								<td class="text-right flex flex-row justify-end items-center h-full">
+									{gemPrice.max.price}
+									<img
+										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
+										alt="c"
+										class="table-cell align-middle w-4 h-4 mt-0.5"
+									/></td
+								>
 								<td class="align-middle text-left">lvl{gemPrice.max.level}</td>
+								<td />
+								<td class="align-middle text-right overflow-hidden whitespace-nowrap"
+									>{deltaExpStr}&#916;exp</td
+								>
 								<td class="pl-2">
 									<GemTradeQueryButton {gemPrice} />
 								</td>
