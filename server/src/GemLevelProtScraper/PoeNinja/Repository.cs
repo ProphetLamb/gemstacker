@@ -8,9 +8,7 @@ namespace GemLevelProtScraper.PoeNinja;
 
 public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
-    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = new MongoClient(settings.Value.ConnectionString)
-        .GetDatabase(settings.Value.DatabaseName)
-        .GetCollection<PoeNinjaApiGemPriceEnvalope>(settings.Value.GemPriceCollectionName);
+    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = settings.Value.GetGemPriceCollection();
 
     internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {

@@ -25,6 +25,12 @@ public sealed record PoeNinjaDatabaseSettings : IOptions<PoeNinjaDatabaseSetting
         };
     }
 
+    internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetGemPriceCollection()
+    {
+        MongoClient client = new(ConnectionString);
+        var database = client.GetDatabase(DatabaseName);
+        return GetGemPriceCollection(database);
+    }
     internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetGemPriceCollection(IMongoDatabase database)
     {
         return database.GetCollection<PoeNinjaApiGemPriceEnvalope>(GemPriceCollectionName);
