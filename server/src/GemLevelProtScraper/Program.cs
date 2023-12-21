@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using GemLevelProtScraper;
 using GemLevelProtScraper.Poe;
@@ -15,6 +16,10 @@ builder.Configuration.AddEnvironmentVariables();
 
 var apiKey = builder.Configuration["Authen1tication:ApiKey"];
 var webShareKey = builder.Configuration["Authentication:WebShareApiKey"];
+
+// Encoding
+var provider = CodePagesEncodingProvider.Instance;
+Encoding.RegisterProvider(provider);
 
 // BSON Serialization
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
