@@ -5,14 +5,14 @@
 	export let gemPrice: GemProfitResponseItem;
 
 	let buyTradeUrl = getTradeQueryUrl(
-		gemPrice.name,
+		gemPrice.type,
 		gemPrice.discriminator,
 		gemPrice.min.level,
 		gemPrice.max.level,
 		gemPrice.min.quality
 	);
 	let sellTradeUrl = getTradeQueryUrl(
-		gemPrice.name,
+		gemPrice.type,
 		gemPrice.discriminator,
 		gemPrice.max.level,
 		undefined,
