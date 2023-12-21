@@ -81,15 +81,16 @@ internal sealed class PoeNinjaCleanup(PoeNinjaRepository repository) : IDataflow
     {
         var endTs = message.Timestamp.UtcDateTime;
         var mode = message.League.Mode;
+        DateTime startTs;
         lock (_startTimestamp)
         {
-            if (!_startTimestamp.TryGetValue(mode, out var startTs) || startTs > endTs)
+            if (!_startTimestamp.TryGetValue(mode, out startTs) || startTs > endTs)
             {
                 return;
             }
             _ = _startTimestamp.Remove(mode);
         }
-        var oldestTs = endTs.Add(TimeSpan.FromSeconds(-1));
+        var oldestTs = startTs.Add(TimeSpan.FromSeconds(-1));
 
         _ = await repository.RemoveOlderThanAsync(mode, oldestTs, cancellationToken).ConfigureAwait(false);
     }
