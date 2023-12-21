@@ -27,13 +27,13 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(string? skillName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(LeagueMode league, string? skillName, CancellationToken cancellationToken = default)
     {
         // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
         {
             return await _gemPriceCollection
-                .Find(FilterDefinition<PoeNinjaApiGemPriceEnvalope>.Empty)
+                .Find(e => e.League == league)
                 .Project(g => g.Price)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -43,12 +43,12 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
     {
         // _ = await migrationCompletion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var skillNameSet = skillNames.ToHashSet();
         return await _gemPriceCollection
-            .Find(s => skillNameSet.Contains(s.Price.Name))
+            .Find(s => s.League == league && skillNameSet.Contains(s.Price.Name))
             .Project(g => g.Price)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -62,7 +62,7 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         return result.IsAcknowledged ? result.DeletedCount : -1;
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(string? nameWildcard, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
     {
         if (nameWildcard == "*")
         {
@@ -70,20 +70,20 @@ public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settin
         }
         if (nameWildcard is null || !nameWildcard.ContainsGlobChars())
         {
-            return await GetByNameAsync(nameWildcard, cancellationToken).ConfigureAwait(false);
+            return await GetByNameAsync(league, nameWildcard, cancellationToken).ConfigureAwait(false);
         }
-        var names = await ListNamesAsync(cancellationToken).ConfigureAwait(false);
+        var names = await ListNamesAsync(league, cancellationToken).ConfigureAwait(false);
         var nameGlob = Glob.Parse(nameWildcard);
         var validNamed = names.Where(nameGlob.IsMatch);
-        var prices = await GetByNameListAsync(validNamed, cancellationToken).ConfigureAwait(false);
+        var prices = await GetByNameListAsync(league, validNamed, cancellationToken).ConfigureAwait(false);
         return prices;
     }
 
 
-    internal async Task<IReadOnlyList<string>> ListNamesAsync(CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<string>> ListNamesAsync(LeagueMode league, CancellationToken cancellationToken = default)
     {
         return await _gemPriceCollection
-            .Find(FilterDefinition<PoeNinjaApiGemPriceEnvalope>.Empty)
+            .Find(e => e.League == league)
             .Project(s => s.Price.Name)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }

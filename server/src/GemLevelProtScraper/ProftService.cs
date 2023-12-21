@@ -40,7 +40,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 {
     public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
     {
-        var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
+        var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.League, request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
 
         var eligiblePrices = gemPrices
             .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
