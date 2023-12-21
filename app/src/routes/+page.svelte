@@ -163,17 +163,22 @@
 										<img src={gem.icon} alt={`${idx + 1}`} />
 									</a>
 								</td>
-								<td class="table"
-									><a href={gem.foreign_info_url} target="_blank" class="table-cell h-full"
-										><span class="align-middle">{gem.name}</span></a
-									></td
+								<td class="relative border-spacing-0"
+									><a href={gem.foreign_info_url} target="_blank" class="table h-full"
+										><span class="align-top">{gem.name}</span></a
+									>
+									<a
+										href={gem.foreign_info_url}
+										target="_blank"
+										class="flex flex-row absolute bottom-0 left-0 text-xs text-surface-600-300-token"
+									>
+										lvl
+										{gem.min.level} → {gem.max.level} =
+										<span class="text-secondary-300-600-token"
+											>+{intlCompactNumber.format(deltaExp)}</span
+										>exp
+									</a></td
 								>
-								<td class="">&nbsp;</td>
-								<td class="table pt-1">
-									<span class="text-sm text-surface-600-300-token">Δ</span><span
-										class="text-secondary-300-600-token">{intlCompactNumber.format(deltaExp)}</span
-									><span class="text-sm text-surface-600-300-token">exp</span>
-								</td>
 								<td class="">&nbsp;</td>
 								<td class="text-end table pt-1">
 									<span class="">{gem.min.price}</span>
