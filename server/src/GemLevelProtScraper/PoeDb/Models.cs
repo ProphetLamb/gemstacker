@@ -3,7 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeDb;
 
-internal sealed record PoeDbRoot(string ActiveSkillUrl);
+internal sealed record PoeDbList(DateTimeOffset Timestamp, string ActiveSkillUrl);
+internal sealed record PoeDbListCompleted(DateTimeOffset Timestamp);
 
 internal sealed record PoeDbActiveSkillsResponse(ImmutableArray<PoeDbSkillName> Data);
 

@@ -4,19 +4,22 @@ using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using MongoDB.Driver;
+using MongoDB.Migration;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper.PoeDb;
 
-internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : BackgroundService
+internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory, ISystemClock clock) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
-            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbRoot>>();
-            await rootPublisher.PublishAsync(new("https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).ConfigureAwait(false);
+            var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbList>>();
+            var completionPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbListCompleted>>();
+            await rootPublisher.PublishAsync(new(clock.UtcNow, "https://poedb.tw/us/Gem#SkillGemsGem"), stoppingToken).ConfigureAwait(false);
+            await completionPublisher.PublishAsync(new(clock.UtcNow), stoppingToken).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromHours(12), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
@@ -24,9 +27,9 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory) : B
     }
 }
 
-internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IAngleSharpStaticPageLoader pageLoader, ILogger<PoeDbSkillSpider> logger) : IDataflowHandler<PoeDbRoot>
+internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> activeSkillPublisher, IAngleSharpStaticPageLoader pageLoader, ILogger<PoeDbSkillSpider> logger) : IDataflowHandler<PoeDbList>
 {
-    public async ValueTask HandleAsync(PoeDbRoot message, CancellationToken cancellationToken = default)
+    public async ValueTask HandleAsync(PoeDbList message, CancellationToken cancellationToken = default)
     {
         var body = await pageLoader.LoadAsync(new(message.ActiveSkillUrl), cancellationToken).ConfigureAwait(false);
         var headers = body.QuerySelectorAll("div.card > h5.card-header");
