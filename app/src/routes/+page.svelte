@@ -19,9 +19,19 @@
 		validators: gemProfitRequestParameterSchema
 	});
 
-	const numberFormat = Intl.NumberFormat('en-US', {
+	const currencyGemQuality =
+		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png';
+	const currencyRerollRare =
+		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png';
+
+	const intlCompactNumber = Intl.NumberFormat('en-US', {
 		notation: 'compact',
 		maximumFractionDigits: 0
+	});
+	const intlFractionNumber = Intl.NumberFormat('en-US', {
+		notation: 'standard',
+		maximumFractionDigits: 2,
+		minimumFractionDigits: 2
 	});
 </script>
 
@@ -96,7 +106,11 @@
 					bind:value={$gemLevelsProfitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
-				<p>{numberFormat.format($gemLevelsProfitForm.min_experience_delta)}&#916;exp</p>
+				<p>
+					<span class="text-sm text-surface-600-300-token">Δ</span><span class="text-token"
+						>{intlCompactNumber.format($gemLevelsProfitForm.min_experience_delta)}</span
+					><span class="text-sm text-surface-600-300-token">exp</span>
+				</p>
 				{#if $errors.min_experience_delta}
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
@@ -111,7 +125,7 @@
 	<article class="flex flex-col items-center p-4">
 		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
-			<span class="">The best gems for you.</span>
+			<span>The best gems for you.</span>
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
@@ -119,13 +133,13 @@
 					<ProgressRadial stroke={200} value={undefined} class="w-4" />
 					<span class="ml-2 text-center">Loading...</span>
 				</div>
-			{:else if form?.gemProfit}
-				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
+			{:else if form?.gemProfit && form.gemProfit.length > 0}
+				<table class="list w-full border-separate border-spacing-y-2">
 					<tbody>
 						{#each form.gemProfit as gem, idx}
 							{@const deltaExp = gem.max.experience - gem.min.experience}
-							{@const deltaExpStr = numberFormat.format(deltaExp)}
-							{@const deltaQty = gem.max.quality - gem.min.quality}
+							{@const deltaQty = Math.max(0, gem.max.quality - gem.min.quality)}
+							{@const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty)}
 							<tr class="h-12">
 								<td class="pr-2">
 									<a
@@ -136,41 +150,43 @@
 										<img src={gem.icon} alt={`${idx + 1}`} />
 									</a>
 								</td>
-								<td class=""
-									><a href={gem.foreign_info_url} target="_blank" class="h-full"
+								<td class="table"
+									><a href={gem.foreign_info_url} target="_blank" class="table-cell h-full"
 										><span class="align-middle">{gem.name}</span></a
 									></td
 								>
-								<td class="text-right items-center align-middle table mt-0.5">
-									{gem.min.price}
-									<img
-										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
-										alt="c"
-										class="table-cell align-middle w-4 h-4"
-									/></td
-								>
-								<td class="align-middle text-left">lvl{gem.min.level}</td>
-								<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
-								<td class="text-right items-center align-middle table mt-0.5">
-									{gem.max.price}
-									<img
-										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
-										alt="c"
-										class="table-cell align-middle w-4 h-4"
-									/></td
-								>
-								<td class="align-middle text-left">lvl{gem.max.level}</td>
-								<td class="text-right items-center align-middle table mt-0.5">
+								<td class="">&nbsp;</td>
+								<td class="table pt-1">
+									<span class="text-sm text-surface-600-300-token">Δ</span><span
+										class="text-secondary-300-600-token">{intlCompactNumber.format(deltaExp)}</span
+									><span class="text-sm text-surface-600-300-token">exp</span>
+								</td>
+								<td class="">&nbsp;</td>
+								<td class="text-end table pt-1">
+									<span class="">{gem.min.price}</span>
+									<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
+								</td>
+								<td class="pt-1 text-surface-600-300-token">
+									<Icon src={hi.ArrowRight} size="14" />
+								</td>
+								<td class="text-start table pt-1">
+									{gem.max.price}<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 									{#if deltaQty > 0}
-										{deltaQty}
-										<img
-											src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png"
+										<span class="text-error-200-700-token">-{deltaQty}</span><img
+											src={currencyGemQuality}
 											alt="qty"
-											class="table-cell align-middle w-4 h-4"
+											class="table-cell h-4 w-4"
 										/>
+									{:else}
+										&nbsp;
 									{/if}
 								</td>
-								<td class="align-middle text-right">{deltaExpStr}&#916;exp</td>
+								<td class=""> <span class="font-semibold text-surface-600-300-token">=</span></td>
+								<td class="text-start table pt-1">
+									<span class="text-success-200-700-token"
+										>+{intlFractionNumber.format(deltaPrice)}</span
+									><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
+								</td>
 								<td class="pl-2">
 									<GemTradeQueryButton gemPrice={gem} />
 								</td>
