@@ -67,7 +67,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
             Name = t.Data.Name.Id,
-            Icon = t.Data.IconUrl,
+            Icon = t.Max.Data.Icon ?? t.Min.Data.Icon ?? t.Data.IconUrl,
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
             GainMargin = t.Margin,
