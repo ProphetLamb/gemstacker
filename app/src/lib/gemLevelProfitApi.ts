@@ -41,7 +41,9 @@ export interface GemProfitResponseItem {
 	min: GemProfitResponseItemPrice;
 	max: GemProfitResponseItemPrice;
 	gain_margin: number;
+	type: string;
 	discriminator?: string;
+	foreign_info_url: string;
 }
 
 export const gemProfitResponseItemSchema = z.object({
@@ -50,7 +52,9 @@ export const gemProfitResponseItemSchema = z.object({
 	min: gemProfitResponseItemPriceSchema,
 	max: gemProfitResponseItemPriceSchema,
 	gain_margin: z.number(),
+	type: z.string(),
 	discriminator: z.string().nullable(),
+	foreign_info_url: z.string()
 });
 
 export type GemProfitResponse = GemProfitResponseItem[]
