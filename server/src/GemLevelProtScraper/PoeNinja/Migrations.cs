@@ -88,7 +88,7 @@ public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeNinjaDatabaseSetti
     }
 }
 
-[MongoMigration(PoeNinjaDatabaseSettings.Alias, 0, 1, Description = $"Add composite index {GemIdentifierIndexName}.")]
+[MongoMigration(PoeNinjaDatabaseSettings.Alias, 0, 1, Description = $"Add unique composite index {GemIdentifierIndexName}.")]
 public sealed class PoeNinjaAddIdentifierIndexMigration(IOptions<PoeNinjaDatabaseSettings> optionsAccessor) : IMongoMigration
 {
     public const string GemIdentifierIndexName = "GemIdentifier";
