@@ -87,7 +87,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         {
             var discriminator = body
                 .QuerySelectorAll("ul.nav.nav-tabs a.nav-link > small")
-                .Select(ParseDiscriminator)
+                .SelectTruthy(ParseDiscriminator)
                 .FirstOrDefault();
 
             var image = pane
@@ -233,7 +233,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         }
     }
 
-    [GeneratedRegex("_(alt_[xyz])")]
+    [GeneratedRegex(@"_(alt_\w+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex MatchAltDiscriminatorRegex();
 }
 
