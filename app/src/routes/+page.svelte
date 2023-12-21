@@ -113,7 +113,7 @@
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span class="">The best gems for you.</span>
 		</h1>
-		<div class="text-token flex flex-col items-center card p-4 space-y-2 w-[46rem]">
+		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
 				<div class="flex flex-row items-center">
 					<ProgressRadial stroke={200} value={undefined} class="w-4" />
@@ -122,49 +122,57 @@
 			{:else if form?.gemProfit}
 				<table class="list w-full border-separate border-spacing-y-2 border-spacing-x-1">
 					<tbody>
-						{#each form.gemProfit as gemPrice, idx}
-							{@const deltaExp = gemPrice.max.experience - gemPrice.min.experience}
+						{#each form.gemProfit as gem, idx}
+							{@const deltaExp = gem.max.experience - gem.min.experience}
 							{@const deltaExpStr = numberFormat.format(deltaExp)}
+							{@const deltaQty = gem.max.quality - gem.min.quality}
 							<tr class="h-12">
 								<td class="pr-2">
 									<a
-										href={gemPrice.foreign_info_url}
+										href={gem.foreign_info_url}
 										target="_blank"
 										class="badge-icon variant-soft-primary h-11 w-11"
 									>
-										<img src={gemPrice.icon} alt={`${idx + 1}`} />
+										<img src={gem.icon} alt={`${idx + 1}`} />
 									</a>
 								</td>
 								<td class=""
-									><a href={gemPrice.foreign_info_url} target="_blank" class="table h-full"
-										><span class="table-cell align-middle">{gemPrice.name}</span></a
+									><a href={gem.foreign_info_url} target="_blank" class="h-full"
+										><span class="align-middle">{gem.name}</span></a
 									></td
 								>
-								<td class="text-right flex flex-row justify-end items-center h-full">
-									{gemPrice.min.price}
+								<td class="text-right items-center align-middle table mt-0.5">
+									{gem.min.price}
 									<img
 										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
 										alt="c"
-										class="table-cell align-middle w-4 h-4 mt-0.5"
+										class="table-cell align-middle w-4 h-4"
 									/></td
 								>
-								<td class="align-middle text-left">lvl{gemPrice.min.level}</td>
+								<td class="align-middle text-left">lvl{gem.min.level}</td>
 								<td class="align-middle"><Icon src={hi.ArrowRight} size="16" /></td>
-								<td class="text-right flex flex-row justify-end items-center h-full">
-									{gemPrice.max.price}
+								<td class="text-right items-center align-middle table mt-0.5">
+									{gem.max.price}
 									<img
 										src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png"
 										alt="c"
-										class="table-cell align-middle w-4 h-4 mt-0.5"
+										class="table-cell align-middle w-4 h-4"
 									/></td
 								>
-								<td class="align-middle text-left">lvl{gemPrice.max.level}</td>
-								<td />
-								<td class="align-middle text-right overflow-hidden whitespace-nowrap"
-									>{deltaExpStr}&#916;exp</td
-								>
+								<td class="align-middle text-left">lvl{gem.max.level}</td>
+								<td class="text-right items-center align-middle table mt-0.5">
+									{#if deltaQty > 0}
+										{deltaQty}
+										<img
+											src="https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png"
+											alt="qty"
+											class="table-cell align-middle w-4 h-4"
+										/>
+									{/if}
+								</td>
+								<td class="align-middle text-right">{deltaExpStr}&#916;exp</td>
 								<td class="pl-2">
-									<GemTradeQueryButton {gemPrice} />
+									<GemTradeQueryButton gemPrice={gem} />
 								</td>
 							</tr>
 						{/each}
