@@ -120,11 +120,19 @@
 						{#each form.gemProfit as gemPrice, idx}
 							<tr class="h-12">
 								<td class="pr-2">
-									<div class="badge-icon variant-soft-primary h-11 w-11">
+									<a
+										href={gemPrice.foreign_info_url}
+										target="_blank"
+										class="badge-icon variant-soft-primary h-11 w-11"
+									>
 										<img src={gemPrice.icon} alt={`${idx + 1}`} />
-									</div>
+									</a>
 								</td>
-								<td class="flex-auto">{gemPrice.name}</td>
+								<td class=""
+									><a href={gemPrice.foreign_info_url} target="_blank" class="table h-full"
+										><span class="table-cell align-middle">{gemPrice.name}</span></a
+									></td
+								>
 								<td class="align-middle text-right">{gemPrice.min.price}c</td>
 								<td class="align-middle text-center"><Icon src={hi.AtSymbol} size="16" /></td>
 								<td class="align-middle text-left">lvl{gemPrice.min.level}</td>
