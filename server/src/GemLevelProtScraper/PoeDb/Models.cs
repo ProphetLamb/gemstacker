@@ -7,7 +7,7 @@ internal sealed record PoeDbRoot(string ActiveSkillUrl);
 
 internal sealed record PoeDbActiveSkillsResponse(ImmutableArray<PoeDbSkillName> Data);
 
-internal sealed record PoeDbSkillName(string Name, string RelativeUrl);
+internal sealed record PoeDbSkillName(string Id, string RelativeUrl);
 
 internal sealed record PoeDbGemQuality(string Type);
 
@@ -25,5 +25,7 @@ internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, Immutab
 
 internal sealed record PoeDbGenus(ImmutableArray<PoeDbSkillName> Skills);
 
-[BsonIgnoreExtraElements]
 internal sealed record PoeDbSkill(PoeDbSkillName Name, string? IconUrl, string? Discriminator, PoeDbSkillStats Stats, PoeDbSkillDescription? Description, ImmutableArray<PoeDbGemQuality> Qualities, ImmutableArray<PoeDbSkillLevel> LevelEffects, PoeDbGenus? Genus);
+
+[BsonIgnoreExtraElements]
+internal sealed record PoeDbSkillEnvalope(DateTime UtcTimestamp, PoeDbSkill Skill);

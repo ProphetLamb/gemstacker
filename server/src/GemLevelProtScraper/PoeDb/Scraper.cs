@@ -51,7 +51,7 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
 
         static PoeDbSkillName? ParseSkillNameFromRelative(PoeDbSkillName absoluteSkill)
         {
-            if (string.IsNullOrWhiteSpace(absoluteSkill.Name))
+            if (string.IsNullOrWhiteSpace(absoluteSkill.Id))
             {
                 return null;
             }
@@ -68,7 +68,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 {
     public async ValueTask HandleAsync(PoeDbSkillName message, CancellationToken cancellationToken = default)
     {
-        var skillName = message.Name;
+        var skillName = message.Id;
         Url skillPage = new(message.RelativeUrl, "https://poedb.tw/");
         var body = await pageLoader.LoadAsync(skillPage, cancellationToken).ConfigureAwait(false);
         var pane = body.QuerySelector("div.tab-pane.fade.show.active");
@@ -85,7 +85,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to parse skill page {SkillName}", message.Name);
+            logger.LogError(ex, "Failed to parse skill page {SkillName}", message.Id);
         }
 
         if (skill is { })
@@ -250,6 +250,6 @@ internal sealed class PoeDbSink(PoeDbRepository repository) : IDataflowHandler<P
 {
     public async ValueTask HandleAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
-        _ = await repository.AddOrUpdateAsync(newSkill, cancellationToken).ConfigureAwait(false);
+        await repository.AddOrUpdateAsync(newSkill, cancellationToken).ConfigureAwait(false);
     }
 }

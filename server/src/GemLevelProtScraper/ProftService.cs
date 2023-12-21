@@ -57,7 +57,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             .AsParallel()
             .GroupJoin(
                 eligiblePrices.AsParallel(),
-                d => d.Name.Name,
+                d => d.Name.Id,
                 p => p.Name,
                 ComputeSkillProfitMargin
             )
@@ -66,7 +66,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
 
         var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
         {
-            Name = t.Data.Name.Name,
+            Name = t.Data.Name.Id,
             Icon = t.Data.IconUrl,
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
