@@ -5,19 +5,6 @@ namespace GemLevelProtScraper.Poe;
 
 public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, DataflowSignal<PoeLeagueListCompleted> poeLeagueListCompleted)
 {
-    private Task? _poeLeagueListCompletedTask = poeLeagueListCompleted.WaitAsync();
-
-    internal Task WaitForLeagueListInitializedAsync(CancellationToken cancellationToken = default)
-    {
-        if (_poeLeagueListCompletedTask is null || _poeLeagueListCompletedTask.IsCompletedSuccessfully)
-        {
-            _poeLeagueListCompletedTask = null;
-            return Task.CompletedTask;
-        }
-
-        return _poeLeagueListCompletedTask.WaitAsync(cancellationToken);
-    }
-
     private readonly IMongoCollection<PoeLeague> _leagueCollection = new MongoClient(settings.Value.ConnectionString)
             .GetDatabase(settings.Value.DatabaseName)
             .GetCollection<PoeLeague>(settings.Value.LeaguesCollectionName);
@@ -36,7 +23,7 @@ public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, Datafl
 
     internal async Task<PoeLeague?> GetByModeAndRealmAsync(LeagueMode mode, Realm realm, CancellationToken cancellationToken = default)
     {
-        await WaitForLeagueListInitializedAsync(cancellationToken).ConfigureAwait(false);
+        await poeLeagueListCompleted.WaitInitialAsync(cancellationToken).ConfigureAwait(false);
         return await _leagueCollection
             .Find(l => l.Mode == mode && l.Realm == realm)
             .FirstOrDefaultAsync(cancellationToken)
