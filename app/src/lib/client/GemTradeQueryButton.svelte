@@ -21,7 +21,7 @@
 
 	function getTradeQueryUrl(
 		name: string,
-		discriminator?: string,
+		discriminator?: string | null,
 		min_level?: number,
 		max_level?: number,
 		min_quality?: number

@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
 export interface GemProfitRequestParameter {
-	gem_name?: string;
-	min_sell_price_chaos?: number;
-	max_buy_price_chaos?: number;
-	min_experience_delta?: number;
-	items_offset?: number;
-	items_count?: number;
+	gem_name?: string | null;
+	min_sell_price_chaos?: number | null;
+	max_buy_price_chaos?: number | null;
+	min_experience_delta?: number | null;
+	items_offset?: number | null;
+	items_count?: number | null;
 }
 
 export const gemProfitRequestParameterSchema = z.object({
@@ -37,23 +37,23 @@ export const gemProfitResponseItemPriceSchema = z.object({
 
 export interface GemProfitResponseItem {
 	name: string,
-	icon?: string,
+	icon?: string | null,
 	min: GemProfitResponseItemPrice;
 	max: GemProfitResponseItemPrice;
 	gain_margin: number;
 	type: string;
-	discriminator?: string;
+	discriminator?: string | null;
 	foreign_info_url: string;
 }
 
 export const gemProfitResponseItemSchema = z.object({
 	name: z.string(),
-	icon: z.string().nullable(),
+	icon: z.string().nullable().optional(),
 	min: gemProfitResponseItemPriceSchema,
 	max: gemProfitResponseItemPriceSchema,
 	gain_margin: z.number(),
 	type: z.string(),
-	discriminator: z.string().nullable(),
+	discriminator: z.string().nullable().optional(),
 	foreign_info_url: z.string()
 });
 

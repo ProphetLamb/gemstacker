@@ -32,14 +32,17 @@ export interface PoeTradeGemRequest {
 	min_quality?: number;
 	max_quality?: number;
 	corrupted?: boolean;
-	discriminator?: string;
+	discriminator?: string | null;
 }
 
 export const poeTradeGemRequestSchema = z.object({
 	name: z.string(),
 	min_level: z.number().optional(),
 	max_level: z.number().optional(),
-	corrupted: z.boolean().optional()
+	min_quality: z.number().optional(),
+	max_quality: z.number().optional(),
+	corrupted: z.boolean().optional(),
+	discriminator: z.string().nullable().optional()
 });
 
 export interface PoeTradeRawRequest {
