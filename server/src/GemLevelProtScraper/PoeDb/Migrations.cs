@@ -22,4 +22,16 @@ public sealed record PoeDbDatabaseSettings : IOptions<PoeDbDatabaseSettings>, IM
             MirgrationStateCollectionName = "DATABASE_MIGRATIONS"
         };
     }
+
+    internal IMongoCollection<PoeDbSkillEnvalope> GetSkillCollection()
+    {
+        MongoClient client = new(ConnectionString);
+        var database = client.GetDatabase(DatabaseName);
+        return GetSkillCollection(database);
+    }
+
+    private IMongoCollection<PoeDbSkillEnvalope> GetSkillCollection(IMongoDatabase database)
+    {
+        return database.GetCollection<PoeDbSkillEnvalope>(SkillCollectionName);
+    }
 }

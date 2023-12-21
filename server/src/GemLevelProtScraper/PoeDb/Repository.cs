@@ -7,9 +7,7 @@ namespace GemLevelProtScraper.PoeDb;
 
 public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
-    private readonly IMongoCollection<PoeDbSkillEnvalope> _skillCollection = new MongoClient(settings.Value.ConnectionString)
-            .GetDatabase(settings.Value.DatabaseName)
-            .GetCollection<PoeDbSkillEnvalope>(settings.Value.SkillCollectionName);
+    private readonly IMongoCollection<PoeDbSkillEnvalope> _skillCollection = settings.Value.GetSkillCollection();
 
     internal async Task AddOrUpdateAsync(PoeDbSkill newSkill, CancellationToken cancellationToken = default)
     {
