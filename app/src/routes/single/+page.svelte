@@ -8,6 +8,7 @@
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
 	import { localSettings } from '$lib/client/localSettings';
 	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
+	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -32,8 +33,8 @@
 	});
 </script>
 
-<div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-start">
-	<article class="space-y-10 text-center flex flex-col items-center p-4">
+<Wrapper>
+	<WrapperItem>
 		<h1 class="h1">
 			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
 				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-indigo-500 to-sky-300 via-accent animate-gradient-xy font-bold"
@@ -107,8 +108,8 @@
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
 		</form>
-	</article>
-	<article class="flex flex-col items-center p-4">
+	</WrapperItem>
+	<WrapperItem>
 		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
@@ -125,8 +126,8 @@
 				<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
 			{/if}
 		</div>
-	</article>
-</div>
+	</WrapperItem>
+</Wrapper>
 
 <style lang="postcss">
 	span.bg-clip-text {

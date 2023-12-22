@@ -42,6 +42,6 @@
 </script>
 
 <div class="btn-group variant-soft-success">
-	<a class="" href={buyTradeUrl} target="_blank">Buy</a>
+	<a href={buyTradeUrl} target="_blank">Buy</a>
 	<a class="variant-soft-surface" href={sellTradeUrl} target="_blank">Sell</a>
 </div>

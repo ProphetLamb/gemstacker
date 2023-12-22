@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { CssClasses } from '@skeletonlabs/skeleton';
 
-	export let type: 'button' | 'submit' | 'reset' | null | undefined;
-	let classes: CssClasses;
+	export let type: 'button' | 'submit' | 'reset' | null | undefined = undefined;
+	let classes: CssClasses | undefined = undefined;
 	export { classes as class };
 </script>
 

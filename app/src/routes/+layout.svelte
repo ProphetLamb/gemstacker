@@ -17,7 +17,7 @@
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
-<div style="display: contents" class="bg-image-blur h-full overflow-hidden">
+<div class="contents bg-image-blur h-full overflow-hidden">
 	<!-- App Shell -->
 	<AppShell>
 		<svelte:fragment slot="header">
@@ -67,10 +67,16 @@
 				&nbsp;
 				<span class="opacity-10 mx-2">|</span>
 				&nbsp;Powered by &nbsp;
-				<a href="https://poe.ninja/" class="anchor flex flex-row items-center align-middle"
+				<a
+					href="https://poe.ninja/"
+					target="_blank"
+					class="anchor flex flex-row items-center align-middle"
 					><img src="https://poe.ninja/images/ninja-logo.png" alt="" class="w-4 h-4" /> poe.ninja</a
 				>&nbsp;&amp;&nbsp;
-				<a href="https://poedb.tw/us/" class="anchor flex flex-row items-center align-middle"
+				<a
+					href="https://poedb.tw/us/"
+					target="_blank"
+					class="anchor flex flex-row items-center align-middle"
 					><img src="https://poedb.tw/favicon.ico" alt="" class="w-4 h-4" /> poedb.tw</a
 				>
 			</div>

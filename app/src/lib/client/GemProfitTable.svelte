@@ -53,9 +53,9 @@
 						>exp
 					</a></td
 				>
-				<td class="" />
+				<td />
 				<td class="text-end table pt-1">
-					<span class="">{gem.min.price}</span>
+					<span>{gem.min.price}</span>
 					<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 				</td>
 				<td class="pt-1 text-surface-600-300-token">
@@ -71,7 +71,7 @@
 						/>
 					{/if}
 				</td>
-				<td class=""> <span class="font-semibold text-surface-600-300-token">=</span></td>
+				<td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 				<td class="text-end table pt-1">
 					<span class="text-success-200-700-token">+{intlFractionNumber.format(deltaPrice)}</span
 					><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
