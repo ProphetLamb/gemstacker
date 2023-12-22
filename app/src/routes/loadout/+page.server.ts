@@ -2,20 +2,20 @@ import { fail, type Actions } from '@sveltejs/kit';
 import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { superValidate } from 'sveltekit-superforms/client';
-import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
+import { computeBestLoadout as calculateOptimalLoadout, loadoutRequestSchema } from '$lib/loadout';
 
 export const load: PageServerLoad = async ({ request }) => {
-  const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
-  return { gemLevelsProfitForm };
+  const loadoutForm = await superValidate(request, loadoutRequestSchema);
+  return { loadoutForm };
 };
 
 export const actions: Actions = {
   default: async ({ request, fetch }) => {
-    const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
-    let response = { gemLevelsProfitForm }
+    const loadoutForm = await superValidate(request, loadoutRequestSchema);
+    let response = { loadoutForm }
 
-    if (!gemLevelsProfitForm.valid) {
+    if (!loadoutForm.valid) {
       return fail(400, response);
     }
 
@@ -24,9 +24,11 @@ export const actions: Actions = {
       api_key: API_KEY
     });
 
+    const loadoutRequest = loadoutForm.data;
     try {
-      const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
-      return { ...response, gemProfit };
+      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: 340000000 });
+      const bestLoadout = calculateOptimalLoadout(gemProfit, loadoutRequest)
+      return { ...response, bestLoadout };
     } catch (error) {
       return fail(500, response);
     }

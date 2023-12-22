@@ -10,42 +10,28 @@
 	export let row: CssClasses = '';
 	export let cell: CssClasses = '';
 	export let rows: NumberOrRange = 4;
-	export let cols: NumberOrRange = { min: 2, max: 6 };
+	export let cols: NumberOrRange = { min: 1, max: 5 };
 
-	function randomIntUneven(value: NumberOrRange, idx?: number) {
+	function randomInt(value: NumberOrRange) {
 		if (typeof value === 'number') {
 			return value;
 		}
 		const min = value.min;
-		const max = value.max;
-		const rng = min + Math.round(Math.random() * (max - min));
-		if (idx === undefined) {
-			return rng;
-		}
-		const idxEven = idx % 2 == 0;
-		const rngEven = rng % 2 == 0;
-		if (idxEven === rngEven) {
-			return rng;
-		}
-		const lower = rng - 1;
-		if (lower >= min) {
-			return lower;
-		}
-		const higher = rng + 1;
-		if (higher <= max) {
-			return higher;
-		}
+		const max = value.max + 1;
+		const rng = min + Math.floor(Math.random() * (max - min));
 		return rng;
 	}
 </script>
 
 <section class="relative {classes}">
 	<div class="p-4 space-y-4 {placeholder}">
-		{#each { length: randomIntUneven(rows) } as _, idx}
-			{@const colCount = randomIntUneven(cols, idx)}
-			<div class="grid grid-flow-col grid-cols-[{colCount}] gap-8 {row}">
-				{#each { length: colCount } as _}
-					<div class="placeholder {cell}" />
+		{#each { length: randomInt(rows) } as _, idx}
+			{@const colCount = randomInt(cols)}
+			{@const doubleCol = colCount <= 2 ? undefined : randomInt({ min: 0, max: colCount - 1 })}
+			<div class="grid grid-cols-{colCount + (doubleCol === undefined ? 0 : 1)} gap-8 {row}">
+				{#each { length: colCount } as _, idx}
+					{@const colSpan = idx === doubleCol ? 'col-span-2' : ''}
+					<div class="placeholder {colSpan} {cell}" />
 				{/each}
 			</div>
 		{/each}
@@ -56,3 +42,8 @@
 		<slot />
 	</div>
 </section>
+
+<style lang="postcss">
+	div.gird {
+	}
+</style>
