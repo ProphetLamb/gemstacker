@@ -107,7 +107,8 @@
 				type="submit"
 				class="shadow-lg btn text-token variant-filled bg-gradient-to-br from-indigo-700 to-fuchsia-800 shadow-fuchsia-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x text-2xl transition-all duration-[1s]"
 			>
-				Search</button
+				<Icon src={hi.MagnifyingGlass} size="22" />
+				<span class="mr-0.5">Search</span></button
 			>
 		</form>
 	</article>
