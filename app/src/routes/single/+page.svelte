@@ -9,6 +9,7 @@
 	import { localSettings } from '$lib/client/localSettings';
 	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
+	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -116,10 +117,7 @@
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
-				<div class="flex flex-row items-center">
-					<ProgressRadial stroke={200} value={undefined} class="w-4" />
-					<span class="ml-2 text-center">Loading...</span>
-				</div>
+				<LoadingPlaceholder class="w-[50rem]" rows={10} />
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
 				<GemProfitTable gemProfit={form.gemProfit} />
 			{:else}
