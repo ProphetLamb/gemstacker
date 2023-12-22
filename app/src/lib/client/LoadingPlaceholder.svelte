@@ -51,7 +51,7 @@
 		{/each}
 	</div>
 	<div
-		class="card bg-surface-backdrop-token p-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform flex flex-col items-center shadow-xl {front}"
+		class="card p-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform flex flex-col items-center shadow-xl {front}"
 	>
 		<slot />
 	</div>
