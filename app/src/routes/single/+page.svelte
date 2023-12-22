@@ -6,6 +6,8 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -37,7 +39,7 @@
 				>profit</span
 			>.
 		</h1>
-		<form class="space-y-2" use:enhance method="POST" action="?/getGemLevelProfit">
+		<form class="space-y-2" use:enhance method="POST">
 			<label class="label">
 				<span>PC League</span>
 				<select name="league" class="select rounded-full">

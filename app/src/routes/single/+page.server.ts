@@ -1,7 +1,7 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad } from '../$types';
 import { superValidate } from 'sveltekit-superforms/client';
 import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 import { createPathOfExileApi } from '$lib/server/pathOfExileApi';
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ request, fetch }) => {
 };
 
 export const actions: Actions = {
-	getGemLevelProfit: async ({ request, fetch }) => {
+	default: async ({ request, fetch }) => {
 		const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
 		let response = { gemLevelsProfitForm, leagues: await getLeauges(fetch) }
 

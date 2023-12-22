@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export interface GemProfitRequestParameter {
+	league: string;
 	gem_name?: string | null;
 	min_sell_price_chaos?: number | null;
 	max_buy_price_chaos?: number | null;
