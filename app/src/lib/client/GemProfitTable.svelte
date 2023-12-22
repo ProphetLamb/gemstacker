@@ -53,7 +53,7 @@
 						>exp
 					</a></td
 				>
-				<td class="">&nbsp;</td>
+				<td class="" />
 				<td class="text-end table pt-1">
 					<span class="">{gem.min.price}</span>
 					<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
@@ -69,8 +69,6 @@
 							alt="qty"
 							class="table-cell h-4 w-4"
 						/>
-					{:else}
-						&nbsp;
 					{/if}
 				</td>
 				<td class=""> <span class="font-semibold text-surface-600-300-token">=</span></td>
