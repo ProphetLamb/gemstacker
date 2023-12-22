@@ -1,5 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
+	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
 	import * as hi from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 </script>
@@ -29,42 +30,12 @@
 				<span>White Sockets</span>
 				<input class="input" type="number" name="gems_white" />
 			</label>
-			<button
-				type="submit"
-				class="shadow-lg btn text-token variant-filled bg-gradient-to-br from-indigo-700 to-fuchsia-800 shadow-fuchsia-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x text-2xl transition-all duration-[1s]"
-			>
+			<AnimatedSearchButton type="submit" class="shadow-lg text-2xl">
 				<Icon src={hi.MagnifyingGlass} size="22" />
-				<span class="mr-0.5">Search</span></button
+				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
 		</form>
 	</article>
 </div>
 
-<style lang="postcss">
-	button[type='submit'] {
-		animation-duration: 2s;
-		position: relative;
-		overflow: hidden;
-		z-index: 0;
-		&:after {
-			animation-duration: 2s;
-			clip-path: path(
-				'M0,137.087 L300,137.087 L300,8.754 C300,8.754 283.833,13.254 271.833,13.254 C244.833,13.254 224.167,0 192.5,0 C153,0 128.167,14.587 100.5,14.587 C80.167,14.587 64.5,1.337 41.75,1.337 C25,1.337 12,4.92 0,9.087 L0,137.087 Z'
-			);
-			content: '';
-			position: absolute;
-			top: -50%;
-			left: 0;
-			height: 150%;
-			width: 200%;
-			transform: translate(-50%, 100%);
-			transform-origin: top;
-			transition: 1s transform ease;
-			will-change: transform;
-			z-index: -1;
-		}
-		&:hover::after {
-			transform: translate(0, 0);
-		}
-	}
-</style>
+<style lang="postcss"></style>

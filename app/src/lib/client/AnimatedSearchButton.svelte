@@ -1,12 +1,23 @@
+<script lang="ts">
+	import type { CssClasses } from '@skeletonlabs/skeleton';
+
+	export let type: 'button' | 'submit' | 'reset' | null | undefined;
+	let classes: CssClasses;
+	export { classes as class };
+</script>
+
 <button
-	type="submit"
-	class="shadow-lg btn text-token variant-filled bg-gradient-to-br from-indigo-700 to-fuchsia-800 shadow-fuchsia-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x text-2xl transition-all duration-[1s]"
+	{type}
+	class="btn text-token variant-filled bg-gradient-to-br from-indigo-700 to-fuchsia-800 shadow-fuchsia-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x {classes}"
 >
-	Search</button
+	<slot /></button
 >
 
 <style lang="postcss">
 	button {
+		transition-duration: 2s;
+		transition-property: all;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 		animation-duration: 2s;
 		position: relative;
 		overflow: hidden;
