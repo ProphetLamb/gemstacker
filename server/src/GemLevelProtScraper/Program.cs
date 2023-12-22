@@ -63,8 +63,9 @@ builder.Services
             o.CacheExpiration = TimeSpan.FromMinutes(30);
         }))
     )
-    .AddHttpContextAccessor()
     .AddMemoryCache()
+    .AddResponseCaching()
+    .AddHttpContextAccessor()
     .AddOutputCache(o =>
     {
         o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(10)));
@@ -85,6 +86,8 @@ builder.Services
     .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>("token", o => o.ApiKey = apiKey);
 
 var app = builder.Build();
+
+app.UseResponseCaching();
 
 app
     .MapGet("gem-profit", async (
