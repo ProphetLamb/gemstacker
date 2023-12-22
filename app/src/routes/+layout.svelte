@@ -8,6 +8,11 @@
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
+	import LocalSettings from '$lib/client/LocalSettings.svelte';
+	import type { LayoutServerLoad } from './$types';
+
+	export let data: LayoutServerLoad;
+
 	storeHighlightJs.set(hljs);
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
@@ -31,12 +36,13 @@
 						rel="noreferrer"
 					>
 						<Icon src={hi.Star} size="16" theme="solid" class="fill-yellow-300" />
-						<span>GitHub</span>
+						<span class="hidden lg:inline-block">GitHub</span>
 					</a>
+					<LocalSettings {data} />
 				</svelte:fragment>
 			</AppBar>
 		</svelte:fragment>
-		<svelte:fragment slot="pageFooter">
+		<svelte:fragment slot="footer">
 			<div class="flex flex-wrap items-center align-middle p-4 text-surface-600-300-token">
 				<a href="/" target="_blank" rel="noreferrer" class="anchor">Home</a>
 				&nbsp;

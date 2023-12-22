@@ -5,7 +5,7 @@ import { superValidate } from 'sveltekit-superforms/client';
 import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ request, fetch }) => {
+export const load: PageServerLoad = async ({ request }) => {
 	const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
 	return { gemLevelsProfitForm };
 };

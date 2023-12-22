@@ -6,6 +6,7 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
+	import { localSettings } from '$lib/client/localSettings';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -18,7 +19,8 @@
 		enhance,
 		delayed
 	} = superForm(data.gemLevelsProfitForm, {
-		validators: gemProfitRequestParameterSchema
+		validators: gemProfitRequestParameterSchema,
+		taintedMessage: null
 	});
 
 	export const snapshot = { capture, restore };
@@ -27,6 +29,8 @@
 		notation: 'compact',
 		maximumFractionDigits: 2
 	});
+
+	$: console.log($localSettings);
 </script>
 
 <div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-start">
@@ -38,14 +42,7 @@
 			>.
 		</h1>
 		<form class="space-y-2" use:enhance method="POST">
-			<label class="label">
-				<span>PC League</span>
-				<select name="league" class="select rounded-full">
-					{#each data.leagues.filter((l) => l.realm == 'pc') as league}
-						<option value={league.id}>{league.text}</option>
-					{/each}
-				</select>
-			</label>
+			<input type="hidden" name="league" value={$localSettings.league} />
 			<label class="label">
 				<span>Gem Name</span>
 				<input
