@@ -94,8 +94,6 @@
 					name="min_experience_delta"
 					class="input"
 					type="range"
-					min={5000000}
-					max={2000000000}
 					step={5000000}
 					bind:value={$gemLevelsProfitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
