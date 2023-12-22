@@ -68,7 +68,7 @@ builder.Services
     .AddOutputCache(o =>
     {
         o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(10)));
-        o.AddPolicy("expire30min", b => b.Cache().Expire(TimeSpan.FromMinutes(30)));
+        o.AddPolicy("expire2h", b => b.Cache().Expire(TimeSpan.FromHours(2)));
     });
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
@@ -131,6 +131,6 @@ app
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
         var count = Math.Min(data.Length, itemsCount);
         return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
-    }); //.CacheOutput("expire30min")
+    }).CacheOutput("expire2h");
 app.Run();
 
