@@ -1,39 +1,62 @@
 <script lang="ts">
+	import { createRng } from '$lib/rng';
 	import type { CssClasses } from '@skeletonlabs/skeleton';
-
-	type NumberOrRange = number | { min: number; max: number };
 
 	let classes: CssClasses = '';
 	export { classes as class };
 	export let placeholder: CssClasses = '';
 	export let front: CssClasses = '';
-	export let row: CssClasses = '';
-	export let cell: CssClasses = '';
-	export let rows: NumberOrRange = 4;
-	export let cols: NumberOrRange = { min: 1, max: 5 };
+	export let rows: number = 10;
+	export let seed: string = 'poe-gemleveling-profit-calculator-local-settings';
 
-	function randomInt(value: NumberOrRange) {
-		if (typeof value === 'number') {
-			return value;
+	const rng = createRng(seed);
+
+	function getRow() {
+		let sizes = [];
+		let cols = 0;
+		while (cols < 8) {
+			if (checkedAdd(4, 0.3)) {
+				continue;
+			}
+			if (checkedAdd(3, 0.4)) {
+				continue;
+			}
+			if (checkedAdd(2, 0.5)) {
+				continue;
+			}
+			if (checkedAdd(0, 0.2)) {
+				continue;
+			}
+			sizes.push(1);
+			cols += 1;
 		}
-		const min = value.min;
-		const max = value.max + 1;
-		const rng = min + Math.floor(Math.random() * (max - min));
-		return rng;
+		return sizes.sort((a, b) => 0.5 - rng());
+
+		function checkedAdd(size: number, probability: number) {
+			if (cols + size < 8 && rng() <= probability) {
+				sizes.push(size);
+				cols += size;
+				return true;
+			}
+			return false;
+		}
 	}
 </script>
 
 <section class="relative {classes}">
-	<div class="p-4 space-y-4 {placeholder}">
-		{#each { length: randomInt(rows) } as _, idx}
-			{@const colCount = randomInt(cols)}
-			{@const doubleCol = colCount <= 2 ? undefined : randomInt({ min: 0, max: colCount - 1 })}
-			<div class="grid grid-cols-{colCount + (doubleCol === undefined ? 0 : 1)} gap-8 {row}">
-				{#each { length: colCount } as _, idx}
-					{@const colSpan = idx === doubleCol ? 'col-span-2' : ''}
-					<div class="placeholder {colSpan} {cell}" />
-				{/each}
-			</div>
+	<div class="grid grid-cols-8 p-4 gap-4 {placeholder}">
+		{#each { length: rows } as _}
+			{#each getRow() as width}
+				{#if width === 1}
+					<div class="placeholder" />
+				{:else if width === 2}
+					<div class="placeholder col-span-2" />
+				{:else if width === 3}
+					<div class="placeholder col-span-3" />
+				{:else}
+					<div class="opacity-0" />
+				{/if}
+			{/each}
 		{/each}
 	</div>
 	<div

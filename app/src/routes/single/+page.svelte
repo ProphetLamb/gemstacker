@@ -10,11 +10,13 @@
 	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
+	import { intlCompactNumber } from '$lib/intl';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
 	const {
-		form: gemLevelsProfitForm,
+		form: profitForm,
 		capture,
 		restore,
 		errors,
@@ -28,9 +30,15 @@
 
 	export const snapshot = { capture, restore };
 
-	const intlCompactNumber = Intl.NumberFormat('en-US', {
-		notation: 'compact',
-		maximumFractionDigits: 2
+	onMount(() => {
+		const initialSettings = {
+			league: $localSettings.league,
+			min_experience_delta: $localSettings.min_experience_delta
+		};
+		if (!form?.gemProfit) {
+			console.log('overwriting profit form with', $localSettings);
+			$profitForm = { ...$profitForm, ...initialSettings };
+		}
 	});
 </script>
 
@@ -43,7 +51,22 @@
 			>.
 		</h1>
 		<form class="space-y-2" use:enhance method="POST">
-			<input type="hidden" name="league" value={$localSettings.league} />
+			<label class="label">
+				<span>League</span>
+				<select
+					class="select rounded-full"
+					name="league"
+					bind:value={$profitForm.league}
+					{...$constraints.league}
+				>
+					{#each data.leagues.filter((l) => l.realm === 'pc') as league}
+						<option value={league.id}>{league.text}</option>
+					{/each}
+				</select>
+				{#if $errors.league}
+					<aside class="alert variant-glass-error">{$errors.league}</aside>
+				{/if}
+			</label>
 			<label class="label">
 				<span>Gem Name</span>
 				<input
@@ -51,7 +74,7 @@
 					class="input"
 					type="text"
 					placeholder="Gem name glob..."
-					bind:value={$gemLevelsProfitForm.gem_name}
+					bind:value={$profitForm.gem_name}
 					{...$constraints.gem_name}
 				/>
 				{#if $errors.gem_name}
@@ -65,7 +88,7 @@
 					class="input"
 					type="number"
 					placeholder="Minimum sell price..."
-					bind:value={$gemLevelsProfitForm.min_sell_price_chaos}
+					bind:value={$profitForm.min_sell_price_chaos}
 					{...$constraints.min_sell_price_chaos}
 				/>
 				{#if $errors.min_sell_price_chaos}
@@ -79,7 +102,7 @@
 					class="input"
 					type="number"
 					placeholder="Maximum buy price..."
-					bind:value={$gemLevelsProfitForm.max_buy_price_chaos}
+					bind:value={$profitForm.max_buy_price_chaos}
 					{...$constraints.max_buy_price_chaos}
 				/>
 				{#if $errors.max_buy_price_chaos}
@@ -93,12 +116,12 @@
 					class="input"
 					type="range"
 					step={5000000}
-					bind:value={$gemLevelsProfitForm.min_experience_delta}
+					bind:value={$profitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
 				<p>
 					<span class="text-token"
-						>+{intlCompactNumber.format($gemLevelsProfitForm.min_experience_delta)}</span
+						>+{intlCompactNumber.format($profitForm.min_experience_delta)}</span
 					><span class="text-sm text-surface-600-300-token">exp</span>
 				</p>
 				{#if $errors.min_experience_delta}

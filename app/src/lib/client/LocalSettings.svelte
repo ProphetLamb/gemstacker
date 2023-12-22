@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import type { PoeTradeLeagueResponse } from '$lib/pathOfExileApi';
-	import { onMount } from 'svelte';
 	import { localSettings } from './localSettings';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
+	import { intlCompactNumber } from '$lib/intl';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	export let data: { leagues: PoeTradeLeagueResponse[] };
@@ -17,12 +17,6 @@
 		target: 'localSettingsPopup',
 		placement: 'bottom'
 	};
-
-	onMount(() => {
-		if ($localSettings.league === undefined) {
-			$localSettings.league = pcLeagues[0].id;
-		}
-	});
 </script>
 
 <button class="btn btn-sm variant-ghost-surface hidden lg:flex" use:popup={localSettingsPopup}
@@ -32,9 +26,9 @@
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /></button
 >
 <div class="">
-	<div data-popup="localSettingsPopup" class="w-[calc(100%-2rem)] pr-4 lg:w-72">
+	<div data-popup="localSettingsPopup" class="w-[calc(100%-2rem)] pr-4 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
-		<div class="card flex flex-col items-center justify-start space-y-2 p-4 shadow-xl">
+		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
 			<h2 class="h2">Settings</h2>
 			<label class="label">
 				<span>League</span>
@@ -43,6 +37,23 @@
 						<option value={league.id}>{league.text}</option>
 					{/each}
 				</select>
+			</label>
+			<label class="label">
+				<span>Minimum experience required for leveling</span>
+				<input
+					name="min_experience_delta"
+					class="input"
+					type="range"
+					step={5000000}
+					min={200000000}
+					max={2000000000}
+					bind:value={$localSettings.min_experience_delta}
+				/>
+				<p>
+					<span class="text-token"
+						>+{intlCompactNumber.format($localSettings.min_experience_delta)}</span
+					><span class="text-sm text-surface-600-300-token">exp</span>
+				</p>
 			</label>
 			<hr class="!border-t-2 w-full opacity-50" />
 			<button class="btn variant-soft-error align-middle"
