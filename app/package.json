@@ -22,7 +22,6 @@
 		"@sveltejs/kit": "^1.27.2",
 		"@tailwindcss/forms": "0.5.6",
 		"@tailwindcss/typography": "0.5.10",
-		"@types/lodash": "^4.14.198",
 		"@types/node": "20.6.0",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
