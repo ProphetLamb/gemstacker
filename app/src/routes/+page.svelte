@@ -3,11 +3,9 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
 	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
-	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
+	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -25,26 +23,9 @@
 
 	export const snapshot = { capture, restore };
 
-	const currencyGemQuality =
-		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png';
-	const currencyRerollRare =
-		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png';
-
 	const intlCompactNumber = Intl.NumberFormat('en-US', {
 		notation: 'compact',
 		maximumFractionDigits: 2
-	});
-	const intlFractionNumber = Intl.NumberFormat('en-US', {
-		notation: 'standard',
-		maximumFractionDigits: 2,
-		minimumFractionDigits: 2
-	});
-
-	onMount(() => {
-		window.onbeforeunload = null;
-		window.addEventListener('beforeunload', function (event) {
-			event.stopImmediatePropagation();
-		});
 	});
 </script>
 
@@ -120,8 +101,8 @@
 					{...$constraints.min_experience_delta}
 				/>
 				<p>
-					<span class="text-sm text-surface-600-300-token">Δ</span><span class="text-token"
-						>{intlCompactNumber.format($gemLevelsProfitForm.min_experience_delta)}</span
+					<span class="text-token"
+						>+{intlCompactNumber.format($gemLevelsProfitForm.min_experience_delta)}</span
 					><span class="text-sm text-surface-600-300-token">exp</span>
 				</p>
 				{#if $errors.min_experience_delta}
@@ -147,71 +128,7 @@
 					<span class="ml-2 text-center">Loading...</span>
 				</div>
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
-				<table class="list w-full border-separate border-spacing-y-2">
-					<tbody>
-						{#each form.gemProfit as gem, idx}
-							{@const deltaExp = gem.max.experience - gem.min.experience}
-							{@const deltaQty = Math.max(0, gem.max.quality - gem.min.quality)}
-							{@const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty)}
-							<tr class="h-12">
-								<td class="pr-2">
-									<a
-										href={gem.foreign_info_url}
-										target="_blank"
-										class="badge-icon variant-soft-primary h-11 w-11"
-									>
-										<img src={gem.icon} alt={`${idx + 1}`} />
-									</a>
-								</td>
-								<td class="relative border-spacing-0"
-									><a href={gem.foreign_info_url} target="_blank" class="table h-full"
-										><span class="align-top">{gem.name}</span></a
-									>
-									<a
-										href={gem.foreign_info_url}
-										target="_blank"
-										class="flex flex-row absolute bottom-0 left-0 text-xs text-surface-600-300-token"
-									>
-										lvl
-										{gem.min.level} → {gem.max.level} =
-										<span class="text-secondary-300-600-token"
-											>+{intlCompactNumber.format(deltaExp)}</span
-										>exp
-									</a></td
-								>
-								<td class="">&nbsp;</td>
-								<td class="text-end table pt-1">
-									<span class="">{gem.min.price}</span>
-									<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-								</td>
-								<td class="pt-1 text-surface-600-300-token">
-									<Icon src={hi.ArrowRight} size="14" />
-								</td>
-								<td class="text-start table pt-1">
-									{gem.max.price}<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-									{#if deltaQty > 0}
-										<span class="text-error-200-700-token">-{deltaQty}</span><img
-											src={currencyGemQuality}
-											alt="qty"
-											class="table-cell h-4 w-4"
-										/>
-									{:else}
-										&nbsp;
-									{/if}
-								</td>
-								<td class=""> <span class="font-semibold text-surface-600-300-token">=</span></td>
-								<td class="text-start table pt-1">
-									<span class="text-success-200-700-token"
-										>+{intlFractionNumber.format(deltaPrice)}</span
-									><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-								</td>
-								<td class="pl-2">
-									<GemTradeQueryButton gemPrice={gem} />
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
+				<GemProfitTable gemProfit={form.gemProfit} />
 			{:else}
 				<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
 			{/if}
