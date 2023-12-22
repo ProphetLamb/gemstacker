@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { CssClasses } from '@skeletonlabs/skeleton';
-	let classes: CssClasses | undefined = undefined;
+	let classes: CssClasses = '';
 	export { classes as class };
 </script>
 

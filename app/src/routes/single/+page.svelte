@@ -117,11 +117,21 @@
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
-				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)]" rows={10} />
+				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)] animate-pulse" rows={10}>
+					<ProgressRadial
+						stroke={100}
+						value={undefined}
+						meter="stroke-tertiary-500"
+						track="stroke-tertiary-500/30"
+					/>
+					<span class="text-xl ml-2 text-center">Loading...</span></LoadingPlaceholder
+				>
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
 				<GemProfitTable gemProfit={form.gemProfit} />
 			{:else}
-				<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
+				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)]" rows={10}>
+					<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
+				</LoadingPlaceholder>
 			{/if}
 		</div>
 	</WrapperItem>

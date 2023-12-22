@@ -2,7 +2,7 @@
 	import type { CssClasses } from '@skeletonlabs/skeleton';
 
 	export let type: 'button' | 'submit' | 'reset' | null | undefined = undefined;
-	let classes: CssClasses | undefined = undefined;
+	let classes: CssClasses = '';
 	export { classes as class };
 </script>
 
