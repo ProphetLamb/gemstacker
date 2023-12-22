@@ -20,7 +20,8 @@
 			<AppBar>
 				<svelte:fragment slot="lead">
 					<a href="/" class="btn text-3xl uppercase font-extrabold">Gem Stacker</a>
-					<a href="/single" class="btn hover:variant-soft-primary">Gem Profit</a>
+					<a href="/loadout" class="btn hover:variant-soft-primary">Loadout</a>
+					<a href="/single" class="btn hover:variant-soft-primary">Single Gem</a>
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
 					<a

@@ -6,8 +6,6 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
-	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
 
 	export let data: PageData;
 	export let form: ActionData;
