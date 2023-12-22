@@ -10,24 +10,23 @@
 			Your <span
 				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-indigo-500 to-sky-300 via-accent animate-gradient-xy font-bold"
 				>loadout</span
-			> your gems.
+			>, your gems.
 		</h1>
 		<form class="space-y-2" use:enhance method="POST">
-			<h2 class="h2">Sockets</h2>
 			<label class="label">
-				<span>Red</span>
+				<span>Red Sockets</span>
 				<input class="input" type="number" name="gems_red" />
 			</label>
 			<label class="label">
-				<span>Green</span>
+				<span>Green Sockets</span>
 				<input class="input" type="number" name="gems_green" />
 			</label>
 			<label class="label">
-				<span>Blue</span>
+				<span>Blue Sockets</span>
 				<input class="input" type="number" name="gems_blue" />
 			</label>
 			<label class="label">
-				<span>White</span>
+				<span>White Sockets</span>
 				<input class="input" type="number" name="gems_white" />
 			</label>
 			<button

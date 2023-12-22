@@ -29,8 +29,6 @@
 		notation: 'compact',
 		maximumFractionDigits: 2
 	});
-
-	$: console.log($localSettings);
 </script>
 
 <div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-start">
