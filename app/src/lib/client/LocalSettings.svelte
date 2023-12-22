@@ -31,14 +31,22 @@
 <button class="btn btn-sm variant-ghost-surface lg:hidden" use:popup={localSettingsPopup}
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /></button
 >
-<div data-popup="localSettingsPopup" class="card w-[calc(100%-1rem)] lg:w-72 p-4 shadow-xl">
-	<div class="arrow bg-surface-100-800-token" />
-	<label class="label">
-		<span>League</span>
-		<select class="select" bind:value={$localSettings.league}>
-			{#each pcLeagues as league}
-				<option value={league.id}>{league.text}</option>
-			{/each}
-		</select>
-	</label>
+<div class="">
+	<div data-popup="localSettingsPopup" class="w-[calc(100%-2rem)] pr-4 lg:w-72">
+		<div class="arrow bg-surface-100-800-token" />
+		<div class="card flex flex-col items-center justify-start space-y-2 p-4 shadow-xl">
+			<h2 class="h2">Settings</h2>
+			<label class="label">
+				<span>League</span>
+				<select class="select" bind:value={$localSettings.league}>
+					{#each pcLeagues as league}
+						<option value={league.id}>{league.text}</option>
+					{/each}
+				</select>
+			</label>
+			<button class="btn variant-soft-error align-middle"
+				><Icon src={hi.XMark} size="16" />
+			</button>
+		</div>
+	</div>
 </div>
