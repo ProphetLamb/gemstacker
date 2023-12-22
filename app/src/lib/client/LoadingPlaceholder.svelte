@@ -49,7 +49,12 @@
 	<div
 		class="card bg-surface-backdrop-token p-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform flex flex-col items-center shadow-xl"
 	>
-		<ProgressRadial stroke={100} value={undefined} class="" />
+		<ProgressRadial
+			stroke={100}
+			value={undefined}
+			meter="stroke-tertiary-500"
+			track="stroke-tertiary-500/30"
+		/>
 		<span class="text-xl ml-2 text-center">Loading...</span>
 	</div>
 </section>
