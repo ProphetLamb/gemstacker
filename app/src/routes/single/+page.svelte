@@ -31,7 +31,7 @@
 	});
 </script>
 
-<div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-center">
+<div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-start">
 	<article class="space-y-10 text-center flex flex-col items-center p-4">
 		<h1 class="h1">
 			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
