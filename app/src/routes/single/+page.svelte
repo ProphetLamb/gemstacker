@@ -117,7 +117,7 @@
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
-				<LoadingPlaceholder class="w-[50rem]" rows={10} />
+				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)]" rows={10} />
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
 				<GemProfitTable gemProfit={form.gemProfit} />
 			{:else}
