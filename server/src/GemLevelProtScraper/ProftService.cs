@@ -130,6 +130,16 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
                 return skill.Name;
             }
 
+            if (!skill.Name.Id.Contains(" of ", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return skill.Name;
+            }
+
+            if (skill.Name.Id.Contains("Awakened ", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return skill.Name;
+            }
+
             return genus.Append(skill.Name).MinBy(s => s.Id.Length)!;
         }
     }
