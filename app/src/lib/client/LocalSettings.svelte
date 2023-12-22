@@ -44,6 +44,7 @@
 					{/each}
 				</select>
 			</label>
+			<hr class="!border-t-2 w-full opacity-50" />
 			<button class="btn variant-soft-error align-middle"
 				><Icon src={hi.XMark} size="16" />
 			</button>
