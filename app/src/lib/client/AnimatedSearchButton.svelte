@@ -35,7 +35,7 @@
 			width: 200%;
 			transform: translate(-50%, 100%);
 			transform-origin: top;
-			transition: 1s transform ease;
+			transition: 0.7s transform ease;
 			will-change: transform;
 			z-index: -1;
 		}
