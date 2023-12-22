@@ -24,9 +24,15 @@
 			<!-- App Bar -->
 			<AppBar>
 				<svelte:fragment slot="lead">
-					<a href="/" class="btn text-3xl uppercase font-extrabold">Gem Stacker</a>
-					<a href="/loadout" class="btn hover:variant-soft-primary">Loadout</a>
-					<a href="/single" class="btn hover:variant-soft-primary">Single Gem</a>
+					<a href="/" class="btn text-3xl uppercase font-extrabold"> Gem Stacker </a>
+					<a href="/loadout" class="btn hover:variant-soft-primary">
+						<Icon src={hi.Identification} size="24" />
+						<span class="hidden md:inline-block">Loadout</span>
+					</a>
+					<a href="/single" class="btn hover:variant-soft-primary">
+						<Icon src={hi.AtSymbol} size="24" />
+						<span class="hidden md:inline-block">Single Gem</span>
+					</a>
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
 					<a
