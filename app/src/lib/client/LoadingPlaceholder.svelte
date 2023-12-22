@@ -1,10 +1,14 @@
 <script lang="ts">
-	import { ProgressRadial, type CssClasses } from '@skeletonlabs/skeleton';
+	import type { CssClasses } from '@skeletonlabs/skeleton';
 
 	type NumberOrRange = number | { min: number; max: number };
 
-	let classes: CssClasses | undefined = undefined;
+	let classes: CssClasses = '';
 	export { classes as class };
+	export let placeholder: CssClasses = '';
+	export let front: CssClasses = '';
+	export let row: CssClasses = '';
+	export let cell: CssClasses = '';
 	export let rows: NumberOrRange = 4;
 	export let cols: NumberOrRange = { min: 2, max: 6 };
 
@@ -36,25 +40,19 @@
 </script>
 
 <section class="relative {classes}">
-	<div class="p-4 space-y-4 animate-pulse">
+	<div class="p-4 space-y-4 {placeholder}">
 		{#each { length: randomIntUneven(rows) } as _, idx}
 			{@const colCount = randomIntUneven(cols, idx)}
-			<div class="grid grid-flow-col grid-cols-[{colCount}] gap-8">
+			<div class="grid grid-flow-col grid-cols-[{colCount}] gap-8 {row}">
 				{#each { length: colCount } as _}
-					<div class="placeholder" />
+					<div class="placeholder {cell}" />
 				{/each}
 			</div>
 		{/each}
 	</div>
 	<div
-		class="card bg-surface-backdrop-token p-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform flex flex-col items-center shadow-xl"
+		class="card bg-surface-backdrop-token p-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] transform flex flex-col items-center shadow-xl {front}"
 	>
-		<ProgressRadial
-			stroke={100}
-			value={undefined}
-			meter="stroke-tertiary-500"
-			track="stroke-tertiary-500/30"
-		/>
-		<span class="text-xl ml-2 text-center">Loading...</span>
+		<slot />
 	</div>
 </section>
