@@ -38,7 +38,7 @@
 						<img src={gem.icon} alt={`${idx + 1}`} />
 					</a>
 				</td>
-				<td class="relative border-spacing-0"
+				<td class="relative border-spacing-0 text-start"
 					><a href={gem.foreign_info_url} target="_blank" class="table h-full"
 						><span class="align-top">{gem.name}</span></a
 					>
