@@ -128,7 +128,4 @@
 </Wrapper>
 
 <style lang="postcss">
-	span.bg-clip-text {
-		filter: drop-shadow(0 1px 2px var(--tw-shadow-color));
-	}
 </style>
