@@ -117,7 +117,7 @@
 		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
-				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)] animate-pulse" rows={10}>
+				<LoadingPlaceholder class="w-[51rem] max-w-[calc(100vw-4rem)] animate-pulse" rows={10}>
 					<ProgressRadial
 						stroke={100}
 						value={undefined}
@@ -129,7 +129,7 @@
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
 				<GemProfitTable gemProfit={form.gemProfit} />
 			{:else}
-				<LoadingPlaceholder class="w-[52rem] max-w-[calc(100vw-4rem)]" rows={10}>
+				<LoadingPlaceholder class="w-[51rem] max-w-[calc(100vw-4rem)]" rows={10}>
 					<p>Enter your criteria or just <span class="font-extrabold">search</span></p>
 				</LoadingPlaceholder>
 			{/if}
