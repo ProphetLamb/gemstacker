@@ -68,8 +68,12 @@ builder.Services
     .AddHttpContextAccessor()
     .AddOutputCache(o =>
     {
-        o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(10)));
-        o.AddPolicy("expire2h", b => b.Cache().Expire(TimeSpan.FromHours(2)));
+        o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(60)));
+        o.AddPolicy("gem-profit", b => b
+            .Cache()
+            .Expire(TimeSpan.FromMinutes(30))
+            .SetVaryByQuery("league", "gem_name", "min_sell_price_chaos", "max_buy_price_chaos", "min_experience_delta", "items_count")
+        );
     });
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
@@ -134,6 +138,6 @@ app
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
         var count = Math.Min(data.Length, itemsCount);
         return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
-    }).CacheOutput("expire2h");
+    }).CacheOutput("gem-profit");
 app.Run();
 
