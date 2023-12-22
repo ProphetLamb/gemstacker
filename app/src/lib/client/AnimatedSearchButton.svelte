@@ -31,7 +31,7 @@
 			position: absolute;
 			top: -50%;
 			left: 0;
-			height: 150%;
+			height: 155%;
 			width: 200%;
 			transform: translate(-50%, 100%);
 			transform-origin: top;
