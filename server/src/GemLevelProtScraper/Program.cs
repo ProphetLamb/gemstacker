@@ -30,8 +30,6 @@ var flush = SentrySdk.Init("https://bcf0ff9fab08594e449c0638263a731f@o4505884379
 AppDomain.CurrentDomain.FirstChanceException += (sender, args) => SentrySdk.CaptureException(args.Exception);
 
 builder.Services
-    .Configure<PoeNinjaDatabaseSettings>(builder.Configuration.GetSection("Database:PoeNinjaDatabaseSettings"))
-    .Configure<PoeDbDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDbDatabaseSettings"))
     .Configure<PoeDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDatabaseSettings"))
     .AddMigrations()
     .AddSystemClock()
@@ -40,8 +38,8 @@ builder.Services
     .AddTransient<PoeNinjaRepository>()
     .AddTransient<PoeRepository>()
     .AddTransient<ProfitService>()
-    .AddHostedService<PoeNinjaScraper>()
-    .AddHostedService<PoeDbScraper>()
+    // .AddHostedService<PoeNinjaScraper>()
+    // .AddHostedService<PoeDbScraper>()
     .AddHostedService<PoeScraper>()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()

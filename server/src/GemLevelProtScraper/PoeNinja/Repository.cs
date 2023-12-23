@@ -6,7 +6,7 @@ using MongoDB.Migration;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-public sealed class PoeNinjaRepository(IOptions<PoeNinjaDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
+public sealed class PoeNinjaRepository(IOptions<PoeDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = settings.Value.GetGemPriceCollection();
 

@@ -5,7 +5,7 @@ using MongoDB.Migration;
 
 namespace GemLevelProtScraper.PoeDb;
 
-public sealed class PoeDbRepository(IOptions<PoeDbDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
+public sealed class PoeDbRepository(IOptions<PoeDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
     private readonly IMongoCollection<PoeDbSkillEnvalope> _skillCollection = settings.Value.GetSkillCollection();
 
