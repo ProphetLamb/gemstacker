@@ -149,7 +149,6 @@ public sealed class PoeNinjaAddIdentifierIndexMigration(IOptions<PoeDatabaseSett
     }
 }
 
-
 [MongoMigration(PoeDatabaseSettings.Alias, 1, 2, Description = $"Add unique index {SkillNameIndexName}.")]
 public sealed class PoeDbAddNameIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
 {
@@ -175,7 +174,6 @@ public sealed class PoeDbAddNameIndexMigration(IOptions<PoeDatabaseSettings> opt
         _ = await col.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
     }
 }
-
 
 [MongoMigration(PoeDatabaseSettings.Alias, 0, 1, Description = $"Add unique index {LeagueNameRealmIndexName}.")]
 public sealed class PoeApiAddNameIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration

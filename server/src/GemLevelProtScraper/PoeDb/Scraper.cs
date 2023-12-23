@@ -158,12 +158,12 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
         {
             var view = levelEffectsTable.ToView();
             foreach (var (((((level, requiresLevel), intelligence), dexterity), strength), experience) in
-                view["Level"].Single().SelectText(ParseDecimalCultured)
-                .Zip(view["Requires Level"].Single().SelectText(ParseDecimalCultured))
-                .Zip((view["Int"] | view["Intelligence"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Dex"] | view["Dexterity"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Str"] | view["Strength"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
-                .Zip((view["Exp"] | view["Experience"]).SingleOrDefault().SelectText(ParseDecimalCultured, null))
+                view["Level"].Single().SelectText(ParseDoubleCultured)
+                .Zip(view["Requires Level"].Single().SelectText(ParseDoubleCultured))
+                .Zip((view["Int"] | view["Intelligence"]).SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip((view["Dex"] | view["Dexterity"]).SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip((view["Str"] | view["Strength"]).SingleOrDefault().SelectText(ParseDoubleCultured, null))
+                .Zip((view["Exp"] | view["Experience"]).SingleOrDefault().SelectText(ParseDoubleCultured, null))
             )
             {
                 yield return new(
@@ -175,7 +175,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             }
         }
 
-        static decimal ParseDecimalCultured(string text) => decimal.Parse(text, CultureInfo.GetCultureInfo(1033));
+        static double ParseDoubleCultured(string text) => double.Parse(text, CultureInfo.GetCultureInfo(1033));
 
         static IEnumerable<PoeDbSkillRelatedGem> ParseRelatedGemsTable(IHtmlTableElement relatedGemsTable)
         {
