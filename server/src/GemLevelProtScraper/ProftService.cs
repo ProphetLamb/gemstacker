@@ -46,7 +46,7 @@ public enum GemColor
     Red = 3,
 }
 
-internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPrice Data, double Exp) Min, (PoeNinjaApiGemPrice Data, double Exp) Max, PoeDbSkill Data);
+internal readonly record struct ProfitMargin(double Margin, (PoeNinjaApiGemPrice Data, double Exp) Min, (PoeNinjaApiGemPrice Data, double Exp) Max, PoeDbSkill Data);
 
 public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
 {

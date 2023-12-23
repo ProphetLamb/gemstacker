@@ -1,6 +1,7 @@
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
+using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Migration;
@@ -12,9 +13,10 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
 {
     public required string ConnectionString { get; init; }
     public required string DatabaseName { get; init; }
-    public required string LeaguesCollectionName { get; init; }
-    public required string SkillCollectionName { get; init; }
-    public required string GemPriceCollectionName { get; init; }
+    public required string PoeLeagueCollectionName { get; init; }
+    public required string PoeDbSkillCollectionName { get; init; }
+    public required string PoeNinjaPriceCollectionName { get; init; }
+    public required string SkillGemViewName { get; init; }
 
     public const string Alias = "Poe";
 
@@ -30,40 +32,65 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
         };
     }
 
-    internal IMongoCollection<PoeLeague> GetLeagueCollection()
+    internal IMongoDatabase GetDatabase()
     {
         MongoClient client = new(ConnectionString);
-        var database = client.GetDatabase(DatabaseName);
-        return GetLeagueCollection(database);
+        return client.GetDatabase(DatabaseName);
     }
 
-    internal IMongoCollection<PoeLeague> GetLeagueCollection(IMongoDatabase database)
+    internal IMongoCollection<PoeLeague> GetPoeLeagueCollection(IMongoDatabase? database = null)
     {
-        return database.GetCollection<PoeLeague>(LeaguesCollectionName);
+        database ??= GetDatabase();
+        return database.GetCollection<PoeLeague>(PoeLeagueCollectionName);
+    }
+    internal IMongoCollection<PoeDbSkillEnvalope> GetPoeDbSkillCollection(IMongoDatabase? database = null)
+    {
+        database ??= GetDatabase();
+        return database.GetCollection<PoeDbSkillEnvalope>(PoeDbSkillCollectionName);
     }
 
-    internal IMongoCollection<PoeDbSkillEnvalope> GetSkillCollection()
+    internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetPoeNinjaPriceCollection(IMongoDatabase? database = null)
     {
-        MongoClient client = new(ConnectionString);
-        var database = client.GetDatabase(DatabaseName);
-        return GetSkillCollection(database);
+        database ??= GetDatabase();
+        return database.GetCollection<PoeNinjaApiGemPriceEnvalope>(PoeNinjaPriceCollectionName);
     }
 
-    internal IMongoCollection<PoeDbSkillEnvalope> GetSkillCollection(IMongoDatabase database)
+    internal IMongoCollection<SkillGem> GetSkillGemCollection(IMongoDatabase? database = null)
     {
-        return database.GetCollection<PoeDbSkillEnvalope>(SkillCollectionName);
+        database ??= GetDatabase();
+        return database.GetCollection<SkillGem>(PoeNinjaPriceCollectionName);
+    }
+}
+
+[MongoMigration(PoeDatabaseSettings.Alias, 5, 6, Description = $"Create view SkillGemVeiw.")]
+public sealed class CreateSkillViewMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await database.DropCollectionAsync(optionsAccessor.Value.SkillGemViewName, cancellationToken).ConfigureAwait(false);
     }
 
-    internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetGemPriceCollection()
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        MongoClient client = new(ConnectionString);
-        var database = client.GetDatabase(DatabaseName);
-        return GetGemPriceCollection(database);
-    }
-
-    internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetGemPriceCollection(IMongoDatabase database)
-    {
-        return database.GetCollection<PoeNinjaApiGemPriceEnvalope>(GemPriceCollectionName);
+        var pipeline = new EmptyPipelineDefinition<PoeDbSkillEnvalope>()
+            .Project(e => new SkillGem()
+            {
+                Name = e.Skill.Name.Id,
+                RelativeUrl = e.Skill.Name.RelativeUrl,
+                Color = (GemColor)(int)e.Skill.Name.Color,
+                IconUrl = e.Skill.IconUrl,
+                BaseType = e.Skill.Stats.BaseType,
+                Discriminator = e.Skill.Discriminator,
+                SumExperience = e.Skill.LevelEffects.Select(l => l.Experience ?? 0).Sum(),
+                MaxLevel = e.Skill.LevelEffects.Where(l => l.Experience != null).Select(l => l.Level).Max() + 1,
+            });
+        await database.CreateViewAsync(
+            optionsAccessor.Value.SkillGemViewName,
+            optionsAccessor.Value.PoeDbSkillCollectionName,
+            pipeline,
+            null,
+            cancellationToken
+        ).ConfigureAwait(false);
     }
 }
 
@@ -74,13 +101,13 @@ public sealed class PoeNinjaAddLeagueIndexMigration(IOptions<PoeDatabaseSettings
 
     public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetGemPriceCollection(database);
+        var col = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         await col.Indexes.DropOneAsync(GemLeagueIndexName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetGemPriceCollection(database);
+        var col = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
         var index = builder.Text(e => e.League);
 
@@ -100,13 +127,13 @@ public sealed class PoeNinjaAddNameIndexMigration(IOptions<PoeDatabaseSettings> 
 
     public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetGemPriceCollection(database);
+        var col = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         await col.Indexes.DropOneAsync(GemNameIndexName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetGemPriceCollection(database);
+        var col = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
         var index = builder.Hashed(e => e.Price.Name);
 
@@ -125,13 +152,13 @@ public sealed class PoeNinjaAddIdentifierIndexMigration(IOptions<PoeDatabaseSett
 
     public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var gemPriceCollection = optionsAccessor.Value.GetGemPriceCollection(database);
+        var gemPriceCollection = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         await gemPriceCollection.Indexes.DropOneAsync(GemIdentifierIndexName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetGemPriceCollection(database);
+        var col = optionsAccessor.Value.GetPoeNinjaPriceCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
         var index = builder.Combine(
             builder.Ascending(e => e.Price.Name),
@@ -156,13 +183,13 @@ public sealed class PoeDbAddNameIndexMigration(IOptions<PoeDatabaseSettings> opt
 
     public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetSkillCollection(database);
+        var col = optionsAccessor.Value.GetPoeDbSkillCollection(database);
         await col.Indexes.DropOneAsync(SkillNameIndexName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetSkillCollection(database);
+        var col = optionsAccessor.Value.GetPoeDbSkillCollection(database);
         IndexKeysDefinitionBuilder<PoeDbSkillEnvalope> builder = new();
         var index = builder.Ascending(e => e.Skill.Name.Id);
 
@@ -182,13 +209,13 @@ public sealed class PoeApiAddNameIndexMigration(IOptions<PoeDatabaseSettings> op
 
     public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetLeagueCollection(database);
+        var col = optionsAccessor.Value.GetPoeLeagueCollection(database);
         await col.Indexes.DropOneAsync(LeagueNameRealmIndexName, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var col = optionsAccessor.Value.GetLeagueCollection(database);
+        var col = optionsAccessor.Value.GetPoeLeagueCollection(database);
         IndexKeysDefinitionBuilder<PoeLeague> builder = new();
         var index = builder.Combine(
             builder.Ascending(e => e.Name),
