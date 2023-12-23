@@ -84,7 +84,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
             GainMargin = t.Margin,
-            Type = GetBaseTypeName(t.Data).Id,
+            Type = t.Data.Stats.BaseType,
             Discriminator = t.Data.Discriminator,
             ForeignInfoUrl = $"https://poedb.tw{t.Data.Name.RelativeUrl}"
         });
@@ -132,26 +132,6 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
                 (maxPrice, maxExp),
                 skill
             );
-        }
-
-        static PoeDbSkillName GetBaseTypeName(PoeDbSkill skill)
-        {
-            if (skill.Genus?.Skills is not { } genus || genus.IsDefaultOrEmpty)
-            {
-                return skill.Name;
-            }
-
-            if (!skill.Name.Id.Contains(" of ", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return skill.Name;
-            }
-
-            if (skill.Name.Id.Contains("Awakened ", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return skill.Name;
-            }
-
-            return genus.Append(skill.Name).MinBy(s => s.Id.Length)!;
         }
     }
 }
