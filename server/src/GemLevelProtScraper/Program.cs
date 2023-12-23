@@ -44,8 +44,8 @@ builder.Services
     .AddTransient<PoeNinjaRepository>()
     .AddTransient<PoeRepository>()
     .AddTransient<ProfitService>()
-    // .AddHostedService<PoeNinjaScraper>()
-    // .AddHostedService<PoeDbScraper>()
+    .AddHostedService<PoeNinjaScraper>()
+    .AddHostedService<PoeDbScraper>()
     .AddHostedService<PoeScraper>()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
@@ -141,7 +141,12 @@ app
         };
         var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
         var count = Math.Min(data.Length, itemsCount);
-        return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
+        if (count > 0)
+        {
+            return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
+        }
+
+        return Results.Ok(data);
     }).CacheOutput("gem-profit");
 app.Run();
 
