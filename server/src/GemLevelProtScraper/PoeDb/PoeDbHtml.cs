@@ -6,17 +6,63 @@ namespace GemLevelProtScraper.PoeDb;
 
 public static partial class PoeDbHtml
 {
-    internal static PoeDbSkillName? NormalizeRelative(PoeDbSkillName absoluteSkill)
+    internal static PoeDbSkillName? ParseSkillName(IHtmlAnchorElement a)
     {
-        if (string.IsNullOrWhiteSpace(absoluteSkill.Id))
+        if (a.TextContent is not { } text || string.IsNullOrEmpty(text))
         {
             return null;
         }
-        if (!Uri.TryCreate(absoluteSkill.RelativeUrl, UriKind.RelativeOrAbsolute, out var uri))
+
+        if (!a.ClassList
+            .SelectTruthy(c => TryParseColour(c, out var color) ? color : default(PoeDbSkillColor?))
+            .TryGetFirst(out var color)
+        )
         {
             return null;
         }
-        return absoluteSkill with { RelativeUrl = uri.PathAndQuery };
+
+        if (NormalizeRelativeUrl(a.Href) is not { } uri || string.IsNullOrEmpty(uri))
+        {
+            return null;
+        }
+
+        return new(text, uri, color);
+    }
+
+    private static bool TryParseColour(string className, out PoeDbSkillColor color)
+    {
+        if (className.Equals("gem_red", StringComparison.OrdinalIgnoreCase))
+        {
+            color = PoeDbSkillColor.Red;
+            return true;
+        }
+        if (className.Equals("gem_green", StringComparison.OrdinalIgnoreCase))
+        {
+            color = PoeDbSkillColor.Green;
+            return true;
+        }
+        if (className.Equals("gem_blue", StringComparison.OrdinalIgnoreCase))
+        {
+            color = PoeDbSkillColor.Blue;
+            return true;
+        }
+        if (className.Equals("gemitem", StringComparison.OrdinalIgnoreCase))
+        {
+            color = PoeDbSkillColor.White;
+            return true;
+        }
+
+        color = default;
+        return false;
+    }
+
+    private static string? NormalizeRelativeUrl(string absoluteUrl)
+    {
+        if (!Uri.TryCreate(absoluteUrl, UriKind.RelativeOrAbsolute, out var uri))
+        {
+            return null;
+        }
+        return uri.GetComponents(UriComponents.PathAndQuery | UriComponents.Fragment, UriFormat.Unescaped);
     }
 
     public static IHtmlHeadingElement? TryGetHeader(IHtmlCollection<IElement> headers, string skillName, string headerName, ILogger? logger = null)

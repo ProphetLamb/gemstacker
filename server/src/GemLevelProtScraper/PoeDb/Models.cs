@@ -9,7 +9,15 @@ internal sealed record PoeDbListCompleted(DateTimeOffset Timestamp);
 
 internal sealed record PoeDbActiveSkillsResponse(ImmutableArray<PoeDbSkillName> Data);
 
-internal sealed record PoeDbSkillName(string Id, string RelativeUrl);
+internal enum PoeDbSkillColor
+{
+    White = 0,
+    Blue = 1,
+    Green = 2,
+    Red = 3,
+}
+
+internal sealed record PoeDbSkillName(string Id, string RelativeUrl, PoeDbSkillColor Color);
 
 internal sealed record PoeDbGemQuality(string Type);
 

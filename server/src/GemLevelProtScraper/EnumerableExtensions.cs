@@ -88,19 +88,37 @@ public static class EnumerableExtensions
         }
     }
 
+    public static bool TryGetFirst<T>(this IEnumerable<T> sequence, [NotNullWhen(true)] out T? first)
+    {
+        if (sequence is IReadOnlyList<T> roList && roList.Count > 0)
+        {
+            first = roList[0]!;
+            return true;
+        }
+
+        if (sequence is IList<T> list && list.Count > 0)
+        {
+            first = list[0]!;
+            return true;
+        }
+
+        using var en = sequence.GetEnumerator();
+        if (!en.MoveNext())
+        {
+            first = default;
+            return false;
+        }
+
+        first = en.Current!;
+        return true;
+    }
+
     public static bool TryGetFirstAndLast<T>(
         this IEnumerable<T> sequence,
         [MaybeNullWhen(false)] out T first,
         [MaybeNullWhen(false)] out T last
     )
     {
-        if (sequence.TryGetNonEnumeratedCount(out var count) && count == 0)
-        {
-            first = default;
-            last = default;
-            return false;
-        }
-
         if (sequence is IReadOnlyList<T> roList && roList.Count > 0)
         {
             first = roList[0];

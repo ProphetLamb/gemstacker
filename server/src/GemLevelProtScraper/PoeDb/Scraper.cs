@@ -60,8 +60,7 @@ internal sealed class PoeDbSkillNameSpider(IDataflowPublisher<PoeDbSkillName> ac
             .Concat(card.QuerySelectorAll("a.gem_green"))
             .Concat(card.QuerySelectorAll("a.gem_red"))
             .OfType<IHtmlAnchorElement>()
-            .Select(a => new PoeDbSkillName(a.Text, a.Href))
-            .SelectTruthy(PoeDbHtml.NormalizeRelative);
+            .SelectTruthy(PoeDbHtml.ParseSkillName);
 
         await activeSkillPublisher.PublishAllAsync(items, cancellationToken).ConfigureAwait(false);
     }
@@ -186,9 +185,9 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 .Zip(view["Show Full Descriptions"].Single().SelectText())
             )
             {
-                if (name.QuerySelector("a.itemclass_gem") is IHtmlAnchorElement a)
+                if (name.QuerySelector("a.itemclass_gem") is IHtmlAnchorElement a && PoeDbHtml.ParseSkillName(a) is { } skillName)
                 {
-                    yield return new(new(a.TextContent, a.Href), description);
+                    yield return new(skillName, description);
                 }
             }
         }
@@ -222,8 +221,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             var skills = genusBody
                 .QuerySelectorAll(":scope > a")
                 .OfType<IHtmlAnchorElement>()
-                .Select(a => new PoeDbSkillName(a.TextContent, a.Href))
-                .SelectTruthy(PoeDbHtml.NormalizeRelative)
+                .SelectTruthy(PoeDbHtml.ParseSkillName)
                 .ToImmutableArray();
             return new(
                 skills
