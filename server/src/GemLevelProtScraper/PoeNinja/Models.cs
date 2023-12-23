@@ -8,7 +8,7 @@ internal sealed record PoeNinjaList(DateTimeOffset Timestamp, PoeLeague League, 
 
 internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague League);
 
-internal sealed record PoeNinjaApiSparkLine(ImmutableArray<decimal?> Data, decimal TotalChange);
+internal sealed record PoeNinjaApiSparkLine(ImmutableArray<double?> Data, double TotalChange);
 
 internal sealed record PoeNinjaApiGemPrice(
     string Name,
@@ -18,8 +18,8 @@ internal sealed record PoeNinjaApiGemPrice(
     bool Corrupted,
     long GemLevel,
     long GemQuality,
-    decimal ChaosValue,
-    decimal DivineValue,
+    double ChaosValue,
+    double DivineValue,
     long ListingCount
 );
 

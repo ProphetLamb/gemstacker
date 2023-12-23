@@ -9,9 +9,9 @@ public sealed record ProfitRequest
 {
     public required LeagueMode League { get; init; }
     public required string GemNameWindcard { get; init; }
-    public decimal? MinSellPriceChaos { get; init; }
-    public decimal? MaxBuyPriceChaos { get; init; }
-    public decimal? MinExperienceDelta { get; init; }
+    public double? MinSellPriceChaos { get; init; }
+    public double? MaxBuyPriceChaos { get; init; }
+    public double? MinExperienceDelta { get; init; }
     public int MinimumListingCount { get; init; }
 }
 
@@ -22,7 +22,7 @@ public sealed record ProfitResponse
     public required GemColor Color { get; init; }
     public required ProfitLevelResponse Min { get; init; }
     public required ProfitLevelResponse Max { get; init; }
-    public required decimal GainMargin { get; init; }
+    public required double GainMargin { get; init; }
     public required string Type { get; init; }
     public required string? Discriminator { get; init; }
     public required string ForeignInfoUrl { get; init; }
@@ -32,8 +32,8 @@ public sealed record ProfitLevelResponse
 {
     public required long Level { get; init; }
     public required long Quality { get; init; }
-    public required decimal Price { get; init; }
-    public required decimal Experience { get; init; }
+    public required double Price { get; init; }
+    public required double Experience { get; init; }
     public required long ListingCount { get; init; }
 }
 
@@ -46,7 +46,7 @@ public enum GemColor
     Red = 3,
 }
 
-internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data);
+internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPrice Data, double Exp) Min, (PoeNinjaApiGemPrice Data, double Exp) Max, PoeDbSkill Data);
 
 public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
 {
@@ -92,7 +92,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         var result = responses.ToImmutableArray();
         return result;
 
-        static ProfitLevelResponse FromPrice(PoeNinjaApiGemPrice price, decimal exp) => new()
+        static ProfitLevelResponse FromPrice(PoeNinjaApiGemPrice price, double exp) => new()
         {
             Experience = exp,
             Level = price.GemLevel,

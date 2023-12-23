@@ -6,7 +6,7 @@ namespace GemLevelProtScraper.Poe;
 
 public sealed class PoeRepository(IOptions<PoeDatabaseSettings> settings, IMongoMigrationCompletion completion, DataflowSignal<PoeLeagueListCompleted> poeLeagueListCompleted)
 {
-    private readonly IMongoCollection<PoeLeague> _leagueCollection = settings.Value.GetLeagueCollection();
+    private readonly IMongoCollection<PoeLeague> _leagueCollection = settings.Value.GetPoeLeagueCollection();
 
     internal async Task<PoeLeague> AddOrUpdateAsync(PoeLeague newLeague, CancellationToken cancellationToken = default)
     {

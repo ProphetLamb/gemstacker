@@ -8,7 +8,7 @@ namespace GemLevelProtScraper.PoeNinja;
 
 public sealed class PoeNinjaRepository(IOptions<PoeDatabaseSettings> settings, IMongoMigrationCompletion completion, ISystemClock clock)
 {
-    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = settings.Value.GetGemPriceCollection();
+    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _gemPriceCollection = settings.Value.GetPoeNinjaPriceCollection();
 
     internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newGemPrice, CancellationToken cancellationToken = default)
     {
