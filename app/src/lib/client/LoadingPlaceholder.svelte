@@ -15,22 +15,23 @@
 		let sizes = [];
 		let cols = 0;
 		while (cols < 8) {
-			if (checkedAdd(4, 0.3)) {
+			if (checkedAdd(4, 0.7)) {
 				continue;
 			}
-			if (checkedAdd(3, 0.4)) {
+			if (checkedAdd(3, 0.7)) {
 				continue;
 			}
-			if (checkedAdd(2, 0.5)) {
+			if (checkedAdd(2, 0.7)) {
 				continue;
 			}
-			if (checkedAdd(0, 0.2)) {
+			if (checkedAdd(1, 0.7)) {
 				continue;
 			}
-			sizes.push(1);
+			sizes.push(0);
 			cols += 1;
 		}
-		return sizes.sort((a, b) => 0.5 - rng());
+		sizes = sizes.sort((a, b) => 0.5 - rng());
+		return sizes;
 
 		function checkedAdd(size: number, probability: number) {
 			if (cols + size < 8 && rng() <= probability) {
@@ -53,6 +54,8 @@
 					<div class="placeholder col-span-2" />
 				{:else if width === 3}
 					<div class="placeholder col-span-3" />
+				{:else if width === 4}
+					<div class="placeholder col-span-4" />
 				{:else}
 					<div class="opacity-0" />
 				{/if}
