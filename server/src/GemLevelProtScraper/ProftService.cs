@@ -19,6 +19,7 @@ public sealed record ProfitResponse
 {
     public required string Name { get; init; }
     public required string? Icon { get; init; }
+    public required GemColor Color { get; init; }
     public required ProfitLevelResponse Min { get; init; }
     public required ProfitLevelResponse Max { get; init; }
     public required decimal GainMargin { get; init; }
@@ -34,6 +35,15 @@ public sealed record ProfitLevelResponse
     public required decimal Price { get; init; }
     public required decimal Experience { get; init; }
     public required long ListingCount { get; init; }
+}
+
+
+public enum GemColor
+{
+    White = 0,
+    Blue = 1,
+    Green = 2,
+    Red = 3,
 }
 
 internal readonly record struct ProfitMargin(decimal Margin, (PoeNinjaApiGemPrice Data, decimal Exp) Min, (PoeNinjaApiGemPrice Data, decimal Exp) Max, PoeDbSkill Data);
@@ -70,6 +80,7 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
         {
             Name = t.Data.Name.Id,
             Icon = t.Max.Data.Icon ?? t.Min.Data.Icon ?? t.Data.IconUrl,
+            Color = (GemColor)(int)t.Data.Name.Color,
             Min = FromPrice(t.Min.Data, t.Min.Exp),
             Max = FromPrice(t.Max.Data, t.Max.Exp),
             GainMargin = t.Margin,

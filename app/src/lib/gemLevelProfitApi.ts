@@ -36,9 +36,13 @@ export const gemProfitResponseItemPriceSchema = z.object({
 	listing_count: z.number()
 })
 
+export type GemColor = "white" | "blue" | "green" | "red";
+export const gemColorSchema = z.enum(["white", "blue", "green", "red"]);
+
 export interface GemProfitResponseItem {
 	name: string,
 	icon?: string | null,
+	color: GemColor;
 	min: GemProfitResponseItemPrice;
 	max: GemProfitResponseItemPrice;
 	gain_margin: number;
@@ -50,6 +54,7 @@ export interface GemProfitResponseItem {
 export const gemProfitResponseItemSchema = z.object({
 	name: z.string(),
 	icon: z.string().nullable().optional(),
+	color: gemColorSchema,
 	min: gemProfitResponseItemPriceSchema,
 	max: gemProfitResponseItemPriceSchema,
 	gain_margin: z.number(),
