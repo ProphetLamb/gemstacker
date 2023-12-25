@@ -147,18 +147,7 @@ app
             return Results.Ok(result);
         }
 
-        return Results.Ok(await GetLimitedResponseAsync(result).ConfigureAwait(false));
-
-        async Task<ImmutableArray<ProfitResponse>> GetLimitedResponseAsync(IAsyncEnumerable<ProfitResponse> result)
-        {
-            var en = result.GetAsyncEnumerator(cancellationToken);
-            var builder = ImmutableArray.CreateBuilder<ProfitResponse>(itemsCount);
-            while (builder.Count <= itemsCount && await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-            {
-                builder.Add(en.Current);
-            }
-            return builder.Count == builder.Capacity ? builder.MoveToImmutable() : builder.ToImmutable();
-        }
+        return Results.Ok(result.Take(itemsCount).ConfigureAwait(false));
     }).CacheOutput("gem-profit");
 app.Run();
 
