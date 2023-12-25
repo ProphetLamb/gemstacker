@@ -1,8 +1,11 @@
+using System.Collections.Immutable;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Migration;
 using MongoDB.Migration.Core;
@@ -72,25 +75,67 @@ public sealed class CreateSkillViewMigration(IOptions<PoeDatabaseSettings> optio
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var pipeline = new EmptyPipelineDefinition<PoeDbSkillEnvalope>()
-            .Project(e => new SkillGem()
-            {
-                Name = e.Skill.Name.Id,
-                RelativeUrl = e.Skill.Name.RelativeUrl,
-                Color = (GemColor)(int)e.Skill.Name.Color,
-                IconUrl = e.Skill.IconUrl,
-                BaseType = e.Skill.Stats.BaseType,
-                Discriminator = e.Skill.Discriminator,
-                SumExperience = e.Skill.LevelEffects.Select(l => l.Experience ?? 0).Sum(),
-                MaxLevel = e.Skill.LevelEffects.Where(l => l.Experience != null).Select(l => l.Level).Max() + 1,
-            });
-        await database.CreateViewAsync(
-            optionsAccessor.Value.SkillGemViewName,
-            optionsAccessor.Value.PoeDbSkillCollectionName,
-            pipeline,
-            null,
-            cancellationToken
-        ).ConfigureAwait(false);
+        var createViewMql = /*lang=json*/ $$"""
+        {
+            'create': '{{optionsAccessor.Value.SkillGemViewName}}',
+            'viewOn': '{{optionsAccessor.Value.PoeDbSkillCollectionName}}',
+            'pipeline': [
+                {
+                    '$project': {
+                        'Skill': 1,
+                        'LevelEffects': {
+                            '$filter': {
+                                'input': '$Skill.LevelEffects',
+                                'cond': { '$ne': [ '$$this.Experience', null] }
+                            }
+                        },
+                    }
+                },
+                {
+                    '$project': {
+                        'Name': '$Skill.Name._id',
+                        'RelativeUrl': '$Skill.Name.RelativeUrl',
+                        'Color': '$Skill.Name.Color',
+                        'League': '$Price.League',
+                        'IconUrl': '$Skill.IconUrl',
+                        'BaseType': '$Skill.Stats.BaseType',
+                        'Discriminator': '$Skill.Discriminator',
+                        'SumExperience': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Experience',
+                                'initialValue': 0.0,
+                                'in': {
+                                '$add': [
+                                    { '$toDouble': '$$value' },
+                                    { '$toDouble': '$$this' },
+                                ]
+                                }
+                            }
+                        },
+                        'MaxLevel': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Level',
+                                'initialValue': 0,
+                                'in': {
+                                    '$add': [
+                                        {
+                                            '$max': [
+                                                { '$toDouble': '$$value' },
+                                                { '$toDouble': '$$this' },
+                                            ]
+                                        },
+                                        1
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+            ]
+        }
+        """;
+        var command = new JsonCommand<BsonDocument>(createViewMql);
+        _ = await database.RunCommandAsync(command, null, cancellationToken).ConfigureAwait(false);
     }
 }
 
