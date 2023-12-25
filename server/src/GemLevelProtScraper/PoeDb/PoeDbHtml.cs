@@ -14,7 +14,7 @@ public static partial class PoeDbHtml
         }
 
         if (!a.ClassList
-            .SelectTruthy(c => TryParseColour(c, out var color) ? color : default(PoeDbSkillColor?))
+            .SelectTruthy(c => TryParseColour(c, out var color) ? color : default(GemColor?))
             .TryGetFirst(out var color)
         )
         {
@@ -29,26 +29,26 @@ public static partial class PoeDbHtml
         return new(text, uri, color);
     }
 
-    private static bool TryParseColour(string className, out PoeDbSkillColor color)
+    private static bool TryParseColour(string className, out GemColor color)
     {
         if (className.Equals("gem_red", StringComparison.OrdinalIgnoreCase))
         {
-            color = PoeDbSkillColor.Red;
+            color = GemColor.Red;
             return true;
         }
         if (className.Equals("gem_green", StringComparison.OrdinalIgnoreCase))
         {
-            color = PoeDbSkillColor.Green;
+            color = GemColor.Green;
             return true;
         }
         if (className.Equals("gem_blue", StringComparison.OrdinalIgnoreCase))
         {
-            color = PoeDbSkillColor.Blue;
+            color = GemColor.Blue;
             return true;
         }
         if (className.Equals("gemitem", StringComparison.OrdinalIgnoreCase))
         {
-            color = PoeDbSkillColor.White;
+            color = GemColor.White;
             return true;
         }
 

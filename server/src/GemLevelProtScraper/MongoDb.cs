@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -250,5 +251,105 @@ internal sealed class NullableImmutableArraySerializer<TItem> : SerializerBase<I
     public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ImmutableArray<TItem>? value)
     {
         _innerSerializer.Serialize(context, args, value ?? default);
+    }
+}
+
+internal sealed class NullableStructSerializationProvider : IBsonSerializationProvider
+{
+    private static readonly Lazy<MethodInfo> s_getNullableSerializerMethod = new(()
+        => typeof(NullableStructSerializationProvider)
+            .GetMethod(nameof(GetNullableSerializer), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new InvalidOperationException()
+    );
+
+    private static readonly ConcurrentDictionary<Type, Func<IBsonSerializer>> s_serializerFactoryCache = new();
+    [ThreadStatic]
+    private static (Type Type, Func<IBsonSerializer> SerializerFactory)? t_lastSerializerFactory;
+
+    public IBsonSerializer? GetSerializer(Type type)
+    {
+        if (!type.IsGenericType)
+        {
+            return null;
+        }
+        if (type.GetGenericTypeDefinition() != typeof(Nullable<>))
+        {
+            return null;
+        }
+        var factory = GetOrCreateSerializerFactory(type.GetGenericArguments()[0]);
+        return factory();
+    }
+
+    private static Func<IBsonSerializer> GetOrCreateSerializerFactory(Type type)
+    {
+        if (t_lastSerializerFactory is { } last && last.Type == type)
+        {
+            return last.SerializerFactory;
+        }
+
+        if (s_serializerFactoryCache.TryGetValue(type, out var serializerFactory))
+        {
+            t_lastSerializerFactory = (type, serializerFactory);
+            return serializerFactory;
+        }
+
+        var method = s_getNullableSerializerMethod.Value.MakeGenericMethod(type);
+        serializerFactory = (Func<IBsonSerializer>)Delegate.CreateDelegate(typeof(Func<IBsonSerializer>), method);
+
+        t_lastSerializerFactory = (type, serializerFactory);
+        s_serializerFactoryCache.TryAdd(type, serializerFactory);
+        return serializerFactory;
+    }
+#pragma warning disable CA1859
+    private static IBsonSerializer GetNullableSerializer<TValue>()
+#pragma warning restore CA1859
+        where TValue : struct
+    {
+        var serializer = BsonSerializer.LookupSerializer<TValue>() ?? throw new InvalidOperationException($"No serializer is regiersterd for the type {typeof(TValue)}.");
+        return new NullableStructSerializer<TValue>(serializer);
+    }
+}
+
+internal sealed class NullableStructSerializer<TValue>(IBsonSerializer<TValue> innerSerializer) : IBsonSerializer<TValue?>
+    where TValue : struct
+{
+    public Type ValueType => typeof(TValue?);
+
+    public TValue? Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    {
+        return context.Reader.CurrentBsonType == BsonType.Null ? null : innerSerializer.Deserialize(context, args);
+    }
+
+    public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TValue? value)
+    {
+        if (value is { } v)
+        {
+            innerSerializer.Serialize(context, args, v);
+        }
+        else
+        {
+            context.Writer.WriteNull();
+        }
+    }
+
+    void IBsonSerializer.Serialize(BsonSerializationContext context, BsonSerializationArgs args, object? value)
+    {
+        if (value is TValue v)
+        {
+            Serialize(context, args, v);
+            return;
+        }
+        if (value is null)
+        {
+            Serialize(context, args, default);
+            return;
+        }
+
+        throw new InvalidOperationException($"The value is not an incompatible type {value.GetType()}. Expected type {ValueType}.");
+    }
+
+    object? IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    {
+        return Deserialize(context, args);
     }
 }

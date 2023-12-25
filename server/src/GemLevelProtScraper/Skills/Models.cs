@@ -1,13 +1,35 @@
+using System.Collections.Immutable;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace GemLevelProtScraper.Skills;
 
-public sealed class SkillGem
-{
-    public required string Name { get; init; }
-    public required string RelativeUrl { get; init; }
-    public required GemColor Color { get; init; }
-    public required string? IconUrl { get; init; }
-    public required string BaseType { get; init; }
-    public required string? Discriminator { get; init; }
-    public required double SumExperience { get; init; }
-    public required double MaxLevel { get; init; }
-}
+[BsonIgnoreExtraElements]
+public record SkillGem
+(
+    string Name,
+    string RelativeUrl,
+    GemColor Color,
+    string? IconUrl,
+    string BaseType,
+    string? Discriminator,
+    double SumExperience,
+    double MaxLevel
+);
+
+public sealed record SkillGemPrice
+(
+    string Icon,
+    bool Corrupted,
+    long GemLevel,
+    long GemQuality,
+    double ChaosValue,
+    double DivineValue,
+    long ListingCount
+);
+
+[BsonIgnoreExtraElements]
+public sealed record SkillGemPriced
+(
+    SkillGem Skill,
+    ImmutableArray<SkillGemPrice> Prices
+);

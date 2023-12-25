@@ -113,39 +113,28 @@ public static class EnumerableExtensions
         return true;
     }
 
-    public static bool TryGetFirstAndLast<T>(
-        this IEnumerable<T> sequence,
-        [MaybeNullWhen(false)] out T first,
-        [MaybeNullWhen(false)] out T last
-    )
+    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(this IAsyncEnumerable<TValue> seq, Func<TValue, TResult?> predicate)
+        where TResult : class
     {
-        if (sequence is IReadOnlyList<T> roList && roList.Count > 0)
+        var en = seq.GetAsyncEnumerator();
+        while (await en.MoveNextAsync().ConfigureAwait(false))
         {
-            first = roList[0];
-            last = roList[roList.Count - 1];
-            return true;
+            if (predicate(en.Current) is { } result)
+            {
+                yield return result;
+            }
         }
-
-        if (sequence is IList<T> list && list.Count > 0)
+    }
+    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(this IAsyncEnumerable<TValue> seq, Func<TValue, TResult?> predicate)
+        where TResult : struct
+    {
+        var en = seq.GetAsyncEnumerator();
+        while (await en.MoveNextAsync().ConfigureAwait(false))
         {
-            first = list[0];
-            last = list[list.Count - 1];
-            return true;
+            if (predicate(en.Current) is { } result)
+            {
+                yield return result;
+            }
         }
-
-        using var en = sequence.GetEnumerator();
-        if (!en.MoveNext())
-        {
-            first = default;
-            last = default;
-            return false;
-        }
-        first = en.Current;
-        last = first;
-        while (en.MoveNext())
-        {
-            last = en.Current;
-        }
-        return true;
     }
 }

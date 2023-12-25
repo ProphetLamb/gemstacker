@@ -1,7 +1,6 @@
-using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using GemLevelProtScraper.Poe;
-using GemLevelProtScraper.PoeDb;
-using GemLevelProtScraper.PoeNinja;
+using GemLevelProtScraper.Skills;
 
 namespace GemLevelProtScraper;
 
@@ -46,53 +45,51 @@ public enum GemColor
     Red = 3,
 }
 
-internal readonly record struct ProfitMargin(double Margin, (PoeNinjaApiGemPrice Data, double Exp) Min, (PoeNinjaApiGemPrice Data, double Exp) Max, PoeDbSkill Data);
+internal readonly record struct ProfitMargin(double Margin, (SkillGemPrice Data, double Exp) Min, (SkillGemPrice Data, double Exp) Max, SkillGem Data);
 
-public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepository poeNinjaRepository)
+public sealed class ProfitService(SkillGemRepository repository)
 {
-    public async Task<ImmutableArray<ProfitResponse>> GetProfitAsync(ProfitRequest request, CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var gemPrices = await poeNinjaRepository.GetByNameGlobAsync(request.League, request.GemNameWindcard, cancellationToken).ConfigureAwait(false);
+        var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWindcard, cancellationToken);
 
-        var eligiblePrices = gemPrices
-            .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
-            .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
-            .ToImmutableArray();
-        if (eligiblePrices.IsDefaultOrEmpty || gemPrices.Count == 0)
+        var eligiblePricedGems = pricedGems
+            .SelectTruthy(g
+                => ComputeSkillProfitMargin(
+                        g.Skill,
+                        g.Prices
+                            .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
+                            .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
+                    ) is { } gain
+                ? new { g.Skill, Gain = gain }
+                : null
+            )
+            .OrderByDescending(g => g.Gain.Margin)
+            ;
+
+        var result = eligiblePricedGems
+            .Select(g
+                => new ProfitResponse
+                {
+                    Name = g.Skill.Name,
+                    Color = g.Skill.Color,
+                    Discriminator = g.Skill.Discriminator,
+                    Type = g.Skill.BaseType,
+                    ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
+                    GainMargin = g.Gain.Margin,
+                    Icon = g.Skill.IconUrl,
+                    Max = FromPrice(g.Gain.Max.Data, g.Gain.Max.Exp),
+                    Min = FromPrice(g.Gain.Min.Data, g.Gain.Min.Exp)
+                }
+            );
+
+        var en = result.GetAsyncEnumerator(cancellationToken);
+        while (await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
         {
-            return ImmutableArray<ProfitResponse>.Empty;
+            yield return en.Current;
         }
 
-        var gemData = await poeDbRepository.GetByNameListAsync(eligiblePrices.Select(p => p.Name), cancellationToken).ConfigureAwait(false);
-
-        var eligibleGemsWithPrices = gemData
-            .AsParallel()
-            .GroupJoin(
-                eligiblePrices.AsParallel(),
-                d => d.Name.Id,
-                p => p.Name,
-                ComputeSkillProfitMargin
-            )
-            .SelectTruthy(t => t)
-            .OrderByDescending(t => t.Margin);
-
-        var responses = eligibleGemsWithPrices.Select(t => new ProfitResponse()
-        {
-            Name = t.Data.Name.Id,
-            Icon = t.Max.Data.Icon ?? t.Min.Data.Icon ?? t.Data.IconUrl,
-            Color = (GemColor)(int)t.Data.Name.Color,
-            Min = FromPrice(t.Min.Data, t.Min.Exp),
-            Max = FromPrice(t.Max.Data, t.Max.Exp),
-            GainMargin = t.Margin,
-            Type = t.Data.Stats.BaseType,
-            Discriminator = t.Data.Discriminator,
-            ForeignInfoUrl = $"https://poedb.tw{t.Data.Name.RelativeUrl}"
-        });
-
-        var result = responses.ToImmutableArray();
-        return result;
-
-        static ProfitLevelResponse FromPrice(PoeNinjaApiGemPrice price, double exp) => new()
+        static ProfitLevelResponse FromPrice(SkillGemPrice price, double exp) => new()
         {
             Experience = exp,
             Level = price.GemLevel,
@@ -101,18 +98,20 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             Price = price.ChaosValue
         };
 
-        ProfitMargin? ComputeSkillProfitMargin(PoeDbSkill skill, IEnumerable<PoeNinjaApiGemPrice> prices)
+        ProfitMargin? ComputeSkillProfitMargin(SkillGem skill, IEnumerable<SkillGemPrice> prices)
         {
-            var pricesWithExperience = prices
-                .Select(p => (
-                    Price: p,
-                    Exp: skill.LevelEffects.SelectTruthy(l => l.Level < p.GemLevel ? l.Experience : null).Sum()
-                ))
-                .OrderBy(t => t.Price.ChaosValue)
-                .TryGetFirstAndLast(out var min, out var max);
-            var (minPrice, minExp) = min;
-            var (maxPrice, maxExp) = max;
-            var requiredExp = maxExp - minExp;
+            var pricesOrdered = prices.ToArray();
+            // order by ChaosValue descending
+            pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
+
+            var minPrice = pricesOrdered.Where(p => p.GemLevel == 1).LastOrDefault();
+            var maxPrice = pricesOrdered.Where(p => p.GemLevel == skill.MaxLevel).FirstOrDefault();
+            if (minPrice is null || maxPrice is null)
+            {
+                return null;
+            }
+
+            var requiredExp = skill.SumExperience;
 
             if (requiredExp < request.MinExperienceDelta)
             {
@@ -128,8 +127,8 @@ public sealed class ProfitService(PoeDbRepository poeDbRepository, PoeNinjaRepos
             var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
             return new(
                 margin,
-                (minPrice, minExp),
-                (maxPrice, maxExp),
+                (minPrice, 0),
+                (maxPrice, requiredExp),
                 skill
             );
         }

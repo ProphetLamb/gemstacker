@@ -1,11 +1,11 @@
 using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using GemLevelProtScraper;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
+using GemLevelProtScraper.Skills;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
@@ -24,6 +24,7 @@ var provider = CodePagesEncodingProvider.Instance;
 Encoding.RegisterProvider(provider);
 
 // BSON Serialization
+BsonSerializer.RegisterSerializationProvider(new NullableStructSerializationProvider());
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
 // Sentry
 var flush = SentrySdk.Init("https://bcf0ff9fab08594e449c0638263a731f@o4505884379250688.ingest.sentry.io/4505884389670912");
@@ -43,6 +44,7 @@ builder.Services
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaRepository>()
     .AddTransient<PoeRepository>()
+    .AddTransient<SkillGemRepository>()
     .AddTransient<ProfitService>()
     .AddHostedService<PoeNinjaScraper>()
     .AddHostedService<PoeDbScraper>()
@@ -139,14 +141,25 @@ app
             MinExperienceDelta = minExperienceDelta,
             MinimumListingCount = minListingCount
         };
-        var data = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
-        var count = Math.Min(data.Length, itemsCount);
-        if (count > 0)
+        var result = profitService.GetProfitAsync(request, cancellationToken);
+
+        if (itemsCount is <= 0 or int.MaxValue)
         {
-            return Results.Ok(new ArraySegment<ProfitResponse>(Unsafe.As<ImmutableArray<ProfitResponse>, ProfitResponse[]>(ref data), 0, count));
+            return Results.Ok(result);
         }
 
-        return Results.Ok(data);
+        return Results.Ok(await GetLimitedResponseAsync(result).ConfigureAwait(false));
+
+        async Task<ImmutableArray<ProfitResponse>> GetLimitedResponseAsync(IAsyncEnumerable<ProfitResponse> result)
+        {
+            var en = result.GetAsyncEnumerator(cancellationToken);
+            var builder = ImmutableArray.CreateBuilder<ProfitResponse>(itemsCount);
+            while (builder.Count <= itemsCount && await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+            {
+                builder.Add(en.Current);
+            }
+            return builder.Count == builder.Capacity ? builder.MoveToImmutable() : builder.ToImmutable();
+        }
     }).CacheOutput("gem-profit");
 app.Run();
 
