@@ -7,7 +7,7 @@ namespace GemLevelProtScraper;
 public sealed record ProfitRequest
 {
     public required LeagueMode League { get; init; }
-    public required string GemNameWindcard { get; init; }
+    public required string? GemNameWindcard { get; init; }
     public double? MinSellPriceChaos { get; init; }
     public double? MaxBuyPriceChaos { get; init; }
     public double? MinExperienceDelta { get; init; }

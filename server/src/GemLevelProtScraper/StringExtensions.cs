@@ -1,5 +1,3 @@
-using System;
-
 namespace GemLevelProtScraper;
 
 public static class StringExtensions

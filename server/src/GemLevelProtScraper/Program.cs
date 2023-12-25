@@ -103,8 +103,8 @@ app
     .MapGet("gem-profit", async (
         [FromServices] ProfitService profitService,
         [FromServices] PoeRepository poeRepository,
-        [FromQuery(Name = "league")] string league = "",
-        [FromQuery(Name = "gem_name")] string gemNameWindcard = "*",
+        [FromQuery(Name = "league")] string? league = null,
+        [FromQuery(Name = "gem_name")] string? gemNameWindcard = null,
         [FromQuery(Name = "min_sell_price_chaos")] double? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] double? maxBuyPriceChaos = null,
         [FromQuery(Name = "min_experience_delta")] double? minExperienceDelta = null,

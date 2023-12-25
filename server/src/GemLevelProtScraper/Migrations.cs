@@ -1,11 +1,9 @@
-using System.Collections.Immutable;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Migration;
 using MongoDB.Migration.Core;
