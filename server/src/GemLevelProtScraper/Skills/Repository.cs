@@ -45,14 +45,18 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
                                 e.Price.ListingCount
                             )
                         )
+                        .ToArray()
                 }
             )
+            .Where(r => r.Prices.Length > 0)
             .ToCursorAsync(cancellationToken).ConfigureAwait(false);
         while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
         {
             foreach (var item in cursor.Current)
             {
-                yield return new(item.Skill, item.Prices.ToImmutableArray());
+                var prices = item.Prices;
+                var pricesArr = Unsafe.As<SkillGemPrice[], ImmutableArray<SkillGemPrice>>(ref prices);
+                yield return new(item.Skill, pricesArr);
             }
         }
     }
