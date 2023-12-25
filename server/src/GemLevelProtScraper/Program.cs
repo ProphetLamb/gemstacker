@@ -142,7 +142,7 @@ app
         };
         var result = profitService.GetProfitAsync(request, cancellationToken);
 
-        if (itemsCount is <= 0 or int.MaxValue)
+        if (itemsCount is <= 0 or >= 20000)
         {
             return Results.Ok(result);
         }
