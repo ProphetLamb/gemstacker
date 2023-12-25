@@ -24,7 +24,6 @@ var provider = CodePagesEncodingProvider.Instance;
 Encoding.RegisterProvider(provider);
 
 // BSON Serialization
-BsonSerializer.RegisterSerializationProvider(new NullableStructSerializationProvider());
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
 // Sentry
 var flush = SentrySdk.Init("https://bcf0ff9fab08594e449c0638263a731f@o4505884379250688.ingest.sentry.io/4505884389670912");

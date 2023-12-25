@@ -20,34 +20,39 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
         var cursor = await _skills.AsQueryable()
             .Where(s => containsName == null || s.Name.Contains(containsName))
             .GroupJoin(
-                _prices.AsQueryable()
-                    .Where(e
-                        => e.League == leauge
-                        && (containsName == null || e.Price.Name.Contains(containsName))
-                    ),
+                _prices.AsQueryable(),
                 s => s.Name, e => e.Price.Name,
-                (s, e) => new SkillGemPriced(
-                    s,
-                    e.Select(e => new SkillGemPrice
-                        (
-                            e.Price.Icon,
-                            e.Price.Corrupted,
-                            e.Price.GemLevel,
-                            e.Price.GemQuality,
-                            e.Price.ChaosValue,
-                            e.Price.DivineValue,
-                            e.Price.ListingCount
+                (s, e) => new
+                {
+                    Skill = s,
+                    Prices = e
+                }
+            )
+            .Select(r
+                => new
+                {
+                    r.Skill,
+                    Prices = r.Prices
+                        .Where(e => e.League == leauge)
+                        .Select(e => new SkillGemPrice
+                            (
+                                e.Price.Icon,
+                                e.Price.Corrupted,
+                                e.Price.GemLevel,
+                                e.Price.GemQuality,
+                                e.Price.ChaosValue,
+                                e.Price.DivineValue,
+                                e.Price.ListingCount
+                            )
                         )
-                    )
-                    .ToImmutableArray()
-                )
+                }
             )
             .ToCursorAsync(cancellationToken).ConfigureAwait(false);
         while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
         {
             foreach (var item in cursor.Current)
             {
-                yield return item;
+                yield return new(item.Skill, item.Prices.ToImmutableArray());
             }
         }
     }
