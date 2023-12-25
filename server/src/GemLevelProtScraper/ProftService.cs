@@ -59,7 +59,10 @@ public sealed class ProfitService(SkillGemRepository repository)
                         g.Skill,
                         g.Prices
                             .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
-                            .Where(p => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy) && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell))
+                            .Where(p
+                                => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
+                                && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
+                            )
                     ) is { } gain
                 ? new { g.Skill, Gain = gain }
                 : null
