@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -31,5 +32,5 @@ public sealed record SkillGemPrice
 public sealed record SkillGemPriced
 (
     SkillGem Skill,
-    ImmutableArray<SkillGemPrice> Prices
+    IReadOnlyList<SkillGemPrice> Prices
 );

@@ -18,22 +18,23 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
     {
         _ = await completion.WaitAsync(options.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _skills.AsQueryable()
-            .Where(s => containsName == null || s.Name.Contains(containsName))
             .GroupJoin(
                 _prices.AsQueryable(),
                 s => s.Name, e => e.Price.Name,
                 (s, e) => new
                 {
                     Skill = s,
-                    Prices = e
+                    Prices = e.Where(e => e.League == leauge)
                 }
             )
+            .Where(r
+                => (containsName == null || r.Skill.Name.Contains(containsName))
+                && r.Prices.Count() > 0)
             .Select(r
                 => new
                 {
                     r.Skill,
                     Prices = r.Prices
-                        .Where(e => e.League == leauge)
                         .Select(e => new SkillGemPrice
                             (
                                 e.Price.Icon,
@@ -45,18 +46,16 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
                                 e.Price.ListingCount
                             )
                         )
-                        .ToArray()
                 }
             )
-            .Where(r => r.Prices.Length > 0)
             .ToCursorAsync(cancellationToken).ConfigureAwait(false);
+
         while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
         {
             foreach (var item in cursor.Current)
             {
                 var prices = item.Prices;
-                var pricesArr = Unsafe.As<SkillGemPrice[], ImmutableArray<SkillGemPrice>>(ref prices);
-                yield return new(item.Skill, pricesArr);
+                yield return new(item.Skill, prices as List<SkillGemPrice> ?? prices.ToList());
             }
         }
     }
