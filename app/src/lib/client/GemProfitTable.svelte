@@ -3,13 +3,9 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
 
 	export let data: GemProfitResponseItem[];
-
-	const currencyGemQuality =
-		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png';
-	const currencyRerollRare =
-		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png';
 
 	const intlCompactNumber = Intl.NumberFormat('en-US', {
 		notation: 'compact',
@@ -39,20 +35,16 @@
 						<img src={gem.icon} alt={`${idx + 1}`} />
 					</a>
 				</td>
-				<td class="relative border-spacing-0 text-start">
-					<a href={gem.foreign_info_url} target="_blank" class="table h-full"
-						><span class="align-top">{gem.name}</span></a
-					>
-					<a
-						href={gem.foreign_info_url}
-						target="_blank"
-						class="flex flex-row absolute bottom-0 left-0 text-xs text-surface-600-300-token"
-					>
-						lvl
-						{gem.min.level} → {gem.max.level} =
-						<span class="text-secondary-300-600-token">+{intlCompactNumber.format(deltaExp)}</span
-						>exp
-					</a></td
+				<td class="border-spacing-0 text-start">
+					<a href={gem.foreign_info_url} target="_blank" class="flex flex-col h-full"
+						><span class="align-top">{gem.name}</span>
+						<div class=" text-xs text-surface-600-300-token">
+							lvl
+							{gem.min.level} → {gem.max.level} =
+							<span class="text-secondary-300-600-token">+{intlCompactNumber.format(deltaExp)}</span
+							>exp
+						</div></a
+					></td
 				>
 				<td />
 				<td class="text-end table pt-1">
