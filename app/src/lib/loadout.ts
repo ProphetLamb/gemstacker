@@ -102,16 +102,16 @@ export class LoadoutOptimizer {
     return !!this.request.max_budget_chaos && this.loadoutWeight() >= this.request.max_budget_chaos
   }
 
-  public optimize(): LoadoutResponseItem[] {
+  public optimize(): LoadoutResponse {
     this.initializeLoadout()
     this.optimizeLoadout()
 
-    const response: LoadoutResponseItem[] = []
+    const items: LoadoutResponseItem[] = []
     for (const item of this.loadout) {
-      let existing = response.find(x => x.gem.name === item.gem.name)
+      let existing = items.find(x => x.gem.name === item.gem.name)
       if (!existing) {
         existing = { gem: item.gem, socket: [], count: 0 }
-        response.push(existing)
+        items.push(existing)
       }
       let socket = existing.socket.find(x => x.color === item.socketColor)
       if (!socket) {
@@ -121,7 +121,11 @@ export class LoadoutOptimizer {
       existing.count += 1
       socket.count += 1
     }
-    return response
+    const totalBuyCost = items.map(x => x.gem.min.price * x.count).reduce((l, r) => l + r, 0)
+    const totalSellPrice = items.map(x => x.gem.max.price * x.count).reduce((l, r) => l + r, 0)
+    const totalExperience = items.map(x => x.gem.max.experience - x.gem.min.experience).reduce((l, r) => Math.max(l, r), 0)
+    const count = items.map(x => x.count).reduce((l, r) => l + r, 0)
+    return { items, totalBuyCost, totalSellPrice, totalExperience, count }
   }
 
   initializeLoadout() {
