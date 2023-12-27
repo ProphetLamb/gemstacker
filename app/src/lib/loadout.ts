@@ -25,8 +25,17 @@ export const loadoutRequestSchema = z.object({
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["blue"] })
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["white"] })
 
+export interface LoadoutResponse {
+  items: LoadoutResponseItem[],
+  totalBuyCost: number,
+  totalSellPrice: number,
+  totalExperience: number,
+  count: number
+}
+
 export interface LoadoutResponseItem {
   gem: GemProfitResponseItem,
+  count: number,
   socket: { color: GemColor, count: number }[]
 }
 
@@ -99,7 +108,7 @@ export class LoadoutOptimizer {
     for (const item of this.loadout) {
       let existing = response.find(x => x.gem.name === item.gem.name)
       if (!existing) {
-        existing = { gem: item.gem, socket: [] }
+        existing = { gem: item.gem, socket: [], count: 0 }
         response.push(existing)
       }
       let socket = existing.socket.find(x => x.color === item.socketColor)
@@ -107,6 +116,7 @@ export class LoadoutOptimizer {
         socket = { color: item.socketColor, count: 0 }
         existing.socket.push(socket)
       }
+      existing.count += 1
       socket.count += 1
     }
     return response

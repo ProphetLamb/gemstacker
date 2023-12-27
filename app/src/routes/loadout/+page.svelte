@@ -6,12 +6,11 @@
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { localSettings } from '$lib/client/localSettings';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
+	import { loadoutRequestSchema } from '$lib/loadout';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
 	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
-
+	import LoadoutInfo from '$lib/client/LoadoutInfo.svelte';
 	export let data: PageData;
 	export let form: ActionData;
 	const {
@@ -119,8 +118,10 @@
 					/>
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
-			{:else if form?.loadout && form.loadout.length > 0}
-				<LoadoutTable data={form.loadout} />
+			{:else if form?.loadout && form.loadout.items.length > 0}
+				{@const loadout = form.loadout}
+				<LoadoutInfo {loadout} />
+				<LoadoutTable data={loadout.items} />
 			{:else}
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
