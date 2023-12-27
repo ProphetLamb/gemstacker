@@ -27,8 +27,7 @@ export const loadoutRequestSchema = z.object({
 
 export interface LoadoutResponseItem {
   gem: GemProfitResponseItem,
-  count: number,
-  socketColor: GemColor
+  socket: { color: GemColor, count: number }[]
 }
 
 function weight(item: GemProfitResponseItem): number {
@@ -98,13 +97,17 @@ export class LoadoutOptimizer {
 
     const response: LoadoutResponseItem[] = []
     for (const item of this.loadout) {
-      let existing = response.find(x => x.socketColor === item.socketColor && x.gem.name === item.gem.name)
+      let existing = response.find(x => x.gem.name === item.gem.name)
       if (!existing) {
-        existing = { count: 0, gem: item.gem, socketColor: item.socketColor }
+        existing = { gem: item.gem, socket: [] }
         response.push(existing)
       }
-
-      existing.count += 1
+      let socket = existing.socket.find(x => x.color === item.socketColor)
+      if (!socket) {
+        socket = { color: item.socketColor, count: 0 }
+        existing.socket.push(socket)
+      }
+      socket.count += 1
     }
     return response
   }

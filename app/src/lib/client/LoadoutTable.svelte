@@ -26,7 +26,7 @@
 
 <table class="list w-full border-separate border-spacing-y-2">
 	<tbody>
-		{#each data as { gem, count, socketColor }, idx}
+		{#each data as { gem, socket }, idx}
 			{@const deltaExp = gem.max.experience - gem.min.experience}
 			{@const deltaQty = Math.max(0, gem.max.quality - gem.min.quality)}
 			{@const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty)}
@@ -79,10 +79,10 @@
 					><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 				</td>
 				<td> <span class="font-semibold text-surface-600-300-token">&#215;</span></td>
-				<td class="">
-					<GemSocket class="flex justify-center items-center w-6 h-6" color={socketColor}
-						>{count}</GemSocket
-					>
+				<td class="flex flex-row">
+					{#each socket as { color, count }}
+						<GemSocket class="flex justify-center items-center w-6 h-6" {color}>{count}</GemSocket>
+					{/each}
 				</td>
 				<td class="pl-2">
 					<GemTradeQueryButton gemPrice={gem} />
