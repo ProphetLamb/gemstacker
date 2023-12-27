@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json.Serialization;
 using GemLevelProtScraper;
@@ -147,7 +146,7 @@ app
             return Results.Ok(result);
         }
 
-        return Results.Ok(result.Take(itemsCount).ConfigureAwait(false));
+        return Results.Ok(result.Take(itemsCount));
     }).CacheOutput("gem-profit");
 app.Run();
 
