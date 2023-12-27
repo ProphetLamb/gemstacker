@@ -59,7 +59,7 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     internal IMongoCollection<SkillGem> GetSkillGemCollection(IMongoDatabase? database = null)
     {
         database ??= GetDatabase();
-        return database.GetCollection<SkillGem>(PoeNinjaPriceCollectionName);
+        return database.GetCollection<SkillGem>(SkillGemViewName);
     }
 }
 
