@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { createGemTradeQueryBody, type PoeTradeGemRequest } from '$lib/pathOfExileApi';
+	import { localSettings } from './localSettings';
 
 	export let gemPrice: GemProfitResponseItem;
 
@@ -36,7 +37,7 @@
 				min_quality
 			})
 		);
-		let url = `https://www.pathofexile.com/trade/search/Ancestor?q=${body}`;
+		let url = `https://www.pathofexile.com/trade/search/${$localSettings.league}?q=${body}`;
 		return url;
 	}
 </script>
