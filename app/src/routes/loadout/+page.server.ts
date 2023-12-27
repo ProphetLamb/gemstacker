@@ -26,7 +26,7 @@ export const actions: Actions = {
 
     const loadoutRequest = loadoutForm.data;
     try {
-      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: 340000000, items_count: -1 });
+      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       const loadoutOptimzer = new LoadoutOptimizer(loadoutRequest, gemProfit);
       const items = loadoutOptimzer.optimize();
       const totalBuyCost = items.map(x => x.gem.min.price * x.count).reduce((l, r) => l + r, 0)

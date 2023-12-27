@@ -39,6 +39,11 @@
 		</h1>
 		<form class="space-y-2" use:enhance method="POST">
 			<input type="hidden" name="league" value={$localSettings.league} />
+			<input
+				type="hidden"
+				name="min_experience_delta"
+				value={$localSettings.min_experience_delta}
+			/>
 			<label class="label">
 				<span>Red Sockets</span>
 				<input

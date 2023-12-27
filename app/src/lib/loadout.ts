@@ -3,6 +3,7 @@ import type { GemColor, GemProfitResponseItem } from "./gemLevelProfitApi";
 
 export interface LoadoutRequest {
   league: string;
+  min_experience_delta: number;
   red: number;
   green: number;
   blue: number;
@@ -14,6 +15,7 @@ const loadoutRequestSchemaNoSocketsError = "At least one socket required"
 
 export const loadoutRequestSchema = z.object({
   league: z.string(),
+  min_experience_delta: z.number(),
   red: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
   green: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
   blue: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
