@@ -3,7 +3,7 @@ import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { superValidate } from 'sveltekit-superforms/client';
 import type { PageServerLoad } from './$types';
-import { computeBestLoadout as calculateOptimalLoadout, loadoutRequestSchema } from '$lib/loadout';
+import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
 
 export const load: PageServerLoad = async ({ request }) => {
   const loadoutForm = await superValidate(request, loadoutRequestSchema);
@@ -26,9 +26,10 @@ export const actions: Actions = {
 
     const loadoutRequest = loadoutForm.data;
     try {
-      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: 340000000 });
-      const bestLoadout = calculateOptimalLoadout(gemProfit, loadoutRequest)
-      return { ...response, bestLoadout };
+      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: 340000000, items_count: -1 });
+      const loadoutOptimzer = new LoadoutOptimizer(loadoutRequest, gemProfit);
+      const loadout = loadoutOptimzer.optimize();
+      return { ...response, loadout };
     } catch (error) {
       return fail(500, response);
     }

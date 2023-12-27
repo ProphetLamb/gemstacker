@@ -1,10 +1,11 @@
 <script lang="ts">
+	import GemSocket from './GemSocket.svelte';
 	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import type { LoadoutResponseItem } from '$lib/loadout';
 
-	export let data: GemProfitResponseItem[];
+	export let data: LoadoutResponseItem[];
 
 	const currencyGemQuality =
 		'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png';
@@ -25,7 +26,7 @@
 
 <table class="list w-full border-separate border-spacing-y-2">
 	<tbody>
-		{#each data as gem, idx}
+		{#each data as { gem, count, socketColor }, idx}
 			{@const deltaExp = gem.max.experience - gem.min.experience}
 			{@const deltaQty = Math.max(0, gem.max.quality - gem.min.quality)}
 			{@const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty)}
@@ -76,6 +77,12 @@
 				<td class="text-end table pt-1">
 					<span class="text-success-200-700-token">+{intlFractionNumber.format(deltaPrice)}</span
 					><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
+				</td>
+				<td> <span class="font-semibold text-surface-600-300-token">&#215;</span></td>
+				<td class="">
+					<GemSocket class="flex justify-center items-center w-6 h-6" color={socketColor}
+						>{count}</GemSocket
+					>
 				</td>
 				<td class="pl-2">
 					<GemTradeQueryButton gemPrice={gem} />

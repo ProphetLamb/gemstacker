@@ -6,7 +6,11 @@
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { localSettings } from '$lib/client/localSettings';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { loadoutRequestSchema } from '$lib/loadout';
+	import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
+	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
+	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -41,7 +45,7 @@
 				<input
 					class="input"
 					type="number"
-					name="gems_red"
+					name="red"
 					bind:value={$loadoutForm.red}
 					{...$constraints.red}
 				/>
@@ -54,7 +58,7 @@
 				<input
 					class="input"
 					type="number"
-					name="gems_green"
+					name="green"
 					bind:value={$loadoutForm.green}
 					{...$constraints.green}
 				/>
@@ -67,7 +71,7 @@
 				<input
 					class="input"
 					type="number"
-					name="gems_blue"
+					name="blue"
 					bind:value={$loadoutForm.blue}
 					{...$constraints.blue}
 				/>
@@ -80,7 +84,7 @@
 				<input
 					class="input"
 					type="number"
-					name="gems_white"
+					name="white"
 					bind:value={$loadoutForm.white}
 					{...$constraints.white}
 				/>
@@ -93,6 +97,42 @@
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
 		</form>
+	</WrapperItem>
+	<WrapperItem>
+		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
+			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
+			<span>The best gems for you.</span>
+		</h1>
+		<div class="text-token flex flex-col items-center card p-4 space-y-2">
+			{#if $delayed}
+				<LoadingPlaceholder
+					class="w-[55rem] max-w-[calc(100vw-4rem)]"
+					front="bg-surface-backdrop-token"
+					placeholder="animate-pulse"
+					rows={10}
+				>
+					<ProgressRadial
+						stroke={100}
+						value={undefined}
+						meter="stroke-tertiary-500"
+						track="stroke-tertiary-500/30"
+					/>
+					<p class="text-xl">Loading...</p></LoadingPlaceholder
+				>
+			{:else if form?.loadout && form.loadout.length > 0}
+				<LoadoutTable data={form.loadout} />
+			{:else}
+				<LoadingPlaceholder
+					class="w-[55rem] max-w-[calc(100vw-4rem)]"
+					front="bg-surface-backdrop-token"
+					rows={10}
+				>
+					<p class="text-xl">
+						Enter your criteria or just <span class="font-extrabold">search</span>
+					</p>
+				</LoadingPlaceholder>
+			{/if}
+		</div>
 	</WrapperItem>
 </Wrapper>
 

@@ -155,7 +155,7 @@
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
-				<GemProfitTable gemProfit={form.gemProfit} />
+				<GemProfitTable data={form.gemProfit} />
 			{:else}
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
