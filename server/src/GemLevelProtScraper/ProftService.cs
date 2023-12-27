@@ -80,7 +80,7 @@ public sealed class ProfitService(SkillGemRepository repository)
                     Type = g.Skill.BaseType,
                     ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
                     GainMargin = g.Gain.Margin,
-                    Icon = g.Skill.IconUrl,
+                    Icon = g.Gain.Min.Data.Icon ?? g.Gain.Max.Data.Icon ?? g.Skill.IconUrl,
                     Max = FromPrice(g.Gain.Max.Data, g.Gain.Max.Exp),
                     Min = FromPrice(g.Gain.Min.Data, g.Gain.Min.Exp)
                 }
