@@ -27,9 +27,7 @@ export const actions: Actions = {
     const loadoutRequest = loadoutForm.data;
     try {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
-      const loadoutOptimzer = new LoadoutOptimizer(loadoutRequest, gemProfit);
-      const loadout = loadoutOptimzer.optimize();
-      return { ...response, loadout };
+      return { ...response, gemProfit };
     } catch (error) {
       return fail(500, response);
     }

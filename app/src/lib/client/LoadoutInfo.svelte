@@ -4,10 +4,10 @@
 	import type { LoadoutResponse } from '$lib/loadout';
 
 	export let loadout: LoadoutResponse;
-	const totalBuyCost = loadout.totalBuyCost;
-	const totalExperience = loadout.totalExperience;
-	const totalSellPrice = loadout.totalSellPrice;
-	const count = loadout.count;
+	$: totalBuyCost = loadout.totalBuyCost;
+	$: totalExperience = loadout.totalExperience;
+	$: totalSellPrice = loadout.totalSellPrice;
+	$: count = loadout.count;
 </script>
 
 <div class="flex flex-row items-center text-surface-600-300-token">
