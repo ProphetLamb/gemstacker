@@ -3,7 +3,7 @@ import { API_KEY, API_ENDPOINT } from '$env/static/private';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { superValidate } from 'sveltekit-superforms/client';
 import type { PageServerLoad } from './$types';
-import { LoadoutOptimizer, loadoutRequestSchema, type LoadoutResponse } from '$lib/loadout';
+import { loadoutRequestSchema } from '$lib/loadout';
 
 export const load: PageServerLoad = async ({ request }) => {
   const loadoutForm = await superValidate(request, loadoutRequestSchema);

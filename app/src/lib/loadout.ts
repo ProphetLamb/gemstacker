@@ -70,7 +70,7 @@ type OptimizerItem = {
 export class LoadoutOptimizer {
   constructor(request: LoadoutRequest, available: GemProfitResponseItem[]) {
     this.request = request
-    this.available = available.sort(x => probability(x))
+    this.available = available.sort(x => -probability(x))
   }
   request: LoadoutRequest
   available: GemProfitResponseItem[]

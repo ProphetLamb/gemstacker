@@ -8,6 +8,7 @@
 	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
 
 	export let data: LoadoutResponseItem[];
+	$: data;
 </script>
 
 <table class="list w-full border-separate border-spacing-y-2">

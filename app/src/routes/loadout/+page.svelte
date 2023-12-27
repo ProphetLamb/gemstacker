@@ -6,11 +6,12 @@
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { localSettings } from '$lib/client/localSettings';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { LoadoutOptimizer, loadoutRequestSchema, type LoadoutRequest } from '$lib/loadout';
+	import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
 	import LoadoutInfo from '$lib/client/LoadoutInfo.svelte';
+	import { availableGems } from '$lib/client/availableGems';
 	export let data: PageData;
 	export let form: ActionData;
 	const {
@@ -26,17 +27,13 @@
 		taintedMessage: null
 	});
 
+	$: $availableGems = form?.gemProfit;
+	$: loadout =
+		$delayed || !$availableGems
+			? undefined
+			: new LoadoutOptimizer($loadoutForm, $availableGems).optimize();
+
 	export const snapshot = { capture, restore };
-
-	$: loadout = getLoadout($loadoutForm);
-
-	function getLoadout(request: LoadoutRequest) {
-		if ($delayed) {
-			return undefined;
-		}
-		const loadoutOptimzer = new LoadoutOptimizer(request, form?.gemProfit ?? []);
-		return loadoutOptimzer.optimize();
-	}
 </script>
 
 <Wrapper>
@@ -134,8 +131,8 @@
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
 			{:else if loadout && loadout.items.length > 0}
-				<LoadoutInfo {loadout} />
-				<LoadoutTable data={loadout.items} />
+				<LoadoutInfo bind:loadout />
+				<LoadoutTable bind:data={loadout.items} />
 			{:else}
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
