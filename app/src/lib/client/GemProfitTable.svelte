@@ -4,19 +4,9 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
+	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
 
 	export let data: GemProfitResponseItem[];
-
-	const intlCompactNumber = Intl.NumberFormat('en-US', {
-		notation: 'compact',
-		maximumFractionDigits: 2
-	});
-
-	const intlFractionNumber = Intl.NumberFormat('en-US', {
-		notation: 'standard',
-		maximumFractionDigits: 2,
-		minimumFractionDigits: 2
-	});
 </script>
 
 <table class="list w-full border-separate border-spacing-y-2">
