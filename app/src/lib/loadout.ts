@@ -79,7 +79,7 @@ export class LoadoutOptimizer {
   countLoadout(color?: GemColor) {
     let count = 0;
     for (const item of this.loadout) {
-      if (color && item.gem.color == color) {
+      if (color && item.socketColor == color) {
         count += 1;
       }
     }
