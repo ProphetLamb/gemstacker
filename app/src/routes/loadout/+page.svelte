@@ -12,6 +12,8 @@
 	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
 	import LoadoutInfo from '$lib/client/LoadoutInfo.svelte';
 	import { availableGems } from '$lib/client/availableGems';
+	import { getStateFromQuery } from '$lib/client/navigation';
+	import { browser } from '$app/environment';
 	export let data: PageData;
 	export let form: ActionData;
 	const {
@@ -26,6 +28,22 @@
 		validators: loadoutRequestSchema,
 		taintedMessage: null
 	});
+	if (browser) {
+		function num(s?: string): number | undefined {
+			return !!s ? parseInt(s) : undefined;
+		}
+		$loadoutForm = {
+			...$loadoutForm,
+			...getStateFromQuery((x) => {
+				return {
+					red: num(x['red']),
+					green: num(x['green']),
+					blue: num(x['blue']),
+					white: num(x['white'])
+				};
+			})
+		};
+	}
 
 	$: $availableGems = form?.gemProfit;
 	$: loadout =

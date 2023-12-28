@@ -16,11 +16,11 @@ const loadoutRequestSchemaNoSocketsError = "At least one socket required"
 export const loadoutRequestSchema = z.object({
   league: z.string(),
   min_experience_delta: z.number(),
-  red: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
-  green: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
-  blue: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
-  white: z.number().int().min(0).max(36).nullable().transform(v => v ?? 0),
-  max_budget_chaos: z.number().optional().nullable().transform(v => v ?? 0)
+  red: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
+  green: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
+  blue: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
+  white: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
+  max_budget_chaos: z.number().optional().nullable().optional().transform(v => v ?? 0)
 })
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["red"] })
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["green"] })
