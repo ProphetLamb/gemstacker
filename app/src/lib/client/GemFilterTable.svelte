@@ -15,7 +15,6 @@
 
 	function setExcluded(idx: number, newValue: boolean) {
 		const oldValue = excludedGems.has(data[idx].name);
-		console.log('oldValue', oldValue, 'newValue', newValue);
 		if (oldValue === newValue) {
 			return;
 		}

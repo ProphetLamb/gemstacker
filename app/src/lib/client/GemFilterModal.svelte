@@ -39,7 +39,6 @@
 	});
 
 	function setExcluded(idx: number | number[], newValue: boolean) {
-		console.log('idx', idx, 'newValue', newValue);
 		const gems = $availableGems ?? [];
 		const excludedGems = new Set($localSettings.exclude_gems);
 		if (!Array.isArray(idx)) {

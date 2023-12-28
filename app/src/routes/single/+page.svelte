@@ -36,7 +36,6 @@
 			min_experience_delta: $localSettings.min_experience_delta
 		};
 		if (!form?.gemProfit) {
-			console.log('overwriting profit form with', $localSettings);
 			$profitForm = { ...$profitForm, ...initialSettings };
 		}
 	});
