@@ -1,4 +1,6 @@
 import { writable } from "svelte/store";
-import type { GemProfitResponse } from "$lib/gemLevelProfitApi"
+import type { GemProfitResponseItem } from "$lib/gemLevelProfitApi"
 
-export const availableGems = writable<GemProfitResponse | undefined>(undefined)
+export type AvailableGem = GemProfitResponseItem & { isFiltered?: boolean }
+
+export const availableGems = writable<AvailableGem[] | undefined>(undefined)
