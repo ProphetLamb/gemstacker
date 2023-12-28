@@ -62,7 +62,7 @@
 					><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 				</td>
 				<td> <span class="font-semibold text-surface-600-300-token">&#215;</span></td>
-				<td class="flex flex-row">
+				<td class="flex flex-row space-x-1">
 					{#each socket as { color, count }}
 						<GemSocket class="flex justify-center items-center w-6 h-6" {color}>{count}</GemSocket>
 					{/each}
