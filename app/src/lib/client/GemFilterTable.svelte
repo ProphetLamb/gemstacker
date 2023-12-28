@@ -1,43 +1,46 @@
 <script lang="ts">
-	import type { AvailableGem, FilteredEvent } from '$lib/client/availableGems.ts';
+	import type { FilteredEvent } from '$lib/client/availableGems';
 	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import { createEventDispatcher } from 'svelte';
+	import type { GemProfitResponse } from '$lib/gemLevelProfitApi';
+	import { localSettings } from './localSettings';
 
-	export let data: AvailableGem[];
+	export let data: GemProfitResponse;
 	$: data;
+	$: excludedGems = new Set($localSettings.exclude_gems);
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher<FilteredEvent>();
 
-	function setFiltered(idx: number, newValue: boolean | undefined) {
-		const oldValue = data[idx].isFiltered;
+	function setExcluded(idx: number, newValue: boolean) {
+		const oldValue = excludedGems.has(data[idx].name);
+		console.log('oldValue', oldValue, 'newValue', newValue);
 		if (oldValue === newValue) {
 			return;
 		}
-		data[idx].isFiltered = newValue;
-
 		dispatch('filtered', {
 			dataIndex: idx,
 			gem: data[idx],
 			oldValue,
 			newValue
-		} satisfies FilteredEvent);
+		});
 	}
 </script>
 
 <table class="list border-separate border-spacing-y-2">
 	<tbody>
 		{#each data as gem, idx}
-			<tr class="h-12 {gem.isFiltered ? '[&>td]:bg-error-600/20' : ''} ">
+			{@const isExcluded = excludedGems.has(gem.name)}
+			<tr class="h-12 {isExcluded ? '[&>td]:bg-error-600/20' : ''} ">
 				<GemTableIdentifier {gem} {idx} />
 				<td class="pl-2">
-					{#if gem.isFiltered}
-						<button class="btn variant-soft-success" on:click={() => setFiltered(idx, undefined)}>
+					{#if isExcluded}
+						<button class="btn variant-soft-success" on:click={() => setExcluded(idx, false)}>
 							<Icon src={hi.Check} size="22" />
 						</button>
 					{:else}
-						<button class="btn variant-soft-error" on:click={() => setFiltered(idx, true)}>
+						<button class="btn variant-soft-error" on:click={() => setExcluded(idx, true)}>
 							<Icon src={hi.Trash} size="22" />
 						</button>
 					{/if}
@@ -48,10 +51,4 @@
 </table>
 
 <style lang="postcss">
-	tr:first-child {
-		@apply rounded-s-full;
-	}
-	tr:last-child {
-		@apply rounded-s-full;
-	}
 </style>

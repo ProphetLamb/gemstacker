@@ -66,7 +66,7 @@
 	}
 
 	$: $availableGems = form?.gemProfit;
-	$: ignored_gems = new Set($localSettings.ignored_gems);
+	$: ignored_gems = new Set($localSettings.exclude_gems);
 	$: loadout =
 		$delayed || !$availableGems
 			? undefined

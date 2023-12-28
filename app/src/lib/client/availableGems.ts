@@ -1,18 +1,20 @@
 import { writable } from "svelte/store";
-import type { GemProfitResponseItem } from "$lib/gemLevelProfitApi"
+import type { GemProfitResponse, GemProfitResponseItem } from "$lib/gemLevelProfitApi"
 
-export type AvailableGem = GemProfitResponseItem & { isFiltered?: boolean }
-
-export const availableGems = writable<AvailableGem[] | undefined>(undefined)
+export const availableGems = writable<GemProfitResponse | undefined>(undefined)
 
 export type FilteredEvent = {
+  filtered: FilteredEventData
+}
+
+export type FilteredEventData = {
   dataIndex: number[];
-  gem: AvailableGem[];
-  oldValue: (boolean | undefined)[];
-  newValue: boolean | undefined;
+  gem: GemProfitResponse;
+  oldValue: boolean[];
+  newValue: boolean;
 } | {
   dataIndex: number;
-  gem: AvailableGem;
-  oldValue: boolean | undefined;
-  newValue: boolean | undefined;
+  gem: GemProfitResponseItem;
+  oldValue: boolean;
+  newValue: boolean;
 };

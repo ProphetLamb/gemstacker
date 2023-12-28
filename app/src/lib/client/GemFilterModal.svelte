@@ -1,10 +1,13 @@
 <script lang="ts">
 	import GemFilterTable from './GemFilterTable.svelte';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { availableGems, type FilteredEvent } from './availableGems';
+	import { availableGems } from './availableGems';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import { createEventDispatcher, onDestroy } from 'svelte';
+	import { onDestroy } from 'svelte';
+	import { localSettings } from './localSettings';
+
+	export let parent;
 
 	let filter = '';
 	const modalStore = getModalStore();
@@ -26,61 +29,52 @@
 		maxDataCount += 10;
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
+		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+			maxDataCount += 10;
+		}
 		loadMoreTriggerObserver.observe(e);
 	}
 	onDestroy(() => {
 		loadMoreTriggerObserver.disconnect();
 	});
 
-	const dispatch = createEventDispatcher();
-
-	function setFiltered(idx: number | number[], newValue: boolean | undefined) {
+	function setExcluded(idx: number | number[], newValue: boolean) {
+		console.log('idx', idx, 'newValue', newValue);
+		const gems = $availableGems ?? [];
+		const excludedGems = new Set($localSettings.exclude_gems);
 		if (!Array.isArray(idx)) {
-			const oldValue = data[idx].isFiltered;
-			if (oldValue === newValue) {
-				return;
+			const gemName = gems[idx].name;
+			if (excludedGems.has(gemName) && !newValue) {
+				excludedGems.delete(gemName);
 			}
-			data[idx].isFiltered = newValue;
-
-			dispatch('filtered', {
-				dataIndex: idx,
-				gem: data[idx],
-				oldValue,
-				newValue
-			} satisfies FilteredEvent);
-			return;
-		}
-		const dataIndex = [];
-		const oldValue = [];
-		for (const i of idx) {
-			const oldV = data[i].isFiltered;
-			if (oldV === newValue) {
-				continue;
+			if (!excludedGems.has(gemName) && newValue) {
+				excludedGems.add(gemName);
 			}
-			dataIndex.push(i);
-			oldValue.push(oldV);
-			data[i].isFiltered = newValue;
+		} else {
+			for (const i of idx) {
+				const gemName = gems[i].name;
+				if (excludedGems.has(gemName) && !newValue) {
+					excludedGems.delete(gemName);
+				}
+				if (!excludedGems.has(gemName) && newValue) {
+					excludedGems.add(gemName);
+				}
+			}
 		}
-
-		dispatch('filtered', {
-			dataIndex,
-			gem: dataIndex.map((i) => data[i]),
-			oldValue,
-			newValue
-		} satisfies FilteredEvent);
+		$localSettings.exclude_gems = [...excludedGems];
 	}
 
-	function setFilteredAll(value: boolean | undefined) {
+	function setExcludedAll(value: boolean) {
 		const gems = $availableGems;
 		if (!gems || gems.length <= 0) {
 			return;
 		}
 		const indicies = [...Array(gems.length).keys()];
 		if (!filter) {
-			setFiltered(indicies, value);
+			setExcluded(indicies, value);
 			return;
 		}
-		setFiltered(
+		setExcluded(
 			indicies.filter((i) => gems[i].name.includes(filter)),
 			value
 		);
@@ -89,31 +83,37 @@
 
 {#if $modalStore[0]}
 	<div class="text-token flex flex-col items-center card">
+		<slot />
 		<div class="card-header w-full space-y-2">
 			<div class="flex flex-row items-center gap-x-2">
 				<Icon src={hi.MagnifyingGlass} size="22" />
 				<input type="text" class="input" placeholder="Search..." bind:value={filter} />
 			</div>
-			<div class="flex flex-row-reverse items-center gap-x-2">
-				<button
-					class="btn btn-sm variant-outline-error text-error-400-500-token"
-					on:click={() => setFilteredAll(undefined)}
-				>
-					<Icon src={hi.Trash} size="16" />
-					<span class="">Exclude All</span>
-				</button>
+			<div class="flex flex-row items-center gap-x-2">
+				Selected
 				<button
 					class="btn btn-sm variant-outline-success text-success-400-500-token"
-					on:click={() => setFilteredAll(true)}
+					on:click={() => setExcludedAll(false)}
 				>
 					<Icon src={hi.Check} size="16" />
 					<span class="">Include All</span>
 				</button>
-				Selected
+				<button
+					class="btn btn-sm variant-outline-error text-error-400-500-token"
+					on:click={() => setExcludedAll(true)}
+				>
+					<Icon src={hi.Trash} size="16" />
+					<span class="">Exclude All</span>
+				</button>
 			</div>
 		</div>
 		<div class="card-body px-4 max-h-[calc(100vh-10rem)] overflow-y-scroll">
-			<GemFilterTable {data} />
+			<GemFilterTable
+				on:filtered={(e) => {
+					setExcluded(e.detail.dataIndex, e.detail.newValue);
+				}}
+				{data}
+			/>
 			{#if data.length === maxDataCount}
 				<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
 					Search a gem name for more...
