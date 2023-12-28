@@ -49,15 +49,15 @@
 		};
 	}
 	$: $availableGems = form?.gemProfit;
-	$: ignored_gems = new Set($localSettings.exclude_gems);
+	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: loadout =
 		$delayed || !$availableGems
 			? undefined
 			: new LoadoutOptimizer(
 					$loadoutForm,
-					!ignored_gems
+					!excludedGems
 						? $availableGems
-						: $availableGems.filter((x) => !ignored_gems.has(x.name.toLowerCase()))
+						: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()))
 			  ).optimize();
 
 	export const snapshot = { capture, restore };
