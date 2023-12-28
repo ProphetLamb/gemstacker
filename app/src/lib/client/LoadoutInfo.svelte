@@ -2,27 +2,12 @@
 	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
 	import { currencyRerollRare } from '$lib/knownImages';
 	import type { LoadoutResponse } from '$lib/loadout';
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import GemFilterModal from './GemFilterModal.svelte';
-	import * as hi from '@steeze-ui/heroicons';
-	import { Icon } from '@steeze-ui/svelte-icon';
 
 	export let loadout: LoadoutResponse;
 	$: totalBuyCost = loadout.totalBuyCost;
 	$: totalExperience = loadout.totalExperience;
 	$: totalSellPrice = loadout.totalSellPrice;
 	$: count = loadout.count;
-
-	const modalStore = getModalStore();
-	function gemFilterModal() {
-		const modal: ModalSettings = {
-			type: 'component',
-			component: { ref: GemFilterModal },
-			title: 'Exclude unwanted gems',
-			body: ''
-		};
-		modalStore.trigger(modal);
-	}
 </script>
 
 <div class="flex flex-row justify-between w-full text-surface-600-300-token">
@@ -37,15 +22,7 @@
 		><img src={currencyRerollRare} alt="c" class="h-4 w-4 mt-1" />
 	</p>
 
-	<div class="flex flex-row space-x-2 mr-[-0.5rem]">
-		<button
-			type="button"
-			class="btn btn-sm text-token variant-ghost-tertiary shadow"
-			on:click={gemFilterModal}
-		>
-			<Icon src={hi.Funnel} size="16" />
-			<span class="mr-0 5">Filter</span>
-		</button>
+	<div class="flex flex-row space-x-2 pl-2 mr-[-0.5rem]">
 		<slot />
 	</div>
 </div>

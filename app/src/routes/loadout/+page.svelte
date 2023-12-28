@@ -1,4 +1,5 @@
 <script lang="ts">
+	import GemFilter from '$lib/client/GemFilter.svelte';
 	import type { ActionData, PageData } from './$types';
 	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
 	import * as hi from '@steeze-ui/heroicons';
@@ -170,6 +171,7 @@
 				>
 			{:else if loadout && loadout.items.length > 0}
 				<LoadoutInfo bind:loadout>
+					<GemFilter />
 					<LocalSettings {data} on:close={() => htmlLoadoutForm.requestSubmit()} /></LoadoutInfo
 				>
 				<LoadoutTable bind:data={loadout.items} />
@@ -177,6 +179,7 @@
 				<LoadoutInfo
 					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
 				>
+					<GemFilter />
 					<LocalSettings {data} on:close={() => htmlLoadoutForm.requestSubmit()} />
 				</LoadoutInfo>
 				<LoadingPlaceholder
