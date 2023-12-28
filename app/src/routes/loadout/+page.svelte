@@ -14,6 +14,7 @@
 	import { availableGems } from '$lib/client/availableGems';
 	import { getStateFromQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
+	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
 	export let data: PageData;
 	export let form: ActionData;
 	const {
@@ -28,6 +29,7 @@
 		validators: loadoutRequestSchema,
 		taintedMessage: null
 	});
+
 	if (browser) {
 		function num(s?: string): number | undefined {
 			return !!s ? parseInt(s) : undefined;
@@ -49,7 +51,10 @@
 	$: loadout =
 		$delayed || !$availableGems
 			? undefined
-			: new LoadoutOptimizer($loadoutForm, $availableGems).optimize();
+			: new LoadoutOptimizer(
+					$loadoutForm,
+					$availableGems.filter((x) => !$localSettings.ignored_gems.has(x.name))
+			).optimize();
 
 	export const snapshot = { capture, restore };
 </script>
@@ -125,8 +130,25 @@
 				<Icon src={hi.MagnifyingGlass} size="22" />
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
+			{#if !$delayed && $availableGems && $availableGems.length > 0}
+				<button type="button" class="btn text-token variant-ghost-tertiary shadow-lg text-2xl">
+					<Icon src={hi.Funnel} size="22" />
+					<span class="mr-0 5">Filter</span>
+				</button>
+			{/if}
 		</form>
 	</WrapperItem>
+	{#if !$delayed && $availableGems && $availableGems.length > 0}
+		<WrapperItem>
+			<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
+				<Icon src={hi.Funnel} theme="solid" class=" text-tertiary-300-600-token" size="32" />
+				<span>Filter undesired gems.</span>
+			</h1>
+			<div class="text-token flex flex-col items-center card p-4 space-y-2">
+				<GemProfitTable bind:data={$availableGems} />
+			</div>
+		</WrapperItem>
+	{/if}
 	<WrapperItem>
 		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
