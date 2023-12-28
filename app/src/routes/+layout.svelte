@@ -1,9 +1,10 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Modal } from '@skeletonlabs/skeleton';
 	import hljs from 'highlight.js';
 	import 'highlight.js/styles/github-dark.css';
 	import { storeHighlightJs } from '@skeletonlabs/skeleton';
+	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import { Icon } from '@steeze-ui/svelte-icon';
@@ -13,10 +14,12 @@
 
 	export let data: LayoutServerLoad;
 
+	initializeStores();
 	storeHighlightJs.set(hljs);
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
+<Modal />
 <div class="contents bg-image-blur h-full overflow-hidden">
 	<!-- App Shell -->
 	<AppShell>
