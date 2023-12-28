@@ -103,6 +103,9 @@ export class LoadoutOptimizer {
   }
 
   public optimize(): LoadoutResponse {
+    if (!this.available || this.available.length <= 0) {
+      return { items: [], totalBuyCost: 0, totalSellPrice: 0, totalExperience: 0, count: 0 }
+    }
     this.initializeLoadout()
     this.optimizeLoadout()
 
