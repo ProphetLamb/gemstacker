@@ -158,6 +158,9 @@
 				<LoadoutInfo bind:loadout />
 				<LoadoutTable bind:data={loadout.items} />
 			{:else}
+				<LoadoutInfo
+					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
+				/>
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
