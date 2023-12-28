@@ -119,8 +119,10 @@
 				</div>
 			{/if}
 		</div>
-		<button class="btn variant-soft-error align-middle m-2" on:click={() => modalStore.close()}
-			><Icon src={hi.XMark} size="16" />
-		</button>
+		<div class="p-2 w-full">
+			<button class="btn variant-soft-error align-middle w-full" on:click={() => modalStore.close()}
+				><Icon src={hi.XMark} size="16" />
+			</button>
+		</div>
 	</div>
 {/if}
