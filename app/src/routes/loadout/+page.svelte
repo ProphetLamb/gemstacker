@@ -14,6 +14,7 @@
 	import { availableGems } from '$lib/client/availableGems';
 	import { getStateFromQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -60,6 +61,16 @@
 			  ).optimize();
 
 	export const snapshot = { capture, restore };
+
+	let htmlLoadoutForm: HTMLFormElement;
+	onMount(() => {
+		if (
+			!$availableGems &&
+			$loadoutForm.red + $loadoutForm.green + $loadoutForm.blue + $loadoutForm.white > 0
+		) {
+			htmlLoadoutForm.submit(); // submit form filled via query
+		}
+	});
 </script>
 
 <Wrapper>
@@ -70,7 +81,7 @@
 				>loadout</span
 			>, your gems.
 		</h1>
-		<form class="space-y-2" use:enhance method="POST">
+		<form class="space-y-2" bind:this={htmlLoadoutForm} use:enhance method="POST">
 			<input type="hidden" name="league" value={$localSettings.league} />
 			<input
 				type="hidden"

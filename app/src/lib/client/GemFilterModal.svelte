@@ -26,11 +26,11 @@
 		if (entries.length === 0 || !entries[0].isIntersecting) {
 			return;
 		}
-		maxDataCount += 10;
+		maxDataCount += 20;
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
 		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
-			maxDataCount += 10;
+			maxDataCount += 20;
 		}
 		loadMoreTriggerObserver.observe(e);
 	}
