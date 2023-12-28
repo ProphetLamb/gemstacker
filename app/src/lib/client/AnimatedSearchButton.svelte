@@ -15,7 +15,7 @@
 
 <style lang="postcss">
 	button {
-		transition-duration: 2s;
+		transition-duration: 0.5s;
 		transition-property: all;
 		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 		animation-duration: 2s;
@@ -32,10 +32,10 @@
 			top: -50%;
 			left: 0;
 			height: 155%;
-			width: 200%;
+			width: 180%;
 			transform: translate(-50%, 100%);
 			transform-origin: top;
-			transition: 0.7s transform ease;
+			transition: 1s transform ease;
 			will-change: transform;
 			z-index: -1;
 		}
