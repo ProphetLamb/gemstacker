@@ -18,7 +18,7 @@
 		const modal: ModalSettings = {
 			type: 'component',
 			component: { ref: GemFilterModal },
-			title: 'Filter unwanted gems',
+			title: 'Exclude unwanted gems',
 			body: ''
 		};
 		modalStore.trigger(modal);
