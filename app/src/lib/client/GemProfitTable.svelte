@@ -1,10 +1,7 @@
 <script lang="ts">
 	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
-	import { Icon } from '@steeze-ui/svelte-icon';
-	import * as hi from '@steeze-ui/heroicons';
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
-	import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
-	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
+	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
 
 	export let data: GemProfitResponseItem[];
 </script>
@@ -12,53 +9,8 @@
 <table class="list w-full border-separate border-spacing-y-2">
 	<tbody>
 		{#each data as gem, idx}
-			{@const deltaExp = gem.max.experience - gem.min.experience}
-			{@const deltaQty = Math.max(0, gem.max.quality - gem.min.quality)}
-			{@const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty)}
 			<tr class="h-12">
-				<td class="pr-2"
-					><a
-						href={gem.foreign_info_url}
-						target="_blank"
-						class="badge-icon variant-soft-primary h-11 w-11"
-					>
-						<img src={gem.icon} alt={`${idx + 1}`} />
-					</a>
-				</td>
-				<td class="border-spacing-0 text-start">
-					<a href={gem.foreign_info_url} target="_blank" class="flex flex-col h-full"
-						><span class="align-top">{gem.name}</span>
-						<div class=" text-xs text-surface-600-300-token">
-							lvl
-							{gem.min.level} → {gem.max.level} =
-							<span class="text-secondary-300-600-token">+{intlCompactNumber.format(deltaExp)}</span
-							>exp
-						</div></a
-					></td
-				>
-				<td />
-				<td class="text-end table pt-1">
-					<span>{gem.min.price}</span>
-					<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-				</td>
-				<td class="pt-1 text-surface-600-300-token">
-					<Icon src={hi.ArrowRight} size="14" />
-				</td>
-				<td class="text-start table pt-1">
-					{gem.max.price}<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-					{#if deltaQty > 0}
-						<span class="text-error-200-700-token">-{deltaQty}</span><img
-							src={currencyGemQuality}
-							alt="qty"
-							class="table-cell h-4 w-4"
-						/>
-					{/if}
-				</td>
-				<td> <span class="font-semibold text-surface-600-300-token">=</span></td>
-				<td class="text-end table pt-1">
-					<span class="text-success-200-700-token">+{intlFractionNumber.format(deltaPrice)}</span
-					><img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-				</td>
+				<GemTableIdentifier {gem} {idx} />
 				<td class="pl-2">
 					<GemTradeQueryButton gemPrice={gem} />
 				</td>
