@@ -44,7 +44,7 @@
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
 					<a
-						class="btn btn-sm variant-ghost-surface"
+						class="btn btn-sm variant-ghost-tertiary"
 						href="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator"
 						target="_blank"
 						rel="noreferrer"

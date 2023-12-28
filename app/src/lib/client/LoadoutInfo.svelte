@@ -37,12 +37,15 @@
 		><img src={currencyRerollRare} alt="c" class="h-4 w-4 mt-1" />
 	</p>
 
-	<button
-		type="button"
-		class="btn btn-sm text-token variant-ghost-tertiary shadow"
-		on:click={gemFilterModal}
-	>
-		<Icon src={hi.Funnel} size="16" />
-		<span class="mr-0 5">Filter</span>
-	</button>
+	<div class="flex flex-row space-x-2 mr-[-0.5rem]">
+		<button
+			type="button"
+			class="btn btn-sm text-token variant-ghost-tertiary shadow"
+			on:click={gemFilterModal}
+		>
+			<Icon src={hi.Funnel} size="16" />
+			<span class="mr-0 5">Filter</span>
+		</button>
+		<slot />
+	</div>
 </div>

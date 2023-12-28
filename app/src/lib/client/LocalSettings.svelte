@@ -19,10 +19,10 @@
 	};
 </script>
 
-<button class="btn btn-sm variant-ghost-surface hidden lg:flex" use:popup={localSettingsPopup}
+<button class="btn btn-sm variant-ghost-tertiary hidden lg:flex" use:popup={localSettingsPopup}
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span>Settings</span></button
 >
-<button class="btn btn-sm variant-ghost-surface lg:hidden" use:popup={localSettingsPopup}
+<button class="btn btn-sm variant-ghost-tertiary lg:hidden" use:popup={localSettingsPopup}
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /></button
 >
 <div class="">

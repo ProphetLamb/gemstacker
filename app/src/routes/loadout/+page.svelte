@@ -15,6 +15,7 @@
 	import { getStateFromQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import LocalSettings from '$lib/client/LocalSettings.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -168,12 +169,16 @@
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
 			{:else if loadout && loadout.items.length > 0}
-				<LoadoutInfo bind:loadout />
+				<LoadoutInfo bind:loadout>
+					<LocalSettings {data} /></LoadoutInfo
+				>
 				<LoadoutTable bind:data={loadout.items} />
 			{:else}
 				<LoadoutInfo
 					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
-				/>
+				>
+					<LocalSettings {data} />
+				</LoadoutInfo>
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
