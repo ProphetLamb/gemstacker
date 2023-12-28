@@ -8,14 +8,22 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import {
+		ProgressRadial,
+		getModalStore,
+		type ModalSettings,
+		type ModalComponent
+	} from '@skeletonlabs/skeleton';
 	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
 	import LoadoutInfo from '$lib/client/LoadoutInfo.svelte';
 	import { availableGems } from '$lib/client/availableGems';
 	import { getStateFromQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
+	import GemFilterModal from '$lib/client/GemFilterModal.svelte';
+
 	export let data: PageData;
 	export let form: ActionData;
+
 	const {
 		form: loadoutForm,
 		capture,
@@ -44,6 +52,17 @@
 				};
 			})
 		};
+	}
+
+	const modalStore = getModalStore();
+	function gemFilterModal() {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: { ref: GemFilterModal },
+			title: 'Filter unwanted gems',
+			body: ''
+		};
+		modalStore.trigger(modal);
 	}
 
 	$: $availableGems = form?.gemProfit;
@@ -131,7 +150,11 @@
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
 			{#if !$delayed && $availableGems && $availableGems.length > 0}
-				<button type="button" class="btn text-token variant-ghost-tertiary shadow-lg text-2xl">
+				<button
+					type="button"
+					class="btn text-token variant-ghost-tertiary shadow-lg text-2xl"
+					on:click={gemFilterModal}
+				>
 					<Icon src={hi.Funnel} size="22" />
 					<span class="mr-0 5">Filter</span>
 				</button>

@@ -29,14 +29,14 @@
 	>
 </td>
 <td />
-<td class="text-end table pt-1">
+<td class="text-end pt-1">
 	<span>{gem.min.price}</span>
 	<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 </td>
 <td class="pt-1 text-surface-600-300-token">
 	<Icon src={hi.ArrowRight} size="14" />
 </td>
-<td class="text-start table pt-1">
+<td class="text-start pt-1">
 	{gem.max.price}<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
 	{#if deltaQty > 0}
 		<span class="text-error-200-700-token">-{deltaQty}</span><img
@@ -47,7 +47,7 @@
 	{/if}
 </td>
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
-<td class="text-end table pt-1">
+<td class="text-end pt-1">
 	<span class="text-success-200-700-token">+{intlFractionNumber.format(deltaPrice)}</span><img
 		src={currencyRerollRare}
 		alt="c"

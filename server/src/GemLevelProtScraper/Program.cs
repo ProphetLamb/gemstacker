@@ -106,7 +106,7 @@ app
         [FromQuery(Name = "min_sell_price_chaos")] double? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] double? maxBuyPriceChaos = null,
         [FromQuery(Name = "min_experience_delta")] double? minExperienceDelta = null,
-        [FromQuery(Name = "min_listing_count")] int minListingCount = 4,
+        [FromQuery(Name = "min_listing_count")] int minListingCount = 8,
         [FromQuery(Name = "items_count")] int itemsCount = 10,
         CancellationToken cancellationToken = default
     ) =>

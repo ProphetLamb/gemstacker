@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.postcss';
-	import { AppShell, AppBar, Modal } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 	import hljs from 'highlight.js';
 	import 'highlight.js/styles/github-dark.css';
 	import { storeHighlightJs } from '@skeletonlabs/skeleton';
@@ -11,15 +11,20 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
 	import type { LayoutServerLoad } from './$types';
+	import GemFilterModal from '$lib/client/GemFilterModal.svelte';
 
 	export let data: LayoutServerLoad;
 
 	initializeStores();
+
+	const modals: Record<string, ModalComponent> = {
+		gemFilterModal: { ref: GemFilterModal }
+	};
 	storeHighlightJs.set(hljs);
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
-<Modal />
+<Modal components={modals} />
 <div class="contents bg-image-blur h-full overflow-hidden">
 	<!-- App Shell -->
 	<AppShell>
