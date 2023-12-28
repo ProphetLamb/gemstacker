@@ -7,6 +7,7 @@
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	import { intlCompactNumber } from '$lib/intl';
+	import { createEventDispatcher } from 'svelte';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	export let data: { leagues: PoeTradeLeagueResponse[] };
@@ -15,8 +16,15 @@
 	const localSettingsPopup: PopupSettings = {
 		event: 'click',
 		target: 'localSettingsPopup',
-		placement: 'bottom'
+		placement: 'bottom',
+		state: ({ state }) => {
+			if (!state) {
+				dispatch('close');
+			}
+		}
 	};
+
+	const dispatch = createEventDispatcher();
 </script>
 
 <button class="btn btn-sm variant-ghost-tertiary hidden lg:flex" use:popup={localSettingsPopup}

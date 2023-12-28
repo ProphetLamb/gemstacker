@@ -69,7 +69,7 @@
 			!$availableGems &&
 			$loadoutForm.red + $loadoutForm.green + $loadoutForm.blue + $loadoutForm.white > 0
 		) {
-			htmlLoadoutForm.submit(); // submit form filled via query
+			htmlLoadoutForm.requestSubmit(); // submit form filled via query
 		}
 	});
 </script>
@@ -170,14 +170,14 @@
 				>
 			{:else if loadout && loadout.items.length > 0}
 				<LoadoutInfo bind:loadout>
-					<LocalSettings {data} /></LoadoutInfo
+					<LocalSettings {data} on:close={() => htmlLoadoutForm.requestSubmit()} /></LoadoutInfo
 				>
 				<LoadoutTable bind:data={loadout.items} />
 			{:else}
 				<LoadoutInfo
 					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
 				>
-					<LocalSettings {data} />
+					<LocalSettings {data} on:close={() => htmlLoadoutForm.requestSubmit()} />
 				</LoadoutInfo>
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
