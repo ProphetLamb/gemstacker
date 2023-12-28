@@ -42,7 +42,7 @@
 		const gems = $availableGems ?? [];
 		const excludedGems = new Set($localSettings.exclude_gems);
 		if (!Array.isArray(idx)) {
-			const gemName = gems[idx].name;
+			const gemName = gems[idx].name.toLowerCase();
 			if (excludedGems.has(gemName) && !newValue) {
 				excludedGems.delete(gemName);
 			}
@@ -51,7 +51,7 @@
 			}
 		} else {
 			for (const i of idx) {
-				const gemName = gems[i].name;
+				const gemName = gems[i].name.toLowerCase();
 				if (excludedGems.has(gemName) && !newValue) {
 					excludedGems.delete(gemName);
 				}

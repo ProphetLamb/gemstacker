@@ -14,7 +14,7 @@
 	const dispatch = createEventDispatcher<FilteredEvent>();
 
 	function setExcluded(idx: number, newValue: boolean) {
-		const oldValue = excludedGems.has(data[idx].name);
+		const oldValue = excludedGems.has(data[idx].name.toLowerCase());
 		if (oldValue === newValue) {
 			return;
 		}
@@ -30,7 +30,7 @@
 <table class="list border-separate border-spacing-y-2">
 	<tbody>
 		{#each data as gem, idx}
-			{@const isExcluded = excludedGems.has(gem.name)}
+			{@const isExcluded = excludedGems.has(gem.name.toLowerCase())}
 			<tr class="h-12 {isExcluded ? '[&>td]:bg-error-600/20' : ''} ">
 				<GemTableIdentifier {gem} {idx} />
 				<td class="pl-2">

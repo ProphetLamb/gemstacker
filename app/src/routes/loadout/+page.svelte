@@ -54,7 +54,9 @@
 			? undefined
 			: new LoadoutOptimizer(
 					$loadoutForm,
-					!ignored_gems ? $availableGems : $availableGems.filter((x) => !ignored_gems.has(x.name))
+					!ignored_gems
+						? $availableGems
+						: $availableGems.filter((x) => !ignored_gems.has(x.name.toLowerCase()))
 			  ).optimize();
 
 	export const snapshot = { capture, restore };
