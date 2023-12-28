@@ -107,7 +107,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="card-body px-4 max-h-[calc(100vh-10rem)] overflow-y-scroll">
+		<div class="card-body px-4 max-h-[calc(100vh-12rem)] overflow-y-scroll">
 			<GemFilterTable
 				on:filtered={(e) => {
 					setExcluded(e.detail.dataIndex, e.detail.newValue);
@@ -120,5 +120,8 @@
 				</div>
 			{/if}
 		</div>
+		<button class="btn variant-soft-error align-middle m-2" on:click={() => modalStore.close()}
+			><Icon src={hi.XMark} size="16" />
+		</button>
 	</div>
 {/if}
