@@ -8,14 +8,13 @@
 
 <button
 	{type}
-	class="btn text-token variant-filled bg-gradient-to-br from-indigo-700 to-fuchsia-800 shadow-fuchsia-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x {classes}"
+	class="btn text-token variant-filled bg-gradient-to-br from-indigo-800 to-cyan-500 shadow-cyan-900/50 after:bg-gradient-to-br after:from-orange-800 after:to-amber-400 hover:shadow-orange-400/50 via-accent animate-gradient-x after:animate-gradient-x {classes}"
 >
 	<slot /></button
 >
 
 <style lang="postcss">
 	button {
-		transition-duration: 0.5s;
 		transition-property: all;
 		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 		animation-duration: 2s;
