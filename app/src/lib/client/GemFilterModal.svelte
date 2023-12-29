@@ -109,7 +109,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="card-body px-4 overflow-scroll max-w-full">
+		<div class="card-body px-4 overflow-y-auto max-w-full">
 			<GemFilterTable
 				on:filtered={(e) => {
 					setExcluded(e.detail.dataIndex, e.detail.newValue);

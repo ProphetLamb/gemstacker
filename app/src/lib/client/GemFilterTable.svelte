@@ -37,11 +37,11 @@
 			>
 				<td class="pr-2">
 					{#if isExcluded}
-						<button class="btn variant-soft-success px-2" on:click={() => setExcluded(idx, false)}>
+						<button class="btn variant-soft-success px-2">
 							<Icon src={hi.Check} size="26" />
 						</button>
 					{:else}
-						<button class="btn variant-soft-error px-2" on:click={() => setExcluded(idx, true)}>
+						<button class="btn variant-soft-error px-2">
 							<Icon src={hi.Trash} size="26" />
 						</button>
 					{/if}
