@@ -21,7 +21,6 @@ export function deepEqual(lhs: any, rhs: any): boolean {
     if (keys1.length !== keys2.length || !keys1.every(key => keys2.includes(key))) return false;
 
     for (let key in lhs) {
-      console.log(lhs[key], rhs[key])
       let isEqual = deepEqual(lhs[key], rhs[key])
       if (!isEqual) { return false; }
     }

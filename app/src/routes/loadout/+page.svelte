@@ -8,13 +8,13 @@
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { localSettings } from '$lib/client/localSettings';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { LoadoutOptimizer, loadoutRequestSchema } from '$lib/loadout';
+	import { LoadoutOptimizer, loadoutRequestSchema, maxCountLoadout } from '$lib/loadout';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import LoadoutTable from '$lib/client/LoadoutTable.svelte';
 	import LoadoutInfo from '$lib/client/LoadoutInfo.svelte';
 	import { availableGems } from '$lib/client/availableGems';
-	import { getStateFromQuery } from '$lib/client/navigation';
+	import { getStateFromQuery, replaceStateWithQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
@@ -37,22 +37,6 @@
 
 	export const snapshot = { capture, restore };
 
-	if (browser) {
-		function num(s?: string): number | undefined {
-			return !!s ? parseInt(s) : undefined;
-		}
-		$loadoutForm = {
-			...$loadoutForm,
-			...getStateFromQuery((x) => {
-				return {
-					red: num(x['red']),
-					green: num(x['green']),
-					blue: num(x['blue']),
-					white: num(x['white'])
-				};
-			})
-		};
-	}
 	$: $availableGems = form?.gemProfit;
 	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: loadout =
@@ -73,12 +57,43 @@
 		}
 	}
 
-	onMount(() => {
-		if (
-			!$availableGems &&
-			$loadoutForm.red + $loadoutForm.green + $loadoutForm.blue + $loadoutForm.white > 0
-		) {
-			htmlLoadoutForm.requestSubmit(); // submit form filled via query
+	function fillFromFromQuery() {
+		function num(s?: string): number | undefined {
+			return !!s ? parseInt(s) : undefined;
+		}
+		// fill form from query
+		$loadoutForm = {
+			...$loadoutForm,
+			...getStateFromQuery((x) => {
+				return {
+					red: num(x['red']),
+					green: num(x['green']),
+					blue: num(x['blue']),
+					white: num(x['white'])
+				};
+			})
+		};
+	}
+	function submitFormFilledFromQuery() {
+		if (!$availableGems && maxCountLoadout($loadoutForm) > 0) {
+			// remove query parameters
+			replaceStateWithQuery({
+				red: undefined,
+				green: undefined,
+				blue: undefined,
+				white: undefined
+			});
+			// submit form filled via query
+			htmlLoadoutForm.requestSubmit();
+		}
+	}
+
+	if (browser) {
+		fillFromFromQuery();
+	}
+	onMount(async () => {
+		if (browser) {
+			submitFormFilledFromQuery();
 		}
 	});
 </script>

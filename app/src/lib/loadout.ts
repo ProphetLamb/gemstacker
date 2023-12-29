@@ -49,7 +49,7 @@ function probability(item: GemProfitResponseItem): number {
 }
 
 
-function maxCountLoadout(request: LoadoutRequest, color?: GemColor) {
+export function maxCountLoadout(request: LoadoutRequest, color?: GemColor) {
   if (color == "blue")
     return request.blue
   if (color == "green")
