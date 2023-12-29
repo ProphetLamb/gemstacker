@@ -35,7 +35,7 @@
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /></button
 >
 <div class="">
-	<div data-popup="localSettingsPopup" class="w-[calc(100%-2rem)] pr-4 md:w-96">
+	<div data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
 		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
 			<h2 class="h2">Settings</h2>

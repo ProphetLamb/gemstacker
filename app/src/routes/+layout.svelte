@@ -1,4 +1,5 @@
 <script lang="ts">
+	import RootDrawer from './../lib/client/RootDrawer.svelte';
 	import RootFooter from '$lib/client/RootFooter.svelte';
 	import '../app.postcss';
 	import { AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
@@ -24,6 +25,8 @@
 </script>
 
 <Modal components={modals} />
+<RootDrawer />
+
 <div class="contents bg-image-blur h-full overflow-hidden">
 	<AppShell>
 		<svelte:fragment slot="header">
