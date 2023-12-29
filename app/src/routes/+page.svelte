@@ -24,6 +24,9 @@
 
 	async function gotoPob() {
 		try {
+			if (!pobText) {
+				throw Error('Cannot be empty');
+			}
 			const xml = pob.deserializePob(pobText);
 			const sockets = pob.availableSockets(xml);
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
@@ -36,7 +39,7 @@
 	}
 </script>
 
-<div class="w-full align-middle flex justify-center pb-8">
+<div class="w-full align-middle flex justify-center p-4">
 	<h1 class="h1">
 		The best
 		<span
@@ -136,7 +139,7 @@
 		<h2 class="h2">&#133;for your perusal</h2>
 		<a href="/single" class="btn variant-filled-primary shadow-lg text-2xl">
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
-			<span class="mr-0.5">Perusal</span>
+			<span class="mr-0.5">Search</span>
 		</a>
 	</WrapperItem>
 </Wrapper>
