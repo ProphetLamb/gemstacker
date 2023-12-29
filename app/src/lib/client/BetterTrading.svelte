@@ -55,12 +55,12 @@
 				<h2 class="h2">Export Folder</h2>
 			</div>
 			<label class="label">
-				<span>Title</span>
+				<span>Folder Title</span>
 				<input name="title" class="input" type="text" bind:value={title} minlength="1" />
 			</label>
 			<hr class="!border-t-2 w-full opacity-50" />
 			<label for="label">
-				<span>Code</span>
+				<span>Folder Code</span>
 				<div class="flex flex-row btn-group variant-ghost-primary">
 					<button
 						use:copy={{ value: () => betterTradingInput.value, on: 'click' }}
