@@ -22,5 +22,5 @@
 	on:click={gemFilterModal}
 >
 	<Icon src={hi.Funnel} size="16" />
-	<span class="mr-0 5">Filter</span>
+	<span class="hidden lg:inline mr-0 5">Filter</span>
 </button>

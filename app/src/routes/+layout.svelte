@@ -44,7 +44,7 @@
 </div>
 
 <style lang="postcss">
-	div.bg-image-blur {
+	:global(div.bg-image-blur) {
 		position: relative;
 
 		&::before {
@@ -59,12 +59,12 @@
 			background-image: url(/background.png);
 			background-repeat: no-repeat;
 			z-index: -1;
+			filter: blur(calc(100vw * 0.001));
+			-webkit-filter: blur(calc(100vw * 0.001));
+			image-rendering: pixelated;
 		}
 
 		& > div {
-			backdrop-filter: blur(5px);
-			backdrop-filter: url(#effect-blur-background);
-			backdrop-filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='effect-blur-background'><feGaussianBlur stdDeviation='5' /></filter></svg>#effect-blur-background");
 		}
 	}
 </style>
