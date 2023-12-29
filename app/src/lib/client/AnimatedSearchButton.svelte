@@ -41,5 +41,8 @@
 		&:hover::after {
 			transform: translate(0, 0);
 		}
+		&:active:after {
+			transform: translate(0, 0);
+		}
 	}
 </style>
