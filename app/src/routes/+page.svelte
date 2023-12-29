@@ -34,6 +34,8 @@
 		} catch (e) {
 			if (e instanceof Error) {
 				pobError = e.message;
+			} else {
+				pobError = 'Invalid build code';
 			}
 		}
 	}
