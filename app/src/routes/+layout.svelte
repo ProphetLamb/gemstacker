@@ -1,17 +1,16 @@
 <script lang="ts">
+	import RootFooter from '$lib/client/RootFooter.svelte';
 	import '../app.postcss';
-	import { AppShell, AppBar, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
+	import { AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 	import hljs from 'highlight.js';
 	import 'highlight.js/styles/github-dark.css';
 	import { storeHighlightJs } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
-	import { Icon } from '@steeze-ui/svelte-icon';
-	import * as hi from '@steeze-ui/heroicons';
-	import LocalSettings from '$lib/client/LocalSettings.svelte';
 	import type { LayoutServerLoad } from './$types';
 	import GemFilterModal from '$lib/client/GemFilterModal.svelte';
+	import RootHeader from '$lib/client/RootHeader.svelte';
 
 	export let data: LayoutServerLoad;
 
@@ -26,70 +25,12 @@
 
 <Modal components={modals} />
 <div class="contents bg-image-blur h-full overflow-hidden">
-	<!-- App Shell -->
 	<AppShell>
 		<svelte:fragment slot="header">
-			<!-- App Bar -->
-			<AppBar>
-				<svelte:fragment slot="lead">
-					<a href="/" class="btn text-3xl uppercase font-extrabold"> Gem Stacker </a>
-					<a href="/loadout" class="btn hover:variant-soft-primary">
-						<Icon src={hi.Identification} size="24" />
-						<span class="hidden md:inline-block">Loadout</span>
-					</a>
-					<a href="/single" class="btn hover:variant-soft-primary">
-						<Icon src={hi.AtSymbol} size="24" />
-						<span class="hidden md:inline-block">Single Gem</span>
-					</a>
-				</svelte:fragment>
-				<svelte:fragment slot="trail">
-					<a
-						class="btn btn-sm variant-ghost-tertiary"
-						href="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator"
-						target="_blank"
-						rel="noreferrer"
-					>
-						<Icon src={hi.Star} size="16" theme="solid" class="fill-yellow-300" />
-						<span class="hidden lg:inline-block">GitHub</span>
-					</a>
-					<LocalSettings {data} />
-				</svelte:fragment>
-			</AppBar>
+			<RootHeader {data} />
 		</svelte:fragment>
 		<svelte:fragment slot="footer">
-			<div
-				class="flex-wrap items-center align-middle p-4 text-surface-600-300-token hidden sm:flex"
-			>
-				<a href="/" target="_blank" rel="noreferrer" class="anchor">Home</a>
-				&nbsp;
-				<span class="opacity-10 mx-2">|</span>
-				&nbsp;
-				<a
-					href="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator/blob/master/LICENSE"
-					target="_blank"
-					rel="noreferrer"
-					class="anchor">MIT License</a
-				>
-				&nbsp;
-				<span class="opacity-10 mx-2">|</span>
-				&nbsp;
-				<a href="/imprint" target="_blank" rel="noreferrer" class="anchor">Imprint</a>
-				&nbsp;
-				<span class="opacity-10 mx-2">|</span>
-				&nbsp;Powered by &nbsp;
-				<a
-					href="https://poe.ninja/"
-					target="_blank"
-					class="anchor flex flex-row items-center align-middle"
-					><img src="https://poe.ninja/images/ninja-logo.png" alt="" class="w-4 h-4" /> poe.ninja</a
-				>&nbsp;&amp;&nbsp;
-				<a
-					href="https://poedb.tw/us/"
-					target="_blank"
-					class="anchor flex flex-row items-center align-middle"
-					><img src="https://poedb.tw/favicon.ico" alt="" class="w-4 h-4" /> poedb.tw</a
-				>
-			</div>
+			<RootFooter />
 		</svelte:fragment>
 
 		<!-- Page Route Content -->
