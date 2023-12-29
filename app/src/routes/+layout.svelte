@@ -3,9 +3,6 @@
 	import RootFooter from '$lib/client/RootFooter.svelte';
 	import '../app.postcss';
 	import { AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
-	import hljs from 'highlight.js';
-	import 'highlight.js/styles/github-dark.css';
-	import { storeHighlightJs } from '@skeletonlabs/skeleton';
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
@@ -22,7 +19,6 @@
 	const modals: Record<string, ModalComponent> = {
 		gemFilterModal: { ref: GemFilterModal }
 	};
-	storeHighlightJs.set(hljs);
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 

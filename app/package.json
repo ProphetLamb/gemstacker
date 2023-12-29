@@ -30,7 +30,6 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-svelte": "^2.30.0",
-		"highlight.js": "^11.9.0",
 		"js-base64": "^3.7.5",
 		"pako": "^2.1.0",
 		"postcss": "8.4.31",
