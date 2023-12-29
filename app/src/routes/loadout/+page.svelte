@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import GemFilter from '$lib/client/GemFilter.svelte';
 	import type { ActionData, PageData } from './$types';
 	import AnimatedSearchButton from '$lib/client/AnimatedSearchButton.svelte';
@@ -34,6 +35,8 @@
 		taintedMessage: null
 	});
 
+	export const snapshot = { capture, restore };
+
 	if (browser) {
 		function num(s?: string): number | undefined {
 			return !!s ? parseInt(s) : undefined;
@@ -61,8 +64,6 @@
 						? $availableGems
 						: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()))
 			  ).optimize();
-
-	export const snapshot = { capture, restore };
 
 	let htmlLoadoutForm: HTMLFormElement;
 	onMount(() => {
@@ -175,6 +176,7 @@
 					<LocalSettings {data} on:close={() => htmlLoadoutForm.requestSubmit()} /></LoadoutInfo
 				>
 				<LoadoutTable bind:data={loadout.items} />
+				<BetterTrading data={loadout.items.map((x) => x.gem)} />
 			{:else}
 				<LoadoutInfo
 					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}

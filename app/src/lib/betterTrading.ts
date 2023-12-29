@@ -1,5 +1,7 @@
 import { Base64 } from 'js-base64';
 import { z } from 'zod';
+import { createGemTradeQueryBody } from './pathOfExileApi';
+import type { GemProfitResponseItem } from './gemLevelProfitApi';
 
 // based on https://github.com/exile-center/better-trading/
 
@@ -213,6 +215,12 @@ function jsonFromExportString(exportString: string): string {
 	}
 }
 
+function makeLocationSafe(text: string): string {
+	const urlSafe = encodeURIComponent(text)
+	const locSafe = urlSafe.replaceAll(':', '%3A')
+	return locSafe
+}
+
 export class BetterTradingBookmarks {
 	serialize(folder: BookmarksFolderStruct, trades: BookmarksTradeStruct[]): string {
 		const payload = {
@@ -225,6 +233,19 @@ export class BetterTradingBookmarks {
 		} satisfies ExportedFolderStruct;
 
 		return `2:${Base64.encode(JSON.stringify(payload))}`;
+	}
+
+	serializeLegacy(folder: BookmarksFolderStruct, trades: BookmarksTradeStruct[]): string {
+		const payload = {
+			icn: folder.icon,
+			tit: folder.title,
+			trs: trades.map((trade) => ({
+				tit: trade.title,
+				loc: `${trade.location.type}:${trade.location.slug}`
+			}))
+		} satisfies ExportedFolderStruct;
+
+		return btoa(JSON.stringify(payload));
 	}
 
 	deserialize(serializedFolder: string): [BookmarksFolderStruct, BookmarksTradeStruct[]] | null {
@@ -257,4 +278,20 @@ export class BetterTradingBookmarks {
 			return null;
 		}
 	}
+}
+
+export function tradeBookmarkForGemBuy(gem: GemProfitResponseItem): BookmarksTradeStruct {
+	const body = createGemTradeQueryBody({
+		discriminator: gem.discriminator,
+		name: gem.type,
+		corrupted: false,
+		min_level: gem.min.level,
+		min_quality: gem.min.quality
+	})
+	const query = `?q=${makeLocationSafe(JSON.stringify(body))}`
+	return {
+		title: gem.name,
+		location: { type: 'search', slug: query },
+		completedAt: null
+	} satisfies BookmarksTradeStruct
 }
