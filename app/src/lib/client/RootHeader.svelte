@@ -4,12 +4,7 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
-	import type { PoeTradeLeagueResponse } from '$lib/pathOfExileApi';
 	import { menuNavLinks } from '$lib/links';
-
-	export let data: {
-		leagues: PoeTradeLeagueResponse[];
-	};
 
 	const drawerStore = getDrawerStore();
 
@@ -36,6 +31,6 @@
 	</svelte:fragment>
 	<svelte:fragment slot="trail">
 		<GithubIcon />
-		<LocalSettings {data} />
+		<LocalSettings />
 	</svelte:fragment>
 </AppBar>

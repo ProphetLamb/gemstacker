@@ -4,6 +4,8 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import { menuNavLinks } from '$lib/links';
 	import { page } from '$app/stores';
+	import GithubIcon from './GithubIcon.svelte';
+	import LocalSettings from './LocalSettings.svelte';
 	const drawerStore = getDrawerStore();
 
 	function onClickAnchor(): void {
@@ -28,6 +30,10 @@
 	<section class="p-4 pb-20 space-y-4 overflow-y-auto">
 		<!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events -->
 		<p class="font-bold pl-4 text-2xl" on:click={drawerStore.close}>Gem Stacker</p>
+		<div class="">
+			<GithubIcon />
+			<LocalSettings />
+		</div>
 		<nav class="list-nav">
 			<ul class="">
 				{#each menuNavLinks as { href, icon, title }}

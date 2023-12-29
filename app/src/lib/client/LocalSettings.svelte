@@ -7,10 +7,10 @@
 	import { intlCompactNumber } from '$lib/intl';
 	import { createEventDispatcher } from 'svelte';
 	import { deepEqual } from '$lib/compare';
+	import { leagues } from './leagues';
 
-	export let data: { leagues: PoeTradeLeagueResponse[] };
 	const initialLocalSettings = { ...$localSettings };
-	const pcLeagues = data.leagues.filter((l) => l.realm == 'pc');
+	const pcLeagues = $leagues.filter((l) => l.realm == 'pc');
 
 	const dispatch = createEventDispatcher();
 

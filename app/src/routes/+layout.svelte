@@ -1,5 +1,5 @@
 <script lang="ts">
-	import RootDrawer from './../lib/client/RootDrawer.svelte';
+	import RootDrawer from '$lib/client/RootDrawer.svelte';
 	import RootFooter from '$lib/client/RootFooter.svelte';
 	import '../app.postcss';
 	import { AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
@@ -9,13 +9,15 @@
 	import { initializeStores } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
-	import type { LayoutServerLoad } from './$types';
 	import GemFilterModal from '$lib/client/GemFilterModal.svelte';
 	import RootHeader from '$lib/client/RootHeader.svelte';
+	import { leagues } from '$lib/client/leagues';
 
-	export let data: LayoutServerLoad;
+	export let data;
 
 	initializeStores();
+
+	$leagues = data.leagues;
 
 	const modals: Record<string, ModalComponent> = {
 		gemFilterModal: { ref: GemFilterModal }
@@ -30,7 +32,7 @@
 <div class="contents bg-image-blur h-full overflow-hidden">
 	<AppShell>
 		<svelte:fragment slot="header">
-			<RootHeader {data} />
+			<RootHeader />
 		</svelte:fragment>
 		<svelte:fragment slot="footer">
 			<RootFooter />
