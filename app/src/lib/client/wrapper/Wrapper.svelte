@@ -4,6 +4,6 @@
 	export { classes as class };
 </script>
 
-<div class="w-full h-full mx-auto flex flex-wrap gap-4 justify-center items-start {classes}">
+<div class="w-full mx-auto flex flex-wrap gap-4 justify-center items-start {classes}">
 	<slot />
 </div>
