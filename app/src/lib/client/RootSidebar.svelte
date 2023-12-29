@@ -8,7 +8,7 @@
 	import LocalSettings from './LocalSettings.svelte';
 	const drawerStore = getDrawerStore();
 
-	function onClickAnchor(): void {
+	function drawerClose(): void {
 		drawerStore.close();
 	}
 	$: listboxItemActive = (href: string) =>
@@ -20,14 +20,13 @@
 		''}"
 >
 	<AppRail width="0" />
-	<!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
 	<section class="pb-20 space-y-4 overflow-y-auto">
 		<div class="p-4 bg-surface-100-800-token">
 			<div class="py-2 space-x-4">
-				<button class="btn-icon btn-icon-sm" on:click={drawerStore.close}>
+				<button class="btn-icon btn-icon-sm" on:click={drawerClose}>
 					<Icon src={hi.Bars3} size="24" />
 				</button>
-				<a href="/" class="text-3xl uppercase font-extrabold">Gem Stacker</a>
+				<a href="/" class="text-3xl uppercase font-extrabold" on:click={drawerClose}>Gem Stacker</a>
 			</div>
 		</div>
 		<div class="px-4">
@@ -37,9 +36,13 @@
 		<nav class="px-4 list-nav">
 			<ul class="">
 				{#each menuNavLinks as { href, icon, title }}
-					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-					<li on:keypress on:click={drawerStore.close} class="">
-						<a {href} class={listboxItemActive(href)} data-sveltekit-preload-data="hover">
+					<li>
+						<a
+							{href}
+							class={listboxItemActive(href)}
+							on:click={drawerClose}
+							data-sveltekit-preload-data="hover"
+						>
 							<Icon src={icon} size="24" />
 							<span class="">{title}</span>
 						</a>
