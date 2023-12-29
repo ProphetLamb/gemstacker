@@ -4,14 +4,15 @@
 	import { localSettings } from './localSettings';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import { storePopup } from '@skeletonlabs/skeleton';
 	import { intlCompactNumber } from '$lib/intl';
 	import { createEventDispatcher } from 'svelte';
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+	import { deepEqual } from '$lib/compare';
 
 	export let data: { leagues: PoeTradeLeagueResponse[] };
+	const initialLocalSettings = { ...$localSettings };
 	const pcLeagues = data.leagues.filter((l) => l.realm == 'pc');
+
+	const dispatch = createEventDispatcher();
 
 	const localSettingsPopup: PopupSettings = {
 		event: 'click',
@@ -19,12 +20,12 @@
 		placement: 'bottom',
 		state: ({ state }) => {
 			if (!state) {
-				dispatch('close');
+				dispatch('close', { changed: !deepEqual($localSettings, initialLocalSettings) });
+			} else {
+				dispatch('open');
 			}
 		}
 	};
-
-	const dispatch = createEventDispatcher();
 </script>
 
 <button class="btn btn-sm variant-ghost-tertiary hidden lg:flex" use:popup={localSettingsPopup}

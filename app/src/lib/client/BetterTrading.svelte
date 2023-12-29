@@ -2,13 +2,10 @@
 	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import { storePopup } from '@skeletonlabs/skeleton';
 	import { createEventDispatcher } from 'svelte';
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { BetterTradingBookmarks, tradeBookmarkForGemBuy } from '$lib/betterTrading';
 	import { copy } from '$lib/client/copy';
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	export let data: GemProfitResponseItem[];
 	let title = 'Gems';
@@ -35,6 +32,8 @@
 		state: ({ state }) => {
 			if (!state) {
 				dispatch('close');
+			} else {
+				dispatch('open');
 			}
 		}
 	};
