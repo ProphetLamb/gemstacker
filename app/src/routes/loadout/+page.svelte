@@ -195,7 +195,7 @@
 			{:else if loadout && loadout.items.length > 0}
 				<LoadoutInfo bind:loadout>
 					<GemFilter />
-					<LocalSettings {data} on:close={submitWhenSettingsChanged} /></LoadoutInfo
+					<LocalSettings on:close={submitWhenSettingsChanged} /></LoadoutInfo
 				>
 				<LoadoutTable bind:data={loadout.items} />
 				<BetterTrading data={loadout.items.map((x) => x.gem)} />
@@ -203,8 +203,10 @@
 				<LoadoutInfo
 					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
 				>
-					<GemFilter />
-					<LocalSettings {data} on:close={submitWhenSettingsChanged} />
+					{#if $availableGems && $availableGems.length > 0}
+						<GemFilter />
+					{/if}
+					<LocalSettings on:close={submitWhenSettingsChanged} />
 				</LoadoutInfo>
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
