@@ -57,7 +57,9 @@
 			</AppBar>
 		</svelte:fragment>
 		<svelte:fragment slot="footer">
-			<div class="flex flex-wrap items-center align-middle p-4 text-surface-600-300-token">
+			<div
+				class="flex-wrap items-center align-middle p-4 text-surface-600-300-token hidden sm:flex"
+			>
 				<a href="/" target="_blank" rel="noreferrer" class="anchor">Home</a>
 				&nbsp;
 				<span class="opacity-10 mx-2">|</span>

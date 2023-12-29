@@ -81,7 +81,9 @@
 </script>
 
 {#if $modalStore[0]}
-	<div class="text-token flex flex-col items-center card max-h-[calc(100vh-2rem)] py-2 space-y-2">
+	<div
+		class="text-token flex flex-col items-center card max-h-[calc(100vh-2rem)] max-w-[100vw] py-2 space-y-2"
+	>
 		<h1 class="h1">Exclude unwanted gems</h1>
 		<slot />
 		<div class="card-header w-full space-y-2">
@@ -107,7 +109,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="card-body px-4 overflow-y-scroll">
+		<div class="card-body px-4 overflow-scroll max-w-full">
 			<GemFilterTable
 				on:filtered={(e) => {
 					setExcluded(e.detail.dataIndex, e.detail.newValue);

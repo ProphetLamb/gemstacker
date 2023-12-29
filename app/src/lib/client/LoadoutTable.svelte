@@ -14,8 +14,8 @@
 			<tr class="h-12">
 				<GemTableIdentifier {gem} {idx} />
 				<td> <span class="font-semibold text-surface-600-300-token">&#215;</span></td>
-				<td class="">
-					<div class="flex flex-row space-x-1 items-center">
+				<td class="pl-2">
+					<div class="flex flex-col md:flex-row gap-x-1 items-center">
 						{#each socket as { color, count }}
 							<GemSocket class="flex justify-center items-center w-6 h-6 shadow-sm pb-0.5" {color}
 								>{count}</GemSocket

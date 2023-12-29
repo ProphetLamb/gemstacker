@@ -31,19 +31,22 @@
 	<tbody>
 		{#each data as gem, idx}
 			{@const isExcluded = excludedGems.has(gem.name.toLowerCase())}
-			<tr class="h-12 {isExcluded ? '[&>td]:bg-error-600/20' : ''} ">
-				<GemTableIdentifier {gem} {idx} />
-				<td class="pl-2">
+			<tr
+				class="h-12 {isExcluded ? '[&>td]:bg-error-600/20' : ''} "
+				on:click={() => setExcluded(idx, !isExcluded)}
+			>
+				<td class="pr-2">
 					{#if isExcluded}
-						<button class="btn variant-soft-success" on:click={() => setExcluded(idx, false)}>
-							<Icon src={hi.Check} size="22" />
+						<button class="btn variant-soft-success px-2" on:click={() => setExcluded(idx, false)}>
+							<Icon src={hi.Check} size="26" />
 						</button>
 					{:else}
-						<button class="btn variant-soft-error" on:click={() => setExcluded(idx, true)}>
-							<Icon src={hi.Trash} size="22" />
+						<button class="btn variant-soft-error px-2" on:click={() => setExcluded(idx, true)}>
+							<Icon src={hi.Trash} size="26" />
 						</button>
 					{/if}
 				</td>
+				<GemTableIdentifier {gem} {idx} />
 			</tr>
 		{/each}
 	</tbody>

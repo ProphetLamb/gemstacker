@@ -42,7 +42,7 @@
 	}
 </script>
 
-<div class="btn-group variant-soft-success">
+<div class="btn-group variant-soft-success flex-col rounded-xl md:flex-row md:rounded-full">
 	<a href={buyTradeUrl} target="_blank">Buy</a>
 	<a class="variant-soft-surface" href={sellTradeUrl} target="_blank">Sell</a>
 </div>
