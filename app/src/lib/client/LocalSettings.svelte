@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
-	import type { PoeTradeLeagueResponse } from '$lib/pathOfExileApi';
+	import { popup, type CssClasses, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { localSettings } from './localSettings';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
@@ -8,6 +7,8 @@
 	import { createEventDispatcher } from 'svelte';
 	import { deepEqual } from '$lib/compare';
 	import { leagues } from './leagues';
+
+	export let textClass: CssClasses = '';
 
 	const initialLocalSettings = { ...$localSettings };
 	const pcLeagues = $leagues.filter((l) => l.realm == 'pc');
@@ -28,11 +29,11 @@
 	};
 </script>
 
-<button class="btn btn-sm variant-ghost-tertiary hidden lg:flex" use:popup={localSettingsPopup}
-	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span>Settings</span></button
->
-<button class="btn btn-sm variant-ghost-tertiary lg:hidden" use:popup={localSettingsPopup}
-	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /></button
+<button
+	class="btn btn-sm variant-ghost-tertiary {$$props.class ?? ''}"
+	use:popup={localSettingsPopup}
+	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span class={textClass}>Settings</span
+	></button
 >
 <div class="">
 	<div data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">

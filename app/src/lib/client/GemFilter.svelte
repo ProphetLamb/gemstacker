@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { getModalStore, type CssClasses, type ModalSettings } from '@skeletonlabs/skeleton';
 	import GemFilterModal from './GemFilterModal.svelte';
 	import * as hi from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
+
+	export let textClass: CssClasses = '';
 
 	const modalStore = getModalStore();
 	function gemFilterModal() {
@@ -18,9 +20,9 @@
 
 <button
 	type="button"
-	class="btn btn-sm text-token variant-ghost-tertiary shadow"
+	class="btn btn-sm text-token variant-ghost-tertiary shadow {$$props.class ?? ''}"
 	on:click={gemFilterModal}
 >
 	<Icon src={hi.Funnel} size="16" />
-	<span class="hidden lg:inline mr-0 5">Filter</span>
+	<span class={textClass}>Filter</span>
 </button>

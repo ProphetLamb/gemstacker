@@ -19,22 +19,22 @@
 	class="grid grid-cols-[auto_1fr] h-full bg-surface-50-900-token border-r border-surface-500/30 {$$props.class ??
 		''}"
 >
-	<AppRail>
-		<AppRailAnchor href="/" class="lg:hidden" on:click={onClickAnchor}>
-			<svelte:fragment slot="lead">
-				<Icon src={hi.Bars3} size="24" />
-			</svelte:fragment>
-			<span class="">Home</span>
-		</AppRailAnchor>
-	</AppRail>
-	<section class="p-4 pb-20 space-y-4 overflow-y-auto">
-		<!-- svelte-ignore a11y-no-noninteractive-element-interactions a11y-click-events-have-key-events -->
-		<p class="font-bold pl-4 text-2xl" on:click={drawerStore.close}>Gem Stacker</p>
-		<div class="">
+	<AppRail width="0" />
+	<!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
+	<section class="pb-20 space-y-4 overflow-y-auto">
+		<div class="p-4 bg-surface-100-800-token">
+			<div class="py-2 space-x-4">
+				<button class="btn-icon btn-icon-sm" on:click={drawerStore.close}>
+					<Icon src={hi.Bars3} size="24" />
+				</button>
+				<a href="/" class="text-3xl uppercase font-extrabold">Gem Stacker</a>
+			</div>
+		</div>
+		<div class="px-4">
 			<GithubIcon />
 			<LocalSettings />
 		</div>
-		<nav class="list-nav">
+		<nav class="px-4 list-nav">
 			<ul class="">
 				{#each menuNavLinks as { href, icon, title }}
 					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
