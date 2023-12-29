@@ -19,9 +19,7 @@
 		<button on:click={drawerOpen} class="btn-icon btn-icon-sm md:!hidden">
 			<Icon src={hi.Bars3} size="24" />
 		</button>
-		<a href="/" class="btn text-3xl uppercase font-extrabold" data-sveltekit-preload-data="hover">
-			Gem Stacker
-		</a>
+		<a href="/" class="btn text-3xl uppercase font-extrabold"> Gem Stacker </a>
 		<div class="hidden md:flex">
 			{#each menuNavLinks as { href, icon, title }}
 				<a {href} class="btn hover:variant-soft-primary">

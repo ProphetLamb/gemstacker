@@ -195,8 +195,8 @@
 			{:else if loadout && loadout.items.length > 0}
 				<LoadoutInfo bind:loadout>
 					<GemFilter />
-					<LocalSettings on:close={submitWhenSettingsChanged} /></LoadoutInfo
-				>
+					<LocalSettings on:close={submitWhenSettingsChanged} />
+				</LoadoutInfo>
 				<LoadoutTable bind:data={loadout.items} />
 				<BetterTrading data={loadout.items.map((x) => x.gem)} />
 			{:else}

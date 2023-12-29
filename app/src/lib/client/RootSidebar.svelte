@@ -37,12 +37,7 @@
 			<ul class="">
 				{#each menuNavLinks as { href, icon, title }}
 					<li>
-						<a
-							{href}
-							class={listboxItemActive(href)}
-							on:click={drawerClose}
-							data-sveltekit-preload-data="hover"
-						>
+						<a {href} class={listboxItemActive(href)} on:click={drawerClose}>
 							<Icon src={icon} size="24" />
 							<span class="">{title}</span>
 						</a>
