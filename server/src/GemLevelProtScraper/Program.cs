@@ -51,22 +51,13 @@ builder.Services
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .WithLongLivingServiceLifetime(ServiceLifetime.Scoped)
-        .AddDataFlow<PoeNinjaSkillGemSpider>()
-        .AddDataFlow<PoeNinjaCleanup>()
-        .AddDataFlow<PoeNinjaSink>()
-        .AddDataFlow<PoeDbSkillNameSpider>()
-        .AddDataFlow<PoeDbSkillSpider>()
-        .AddDataFlow<PoeDbCleanup>()
-        .AddDataFlow<PoeDbSink>()
-        .AddDataFlow<DataflowSignal<PoeDbListCompleted>>()
-        .AddDataFlow<PoeLeaguesSpider>()
-        .AddDataFlow<PoeSink>()
-        .AddDataFlow<DataflowSignal<PoeLeagueListCompleted>>()
-        .Use(ScrapeAASRole.ProxyProvider, s => s.AddWebShareProxyProvider(o =>
+        .AddWebShareProxyProvider(o =>
         {
             o.ApiKey = webShareKey;
             o.CacheExpiration = TimeSpan.FromMinutes(30);
-        }))
+        })
+        .AddDataflow<DataflowSignal<PoeDbListCompleted>>()
+        .AddDataflow<DataflowSignal<PoeLeagueListCompleted>>()
     )
     .AddMemoryCache()
     .AddResponseCaching()
