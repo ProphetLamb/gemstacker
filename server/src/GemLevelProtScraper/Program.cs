@@ -40,7 +40,8 @@ builder.Services
     .AddSystemClock()
     .AddSingleton<SignalCompletionStorage>()
     .AddTransient<PoeDbRepository>()
-    .AddTransient<PoeNinjaRepository>()
+    .AddTransient<PoeNinjaGemRepository>()
+    .AddTransient<PoeNinjaCurrencyRepository>()
     .AddTransient<PoeRepository>()
     .AddTransient<SkillGemRepository>()
     .AddTransient<ProfitService>()
@@ -50,7 +51,7 @@ builder.Services
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .WithLongLivingServiceLifetime(ServiceLifetime.Scoped)
-        .AddDataFlow<PoeNinjaSpider>()
+        .AddDataFlow<PoeNinjaSkillGemSpider>()
         .AddDataFlow<PoeNinjaCleanup>()
         .AddDataFlow<PoeNinjaSink>()
         .AddDataFlow<PoeDbSkillNameSpider>()

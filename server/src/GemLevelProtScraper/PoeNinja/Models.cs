@@ -23,9 +23,50 @@ internal sealed record PoeNinjaApiGemPrice(
     long ListingCount
 );
 
+
 [BsonIgnoreExtraElements]
 internal sealed record PoeNinjaApiGemPriceEnvalope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
-internal sealed record PoeNinjaApiGemPriceResponse(
+internal sealed record PoeNinjaApiGemResponse(
     ImmutableArray<PoeNinjaApiGemPrice> Lines
+);
+
+internal sealed record PoeNinjaApiCurrencyPrice(
+    string CurrencyTypeName,
+    PoeNinjaApiCurrencyTrade Pay,
+    PoeNinjaApiCurrencyTrade Receive,
+    PoeNinjaApiSparkLine PaySparkLine,
+    PoeNinjaApiSparkLine ReceiveSparkLine,
+    double ChaosEquivalent,
+    PoeNinjaApiSparkLine LowConfidencePaySparkLine,
+    PoeNinjaApiSparkLine LowConfidenceReceiveSparkLine,
+    string DetailsId
+);
+
+internal sealed record PoeNinjaApiCurrencyTrade(
+    long Id,
+    long LeagueId,
+    long PayCurrencyId,
+    long GetCurrencyId,
+    DateTimeOffset SampleTimeUrc,
+    long Count,
+    double Value,
+    long DataPointCount,
+    bool IncludesSecondary,
+    long ListingCount
+);
+
+internal sealed record PoeNinjaApiCurrencyDetails(
+    long Id,
+    string Icon,
+    string Name,
+    string TradeId
+);
+
+[BsonIgnoreExtraElements]
+internal sealed record PoeNinjaApiCurrencyPriceEnvalope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiCurrencyPrice Price);
+
+internal sealed record PoeNinjaApiCurrencyResponse(
+    ImmutableArray<PoeNinjaApiCurrencyPrice> Lines,
+    ImmutableArray<PoeNinjaApiCurrencyDetails> CurrencyDetails
 );
