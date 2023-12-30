@@ -25,6 +25,13 @@ public sealed record ProfitResponse
     public required string Type { get; init; }
     public required string? Discriminator { get; init; }
     public required string ForeignInfoUrl { get; init; }
+    public required ProfitResponseRecipies Recipies { get; init; }
+}
+
+public sealed record ProfitResponseRecipies
+{
+    public required ProfitMargin QualityThenLevel { get; init; }
+    public required ProfitMargin LevelVendorLevel { get; init; }
 }
 
 public sealed record ProfitLevelResponse
@@ -36,6 +43,14 @@ public sealed record ProfitLevelResponse
     public required long ListingCount { get; init; }
 }
 
+public sealed record ProfitMargin
+{
+    public required double AdjustedEarnings { get; init; }
+    public required double ExperienceDelta { get; init; }
+    public required double GainMargin { get; init; }
+    public required double QualitySpent { get; init; }
+}
+
 
 public enum GemColor
 {
@@ -45,10 +60,13 @@ public enum GemColor
     Red = 3,
 }
 
-internal readonly record struct ProfitMargin(double Margin, (SkillGemPrice Data, double Exp) Min, (SkillGemPrice Data, double Exp) Max, SkillGem Data);
+internal readonly record struct PriceWithExp(SkillGemPrice Data, double Exp);
+internal readonly record struct PriceDelta(ProfitMargin QualityThenLevel, ProfitMargin LevelVendorLevel, PriceWithExp Min, PriceWithExp Max, SkillGem Data);
 
 public sealed class ProfitService(SkillGemRepository repository)
 {
+    public const double GainMarginFactor = 1000000;
+
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWindcard, cancellationToken);
@@ -63,28 +81,37 @@ public sealed class ProfitService(SkillGemRepository repository)
                                 => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
                                 && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
                             )
-                    ) is { } gain
-                ? new { g.Skill, Gain = gain }
+                    ) is { } delta
+                ? new { g.Skill, Delta = delta }
                 : null
             )
-            .OrderByDescending(g => g.Gain.Margin)
+            .OrderByDescending(g => Math.Max(g.Delta.LevelVendorLevel.GainMargin, g.Delta.QualityThenLevel.GainMargin))
             ;
 
         var result = eligiblePricedGems
             .Select(g
-                => new ProfitResponse
+                =>
+            {
+                ProfitResponseRecipies recipies = new()
+                {
+                    LevelVendorLevel = g.Delta.LevelVendorLevel,
+                    QualityThenLevel = g.Delta.QualityThenLevel,
+                };
+                var gainMargin = Math.Max(g.Delta.LevelVendorLevel.GainMargin, g.Delta.QualityThenLevel.GainMargin);
+                return new ProfitResponse
                 {
                     Name = g.Skill.Name,
                     Color = g.Skill.Color,
                     Discriminator = g.Skill.Discriminator,
                     Type = g.Skill.BaseType,
                     ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
-                    GainMargin = g.Gain.Margin,
-                    Icon = g.Gain.Min.Data.Icon ?? g.Gain.Max.Data.Icon ?? g.Skill.IconUrl,
-                    Max = FromPrice(g.Gain.Max.Data, g.Gain.Max.Exp),
-                    Min = FromPrice(g.Gain.Min.Data, g.Gain.Min.Exp)
-                }
-            );
+                    Recipies = recipies,
+                    GainMargin = gainMargin,
+                    Icon = g.Delta.Min.Data.Icon ?? g.Delta.Max.Data.Icon ?? g.Skill.IconUrl,
+                    Max = FromPrice(g.Delta.Max.Data, g.Delta.Max.Exp),
+                    Min = FromPrice(g.Delta.Min.Data, g.Delta.Min.Exp)
+                };
+            });
 
         var en = result.GetAsyncEnumerator(cancellationToken);
         while (await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -101,7 +128,9 @@ public sealed class ProfitService(SkillGemRepository repository)
             Price = price.ChaosValue
         };
 
-        ProfitMargin? ComputeSkillProfitMargin(SkillGem skill, IEnumerable<SkillGemPrice> prices)
+        static double ComputeGainMargin(double earnings, double experience) => experience == 0 ? 0 : earnings * GainMarginFactor / experience;
+
+        PriceDelta? ComputeSkillProfitMargin(SkillGem skill, IEnumerable<SkillGemPrice> prices)
         {
             var pricesOrdered = prices.ToArray();
             // order by ChaosValue descending
@@ -121,19 +150,55 @@ public sealed class ProfitService(SkillGemRepository repository)
                 return null;
             }
 
-            var levelEarning = maxPrice.ChaosValue - minPrice.ChaosValue;
-            // penalize quality upgrades
-            var qualityCost = Math.Max(0, maxPrice.GemQuality - minPrice.GemQuality);
-
-            var adjustedEarnings = Math.Max(0, levelEarning - qualityCost);
-
-            var margin = requiredExp == 0 ? 0 : adjustedEarnings * 1000000 / requiredExp;
             return new(
-                margin,
-                (minPrice, 0),
-                (maxPrice, requiredExp),
+                ComputeQualityThenLevel(requiredExp, minPrice, maxPrice),
+                ComputeLevelVendorLevel(requiredExp, minPrice, maxPrice),
+                new(minPrice, 0),
+                new(maxPrice, requiredExp),
                 skill
             );
+        }
+
+        static ProfitMargin ComputeQualityThenLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+        {
+            // quality the gem then level it
+            var levelEarning = max.ChaosValue - min.ChaosValue;
+            var qualitySpent = Math.Max(0, max.GemQuality - min.GemQuality);
+            var qualityCost = qualitySpent; // todo calcualte price
+
+            var adjustedEarnings = levelEarning - qualityCost;
+
+            var gainMargin = experineceDelta == 0 ? 0 : adjustedEarnings * GainMarginFactor / experineceDelta;
+
+            return new()
+            {
+                GainMargin = gainMargin,
+                ExperienceDelta = experineceDelta,
+                AdjustedEarnings = adjustedEarnings,
+                QualitySpent = qualitySpent
+            };
+        }
+
+        static ProfitMargin ComputeLevelVendorLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+        {
+            // level the gem, vendor it with 1x Gem Cutter, level it again
+            var levelEarning = max.ChaosValue - min.ChaosValue;
+            var qualitySpent = max.GemQuality <= min.GemQuality ? 0 : 1;
+            var qualityCost = qualitySpent; // todo calcualte price
+
+            var experineceFactor = qualitySpent == 0 ? 1 : 2;
+
+            var adjustedEarnings = levelEarning - qualityCost;
+
+            var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
+
+            return new()
+            {
+                GainMargin = gainMargin,
+                ExperienceDelta = experineceDelta,
+                AdjustedEarnings = adjustedEarnings,
+                QualitySpent = qualitySpent
+            };
         }
     }
 }
