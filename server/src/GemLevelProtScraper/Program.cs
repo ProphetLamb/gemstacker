@@ -103,10 +103,11 @@ app
         [FromServices] PoeRepository poeRepository,
         [FromQuery(Name = "league")] string? league = null,
         [FromQuery(Name = "gem_name")] string? gemNameWindcard = null,
+        [FromQuery(Name = "added_quality")] long addedQuality = 0,
         [FromQuery(Name = "min_sell_price_chaos")] double? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] double? maxBuyPriceChaos = null,
         [FromQuery(Name = "min_experience_delta")] double? minExperienceDelta = null,
-        [FromQuery(Name = "min_listing_count")] int minListingCount = 8,
+        [FromQuery(Name = "min_listing_count")] long minListingCount = 8,
         [FromQuery(Name = "items_count")] int itemsCount = 10,
         CancellationToken cancellationToken = default
     ) =>
@@ -134,6 +135,7 @@ app
         {
             League = leagueMode,
             GemNameWindcard = gemNameWindcard,
+            AddedQuality = addedQuality,
             MinSellPriceChaos = minSellPriceChaos,
             MaxBuyPriceChaos = maxBuyPriceChaos,
             MinExperienceDelta = minExperienceDelta,

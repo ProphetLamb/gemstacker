@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.Skills;
@@ -8,10 +9,11 @@ public sealed record ProfitRequest
 {
     public required LeagueMode League { get; init; }
     public required string? GemNameWindcard { get; init; }
+    public long AddedQuality { get; init; }
     public double? MinSellPriceChaos { get; init; }
     public double? MaxBuyPriceChaos { get; init; }
     public double? MinExperienceDelta { get; init; }
-    public int MinimumListingCount { get; init; }
+    public long MinimumListingCount { get; init; }
 }
 
 public sealed record ProfitResponse
@@ -65,23 +67,12 @@ internal readonly record struct PriceDelta(ProfitMargin QualityThenLevel, Profit
 
 public sealed class ProfitService(SkillGemRepository repository)
 {
-    public const double GainMarginFactor = 1000000;
-
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWindcard, cancellationToken);
-
         var eligiblePricedGems = pricedGems
             .SelectTruthy(g
-                => ComputeSkillProfitMargin(
-                        g.Skill,
-                        g.Prices
-                            .Where(p => !p.Corrupted && p.ListingCount >= request.MinimumListingCount)
-                            .Where(p
-                                => (request.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
-                                && (request.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
-                            )
-                    ) is { } delta
+                => new ProftMarginCalculator(request, g.Skill).ComputeProfitMargin(g.Prices) is { } delta
                 ? new { g.Skill, Delta = delta }
                 : null
             )
@@ -127,78 +118,125 @@ public sealed class ProfitService(SkillGemRepository repository)
             ListingCount = price.ListingCount,
             Price = price.ChaosValue
         };
+    }
+}
 
-        static double ComputeGainMargin(double earnings, double experience) => experience == 0 ? 0 : earnings * GainMarginFactor / experience;
+internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem skill)
+{
+    public const double GainMarginFactor = 1000000;
+    private static readonly ImmutableDictionary<string, double> s_experienceFactorAddQualityByName = CreateExperienceFactorPerQualityByName();
 
-        PriceDelta? ComputeSkillProfitMargin(SkillGem skill, IEnumerable<SkillGemPrice> prices)
+    private static ImmutableDictionary<string, double> CreateExperienceFactorPerQualityByName()
+    {
+        var dict = ImmutableDictionary.CreateBuilder<string, double>(StringComparer.InvariantCultureIgnoreCase);
+        dict.Add("Empower Support", 5 / 100);
+        dict.Add("Awakened Empower Support", 5 / 100);
+        dict.Add("Enhance Support", 5 / 100);
+        dict.Add("Awakened Enhance  Support", 5 / 100);
+        dict.Add("Enlighten Support", 5 / 100);
+        dict.Add("Awakened Enlighten Support", 5 / 100);
+        return dict.ToImmutable();
+    }
+
+    private static double ComputeGainMargin(double earnings, double experience)
+    {
+        return experience == 0 ? 0 : earnings * GainMarginFactor / experience;
+    }
+
+    public long GemQuality(SkillGemPrice price)
+    {
+        return price.GemQuality + request.AddedQuality;
+    }
+
+    public double ExperienceFactor(long quality)
+    {
+        if (s_experienceFactorAddQualityByName.TryGetValue(skill.BaseType, out var addFactorPerQuality))
         {
-            var pricesOrdered = prices.ToArray();
-            // order by ChaosValue descending
-            pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
-
-            var minPrice = pricesOrdered.Where(p => p.GemLevel == 1).LastOrDefault();
-            var maxPrice = pricesOrdered.Where(p => p.GemLevel == skill.MaxLevel).FirstOrDefault();
-            if (minPrice is null || maxPrice is null)
-            {
-                return null;
-            }
-
-            var requiredExp = skill.SumExperience;
-
-            if (requiredExp < request.MinExperienceDelta)
-            {
-                return null;
-            }
-
-            return new(
-                ComputeQualityThenLevel(requiredExp, minPrice, maxPrice),
-                ComputeLevelVendorLevel(requiredExp, minPrice, maxPrice),
-                new(minPrice, 0),
-                new(maxPrice, requiredExp),
-                skill
-            );
+            return 1.0 / (1.0 + (addFactorPerQuality * quality));
         }
 
-        static ProfitMargin ComputeQualityThenLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+        return 1.0;
+    }
+
+    public PriceDelta? ComputeProfitMargin(IEnumerable<SkillGemPrice> prices)
+    {
+        var profitRequest = request;
+        var skillGem = skill;
+        var pricesOrdered = prices
+            .Where(p => !p.Corrupted && p.ListingCount >= profitRequest.MinimumListingCount)
+            .Where(p
+                => (profitRequest.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
+                && (profitRequest.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
+            )
+            .ToArray();
+        // order by ChaosValue descending
+        pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
+
+        var minPrice = pricesOrdered.Where(p => p.GemLevel == 1).LastOrDefault();
+        var maxPrice = pricesOrdered.Where(p => p.GemLevel == skillGem.MaxLevel).FirstOrDefault();
+        if (minPrice is null || maxPrice is null)
         {
-            // quality the gem then level it
-            var levelEarning = max.ChaosValue - min.ChaosValue;
-            var qualitySpent = Math.Max(0, max.GemQuality - min.GemQuality);
-            var qualityCost = qualitySpent; // todo calcualte price
-
-            var adjustedEarnings = levelEarning - qualityCost;
-
-            var gainMargin = experineceDelta == 0 ? 0 : adjustedEarnings * GainMarginFactor / experineceDelta;
-
-            return new()
-            {
-                GainMargin = gainMargin,
-                ExperienceDelta = experineceDelta,
-                AdjustedEarnings = adjustedEarnings,
-                QualitySpent = qualitySpent
-            };
+            return null;
         }
 
-        static ProfitMargin ComputeLevelVendorLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+        var requiredExp = skillGem.SumExperience;
+
+        if (requiredExp < profitRequest.MinExperienceDelta)
         {
-            // level the gem, vendor it with 1x Gem Cutter, level it again
-            var levelEarning = max.ChaosValue - min.ChaosValue;
-            var qualitySpent = max.GemQuality <= min.GemQuality ? 0 : 1;
-            var qualityCost = qualitySpent; // todo calcualte price
-
-            var experineceFactor = qualitySpent == 0 ? 1 : 2;
-
-            var adjustedEarnings = levelEarning - qualityCost;
-
-            var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
-
-            return new()
-            {
-                GainMargin = gainMargin,
-                ExperienceDelta = experineceDelta,
-                AdjustedEarnings = adjustedEarnings,
-                QualitySpent = qualitySpent
-            };
+            return null;
         }
+
+        return new(
+            ComputeQualityThenLevel(requiredExp, minPrice, maxPrice),
+            ComputeLevelVendorLevel(requiredExp, minPrice, maxPrice),
+            new(minPrice, 0),
+            new(maxPrice, requiredExp),
+            skillGem
+        );
+    }
+
+    private ProfitMargin ComputeQualityThenLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+    {
+        // quality the gem then level it
+        var levelEarning = max.ChaosValue - min.ChaosValue;
+        var qualitySpent = Math.Max(0, max.GemQuality - min.GemQuality);
+        var qualityCost = qualitySpent; // todo calcualte price
+
+        var experineceFactor = ExperienceFactor(GemQuality(max));
+
+        var adjustedEarnings = levelEarning - qualityCost;
+
+        var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
+
+        return new()
+        {
+            GainMargin = gainMargin,
+            ExperienceDelta = experineceDelta,
+            AdjustedEarnings = adjustedEarnings,
+            QualitySpent = qualitySpent
+        };
+    }
+
+    private ProfitMargin ComputeLevelVendorLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+    {
+        // level the gem, vendor it with 1x Gem Cutter, level it again
+        var vendorRequired = max.GemQuality > min.GemQuality;
+        var levelEarning = max.ChaosValue - min.ChaosValue;
+        var qualitySpent = vendorRequired ? 1 : 0;
+        var qualityCost = qualitySpent; // todo calcualte price
+
+        var experineceFactor = ExperienceFactor(GemQuality(min)) + (vendorRequired ? ExperienceFactor(GemQuality(max)) : 0);
+
+        var adjustedEarnings = levelEarning - qualityCost;
+
+        var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
+
+        return new()
+        {
+            GainMargin = gainMargin,
+            ExperienceDelta = experineceDelta,
+            AdjustedEarnings = adjustedEarnings,
+            QualitySpent = qualitySpent
+        };
     }
 }
