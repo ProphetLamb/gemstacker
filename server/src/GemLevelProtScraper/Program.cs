@@ -51,7 +51,7 @@ builder.Services
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .WithLongLivingServiceLifetime(ServiceLifetime.Scoped)
-        .AddWebShareProxyProvider(o =>
+        .UseWebShareProxyProvider(o =>
         {
             o.ApiKey = webShareKey;
             o.CacheExpiration = TimeSpan.FromMinutes(30);
@@ -62,15 +62,7 @@ builder.Services
     .AddMemoryCache()
     .AddResponseCaching()
     .AddHttpContextAccessor()
-    .AddOutputCache(o =>
-    {
-        o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(60)));
-        o.AddPolicy("gem-profit", b => b
-            .Cache()
-            .Expire(TimeSpan.FromMinutes(30))
-            .SetVaryByQuery("league", "gem_name", "min_sell_price_chaos", "max_buy_price_chaos", "min_experience_delta", "items_count")
-        );
-    });
+    .AddOutputCache(o => o.AddBasePolicy(b => b.Cache().Expire(TimeSpan.FromSeconds(60))));
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
 {
@@ -141,6 +133,9 @@ app
         }
 
         return Results.Ok(result.Take(itemsCount));
-    }).CacheOutput("gem-profit");
+    }).CacheOutput(b => b
+        .Cache()
+        .Expire(TimeSpan.FromMinutes(30))
+        .SetVaryByQuery("league", "gem_name", "added_quality", "min_sell_price_chaos", "max_buy_price_chaos", "min_experience_delta", "items_count")
+    );
 app.Run();
-
