@@ -70,6 +70,36 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     }
 }
 
+[MongoMigration(PoeDatabaseSettings.Alias, 8, 9, Description = $"Add unique composite index {CurrencyIdentifierIndexName}.")]
+public sealed class PoeNinjaCurrencyAddIdentifierIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public const string CurrencyIdentifierIndexName = "CurrencyIdentifier";
+
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var currencyCollection = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
+        await currencyCollection.Indexes.DropOneAsync(CurrencyIdentifierIndexName, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
+        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvalope> builder = new();
+        var index = builder.Combine(
+            builder.Ascending(e => e.Price.CurrencyTypeName),
+            builder.Ascending(e => e.League)
+        );
+
+        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvalope> model = new(index, new()
+        {
+            Unique = true,
+            Name = CurrencyIdentifierIndexName
+        });
+        _ = await col.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+
 [MongoMigration(PoeDatabaseSettings.Alias, 7, 8, Description = $"Add text index {CurrencyLeagueIndexName}.")]
 public sealed class PoeNinjaCurrencyAddLeagueIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
 {
@@ -85,7 +115,7 @@ public sealed class PoeNinjaCurrencyAddLeagueIndexMigration(IOptions<PoeDatabase
     {
         var col = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvalope> builder = new();
-        var index = builder.Text(e => e.League);
+        var index = builder.Ascending(e => e.League);
 
         CreateIndexModel<PoeNinjaApiCurrencyPriceEnvalope> model = new(index, new()
         {
@@ -210,7 +240,7 @@ public sealed class PoeNinjaGemAddLeagueIndexMigration(IOptions<PoeDatabaseSetti
     {
         var col = optionsAccessor.Value.GetPoeNinjaGemCollection(database);
         IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
-        var index = builder.Text(e => e.League);
+        var index = builder.Ascending(e => e.League);
 
         CreateIndexModel<PoeNinjaApiGemPriceEnvalope> model = new(index, new()
         {
