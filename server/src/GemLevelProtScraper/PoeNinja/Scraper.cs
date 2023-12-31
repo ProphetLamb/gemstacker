@@ -22,7 +22,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
                 ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.HardcoreRuthless, stoppingToken)
             ).ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromHours(1), stoppingToken).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken).ConfigureAwait(false);
             stoppingToken.ThrowIfCancellationRequested();
         }
 
