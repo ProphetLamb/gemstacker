@@ -70,3 +70,5 @@ internal sealed record PoeNinjaApiCurrencyResponse(
     ImmutableArray<PoeNinjaApiCurrencyPrice> Lines,
     ImmutableArray<PoeNinjaApiCurrencyDetails> CurrencyDetails
 );
+
+internal sealed record PoeNinjaCurrencyExchangeRate(string CurrencyTypeName, double ChaosEquivalent);

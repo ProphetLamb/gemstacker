@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using DotNet.Globbing;
 using GemLevelProtScraper.Poe;
 using Microsoft.Extensions.Options;
@@ -170,5 +171,22 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
             .Find(e => e.League == league)
             .Project(s => s.Price.CurrencyTypeName)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async IAsyncEnumerable<PoeNinjaCurrencyExchangeRate> GetExchangeRatesAsync(LeagueMode league, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        var cursor = await _currencyCollection
+            .Find(e => e.League == league)
+            .Project(s => new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent))
+            .ToCursorAsync(cancellationToken)
+            .ConfigureAwait(false);
+        while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+        {
+            foreach (var item in cursor.Current)
+            {
+                yield return item;
+            }
+        }
     }
 }
