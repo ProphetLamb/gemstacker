@@ -14,12 +14,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             await Task.WhenAll(
-                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.Softcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.Hardcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeagueMode.League | LeagueMode.HardcoreRuthless, stoppingToken),
-                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.Softcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.Hardcore, stoppingToken),
-                ScrapeTradeLeague(scope, LeagueMode.Standard | LeagueMode.HardcoreRuthless, stoppingToken)
+                LeagueModeHelper.WellknownLeagues.Select(league => ScrapeTradeLeague(scope, league, stoppingToken))
             ).ConfigureAwait(false);
 
             await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken).ConfigureAwait(false);

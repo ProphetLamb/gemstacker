@@ -22,10 +22,21 @@ public enum LeagueMode
     Ruthless = 1 << 4,
     HardcoreRuthless = Hardcore | Ruthless
 }
+
+
 public enum Realm { Pc, Xbox, Sony }
 
 public static class LeagueModeHelper
 {
+    public static ImmutableArray<LeagueMode> WellknownLeagues { get; } = ImmutableArray.Create([
+        LeagueMode.League | LeagueMode.Softcore,
+        LeagueMode.League | LeagueMode.Hardcore,
+        LeagueMode.League | LeagueMode.HardcoreRuthless,
+        LeagueMode.Standard | LeagueMode.Softcore,
+        LeagueMode.Standard | LeagueMode.Hardcore,
+        LeagueMode.Standard | LeagueMode.HardcoreRuthless
+    ]);
+
     public static bool TryParse(ReadOnlySpan<char> text, ReadOnlySpan<char> league, out LeagueMode mode)
     {
         mode = LeagueMode.None;
