@@ -45,7 +45,7 @@ builder.Services
     .AddTransient<PoeRepository>()
     .AddTransient<SkillGemRepository>()
     .AddTransient<ProfitService>()
-    .AddHostedService<CurrencyService>()
+    .AddHostedService<ExchangeRateProvider>()
     .AddHostedService<PoeNinjaScraper>()
     .AddHostedService<PoeDbScraper>()
     .AddHostedService<PoeScraper>()

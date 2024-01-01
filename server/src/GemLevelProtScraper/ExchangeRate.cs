@@ -4,7 +4,7 @@ using GemLevelProtScraper.PoeNinja;
 
 namespace GemLevelProtScraper;
 
-internal sealed class CurrencyService(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
+internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
 {
     private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
@@ -120,7 +120,7 @@ internal sealed class CurrencyService(PoeNinjaCurrencyRepository currencyReposit
     }
 }
 
-internal readonly struct ExchangeRateCollection(Dictionary<CurrencyService.Key, PoeNinjaCurrencyExchangeRate> exchangeRates)
+internal readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Key, PoeNinjaCurrencyExchangeRate> exchangeRates)
 {
     public bool TryGetValue(LeagueMode mode, string currencyTypeName, [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates)
     {
