@@ -12,7 +12,7 @@ internal sealed class CurrencyService : IDisposable
     private readonly DataflowSignal<PoeNinjaListCompleted> _signal;
     private readonly object _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = new();
-    private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _task;
+    private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
 
     public CurrencyService(PoeNinjaCurrencyRepository currencyRepository, DataflowSignal<PoeNinjaListCompleted> signal)
     {
@@ -23,7 +23,7 @@ internal sealed class CurrencyService : IDisposable
 
     public ValueTask<ExchangeRateCollection> GetExchangeRatesAsync(CancellationToken cancellationToken = default)
     {
-        var task = _task;
+        var task = _exchangeRatesTask;
         if (task is null || task.IsCompletedSuccessfully)
         {
             lock (_exchangeRatesLock)
@@ -43,7 +43,7 @@ internal sealed class CurrencyService : IDisposable
 
     private async Task HandleSignalAsync(CancellationToken cancellationToken)
     {
-        _task = InitializeAsync(cancellationToken);
+        _exchangeRatesTask = InitializeAsync(cancellationToken);
         var channel = Channel.CreateBounded<PoeNinjaListCompleted>(512);
         await Task.WhenAll(
             InflateTask(channel.Writer),
@@ -52,7 +52,7 @@ internal sealed class CurrencyService : IDisposable
 
         async Task InflateTask(ChannelWriter<PoeNinjaListCompleted> writer)
         {
-            await foreach (var completion in _signal.WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach (var completion in _signal.ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
             {
                 await writer.WriteAsync(completion, cancellationToken).ConfigureAwait(false);
             }
@@ -63,7 +63,7 @@ internal sealed class CurrencyService : IDisposable
         {
             await foreach (var completion in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
             {
-                var task = Interlocked.Exchange(ref _task, RefreshAsync(completion.League.Mode, cancellationToken));
+                var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, cancellationToken));
                 if (task is not null)
                 {
                     _ = await task.ConfigureAwait(false);

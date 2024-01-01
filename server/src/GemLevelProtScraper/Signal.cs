@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Channels;
 using ScrapeAAS;
 
 namespace GemLevelProtScraper;
@@ -76,7 +77,7 @@ public sealed class SignalCompletionStorage
     }
 }
 
-public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDataflowHandler<T>, IAsyncEnumerable<T>
+public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDataflowHandler<T>
 {
     private bool _hasInitial;
 
@@ -109,34 +110,37 @@ public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDatafl
 
     public async Task<T?> WaitOneAsync(Func<T, bool> predicate, CancellationToken cancellationToken = default)
     {
-        await using var en = GetAsyncEnumerator(cancellationToken);
-        while (await en.MoveNextAsync().ConfigureAwait(false))
+        await foreach (var item in ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
         {
-            var item = en.Current;
             if (predicate(item))
             {
                 return item;
             }
         }
-
         return default;
     }
 
-    public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<T> ToEnumerableAsync(CancellationToken cancellationToken)
     {
-        return Enumerable(this, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        var channel = Channel.CreateUnbounded<T>();
+        _ = InflateTask(channel.Writer);
 
-        static async IAsyncEnumerable<T> Enumerable(DataflowSignal<T> signal, [EnumeratorCancellation] CancellationToken cancellationToken)
+        return channel.Reader.ReadAllAsync(cancellationToken);
+
+        async Task InflateTask(ChannelWriter<T> writer)
         {
-            var task = signal.WaitOneAsync(cancellationToken);
-            while (true)
+            try
             {
-                var innerTask = Interlocked.Exchange(ref task, signal.WaitOneAsync(cancellationToken));
-                var item = await innerTask.ConfigureAwait(false);
-                yield return item;
-                cancellationToken.ThrowIfCancellationRequested();
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var item = await WaitOneAsync(cancellationToken).ConfigureAwait(false);
+                    await writer.WriteAsync(item, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _ = writer.TryComplete();
             }
         }
     }
-
 }
