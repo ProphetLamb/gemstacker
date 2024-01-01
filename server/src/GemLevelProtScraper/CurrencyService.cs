@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Channels;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeNinja;
 
@@ -44,32 +43,14 @@ internal sealed class CurrencyService : IDisposable
     private async Task HandleSignalAsync(CancellationToken cancellationToken)
     {
         _exchangeRatesTask = InitializeAsync(cancellationToken);
-        var channel = Channel.CreateBounded<PoeNinjaListCompleted>(512);
-        await Task.WhenAll(
-            InflateTask(channel.Writer),
-            DeflateTask(channel.Reader)
-        ).ConfigureAwait(true);
-
-        async Task InflateTask(ChannelWriter<PoeNinjaListCompleted> writer)
+        await foreach (var completion in _signal.ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
         {
-            await foreach (var completion in _signal.ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
+            var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, cancellationToken));
+            if (task is not null)
             {
-                await writer.WriteAsync(completion, cancellationToken).ConfigureAwait(false);
+                _ = await task.ConfigureAwait(false);
             }
-            writer.Complete();
-        }
-
-        async Task DeflateTask(ChannelReader<PoeNinjaListCompleted> reader)
-        {
-            await foreach (var completion in reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, cancellationToken));
-                if (task is not null)
-                {
-                    _ = await task.ConfigureAwait(false);
-                }
-                cancellationToken.ThrowIfCancellationRequested();
-            }
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 

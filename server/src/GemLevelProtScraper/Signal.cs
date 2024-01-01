@@ -122,6 +122,10 @@ public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDatafl
 
     public IAsyncEnumerable<T> ToEnumerableAsync(CancellationToken cancellationToken)
     {
+        if (!cancellationToken.CanBeCanceled)
+        {
+            throw new ArgumentException("The cancellation token must cancel when the signal is no longer needed. A non cancelable token is not allowed", nameof(cancellationToken));
+        }
         var channel = Channel.CreateUnbounded<T>();
         _ = InflateTask(channel.Writer);
 
@@ -135,6 +139,16 @@ public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDatafl
                 {
                     var item = await WaitOneAsync(cancellationToken).ConfigureAwait(false);
                     await writer.WriteAsync(item, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or ChannelClosedException)
+            {
+            }
+            catch (AggregateException agg)
+            {
+                if (!agg.InnerExceptions.Any(ex => ex is OperationCanceledException or ChannelClosedException))
+                {
+                    throw;
                 }
             }
             finally
