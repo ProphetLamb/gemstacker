@@ -4,20 +4,29 @@ using GemLevelProtScraper.PoeNinja;
 
 namespace GemLevelProtScraper;
 
-internal sealed class CurrencyService : IDisposable
+internal sealed class CurrencyService(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
 {
-    private readonly CancellationTokenSource _cts = new();
-    private readonly PoeNinjaCurrencyRepository _currencyRepository;
-    private readonly DataflowSignal<PoeNinjaListCompleted> _signal;
+    private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository;
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+
     private readonly object _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = new();
     private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
 
-    public CurrencyService(PoeNinjaCurrencyRepository currencyRepository, DataflowSignal<PoeNinjaListCompleted> signal)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _currencyRepository = currencyRepository;
-        _signal = signal;
-        _ = HandleSignalAsync(_cts.Token);
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var signal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeNinjaListCompleted>>();
+        _exchangeRatesTask = InitializeAsync(stoppingToken);
+        await foreach (var completion in signal.ToEnumerableAsync(stoppingToken).ConfigureAwait(false))
+        {
+            var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, stoppingToken));
+            if (task is not null)
+            {
+                _ = await task.ConfigureAwait(false);
+            }
+            stoppingToken.ThrowIfCancellationRequested();
+        }
     }
 
     public ValueTask<ExchangeRateCollection> GetExchangeRatesAsync(CancellationToken cancellationToken = default)
@@ -37,20 +46,6 @@ internal sealed class CurrencyService : IDisposable
         {
             var exchangeRates = await exchangeRatesTask.ConfigureAwait(false);
             return new(exchangeRates);
-        }
-    }
-
-    private async Task HandleSignalAsync(CancellationToken cancellationToken)
-    {
-        _exchangeRatesTask = InitializeAsync(cancellationToken);
-        await foreach (var completion in _signal.ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
-        {
-            var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, cancellationToken));
-            if (task is not null)
-            {
-                _ = await task.ConfigureAwait(false);
-            }
-            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 
@@ -101,11 +96,6 @@ internal sealed class CurrencyService : IDisposable
             }
             _exchangeRates = newExchangeRates;
         }
-    }
-
-    public void Dispose()
-    {
-        _cts.Cancel();
     }
 
     internal readonly struct Key(LeagueMode mode, string name) : IEquatable<Key>
