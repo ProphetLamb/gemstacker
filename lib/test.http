@@ -1,3 +1,0 @@
-GET http://localhost:8000/gem-profit?min_sell_price_chaos=300&min_experience_delta=1000000000
-Content-Type: application/json
-Authorization: Bearer dGVzdA==
