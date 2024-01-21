@@ -44,15 +44,15 @@ public static class LeagueModeHelper
         {
             mode = LeagueMode.League | LeagueMode.Softcore;
         }
-        else if (IsEqual(text, $"Hardcore {league}"))
+        else if (IsEqual(text, $"Hardcore {league.ToString()}"))
         {
             mode = LeagueMode.League | LeagueMode.Hardcore;
         }
-        else if (IsEqual(text, $"Ruthless {league}"))
+        else if (IsEqual(text, $"Ruthless {league.ToString()}"))
         {
             mode = LeagueMode.League | LeagueMode.Ruthless;
         }
-        else if (IsEqual(text, $"HC Ruthless {league}"))
+        else if (IsEqual(text, $"HC Ruthless {league.ToString()}"))
         {
             mode = LeagueMode.League | LeagueMode.HardcoreRuthless;
         }
