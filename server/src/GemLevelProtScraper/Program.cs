@@ -46,6 +46,7 @@ builder.Services
     .AddTransient<SkillGemRepository>()
     .AddTransient<ProfitService>()
     .AddHostedService<ExchangeRateProvider>()
+    .AddSingleton(sf => sf.GetServices<IHostedService>().OfType<ExchangeRateProvider>().First())
     .AddHostedService<PoeNinjaScraper>()
     .AddHostedService<PoeDbScraper>()
     .AddHostedService<PoeScraper>()
