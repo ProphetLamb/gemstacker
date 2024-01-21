@@ -41,6 +41,7 @@ public sealed record ProfitLevelResponse
     public required long Level { get; init; }
     public required long Quality { get; init; }
     public required double Price { get; init; }
+    public required double PriceInDivines { get; init; }
     public required double Experience { get; init; }
     public required long ListingCount { get; init; }
 }
@@ -65,14 +66,15 @@ public enum GemColor
 internal readonly record struct PriceWithExp(SkillGemPrice Data, double Exp);
 internal readonly record struct PriceDelta(ProfitMargin QualityThenLevel, ProfitMargin LevelVendorLevel, PriceWithExp Min, PriceWithExp Max, SkillGem Data);
 
-public sealed class ProfitService(SkillGemRepository repository)
+public sealed class ProfitService(SkillGemRepository repository, ExchangeRateProvider exchangeRateProvider)
 {
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        var exchangeRates = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
         var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWindcard, cancellationToken);
         var eligiblePricedGems = pricedGems
             .SelectTruthy(g
-                => new ProftMarginCalculator(request, g.Skill).ComputeProfitMargin(g.Prices) is { } delta
+                => new ProftMarginCalculator(request, g.Skill, exchangeRates).ComputeProfitMargin(g.Prices) is { } delta
                 ? new { g.Skill, Delta = delta }
                 : null
             )
@@ -116,15 +118,18 @@ public sealed class ProfitService(SkillGemRepository repository)
             Level = price.GemLevel,
             Quality = price.GemQuality,
             ListingCount = price.ListingCount,
-            Price = price.ChaosValue
+            Price = price.ChaosValue,
+            PriceInDivines = price.DivineValue
         };
     }
 }
 
-internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem skill)
+internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem skill, ExchangeRateCollection exchangeRates)
 {
     public const double GainMarginFactor = 1000000;
     private static readonly ImmutableDictionary<string, double> s_experienceFactorAddQualityByName = CreateExperienceFactorPerQualityByName();
+
+    private readonly double _chaosToChisels = exchangeRates.TryGetValue(request.League, CurrencyTypeName.CartographersChisel, out var rate) ? rate.ChaosEquivalent : 1;
 
     private static ImmutableDictionary<string, double> CreateExperienceFactorPerQualityByName()
     {
@@ -200,7 +205,7 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
         // quality the gem then level it
         var levelEarning = max.ChaosValue - min.ChaosValue;
         var qualitySpent = Math.Max(0, max.GemQuality - min.GemQuality);
-        var qualityCost = qualitySpent; // todo calcualte price
+        var qualityCost = qualitySpent * _chaosToChisels;
 
         var experineceFactor = ExperienceFactor(GemQuality(max));
 

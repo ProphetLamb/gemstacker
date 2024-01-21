@@ -1,17 +1,18 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeNinja;
 
 namespace GemLevelProtScraper;
 
-internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
+public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
 {
     private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
     private readonly TaskCompletionSource _serviceStartCompletion = new();
     private readonly object _exchangeRatesLock = new();
-    private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = new();
+    private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = [];
     private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,6 +48,7 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
             if (exchangeRatesTask is null)
             {
                 await _serviceStartCompletion.Task.ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
                 return GetCurrentExchangeRates();
             }
             var exchangeRates = await exchangeRatesTask.ConfigureAwait(false);
@@ -111,7 +113,7 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
         }
     }
 
-    internal readonly struct Key(LeagueMode mode, string name) : IEquatable<Key>
+    public readonly struct Key(LeagueMode mode, string name) : IEquatable<Key>
     {
         public LeagueMode Mode => mode;
         public string Name => name;
@@ -130,13 +132,37 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
         {
             return HashCode.Combine(mode, name);
         }
+
+        public static bool operator ==(Key left, Key right) => left.Equals(right);
+
+        public static bool operator !=(Key left, Key right) => !(left == right);
     }
 }
 
-internal readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Key, PoeNinjaCurrencyExchangeRate> exchangeRates)
+public readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Key, PoeNinjaCurrencyExchangeRate> exchangeRates) : IReadOnlyCollection<PoeNinjaCurrencyExchangeRate>
 {
-    public bool TryGetValue(LeagueMode mode, string currencyTypeName, [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates)
+    public int Count => exchangeRates.Count;
+
+    public bool TryGetValue(LeagueMode mode, CurrencyTypeName name, [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates)
     {
-        return exchangeRates.TryGetValue(new(mode, currencyTypeName), out rates);
+        return exchangeRates.TryGetValue(new(mode, name.Value), out rates);
     }
+
+    public IEnumerator<PoeNinjaCurrencyExchangeRate> GetEnumerator()
+    {
+        return exchangeRates.Values.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return exchangeRates.GetEnumerator();
+    }
+}
+
+public readonly struct CurrencyTypeName(string value)
+{
+    public string Value { get; } = value;
+
+    public static CurrencyTypeName DivineOrb => new("Divine Orb");
+    public static CurrencyTypeName CartographersChisel => new("Cartographer's Chisel");
 }
