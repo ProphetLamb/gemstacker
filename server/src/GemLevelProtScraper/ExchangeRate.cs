@@ -9,6 +9,7 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
     private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository;
     private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
 
+    private readonly TaskCompletionSource _serviceStartCompletion = new();
     private readonly object _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = new();
     private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
@@ -24,6 +25,8 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
             if (task is not null)
             {
                 _ = await task.ConfigureAwait(false);
+                // notify listeners that the service has started
+                _ = _serviceStartCompletion.TrySetResult();
             }
             stoppingToken.ThrowIfCancellationRequested();
         }
@@ -32,20 +35,30 @@ internal sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRe
     public ValueTask<ExchangeRateCollection> GetExchangeRatesAsync(CancellationToken cancellationToken = default)
     {
         var task = _exchangeRatesTask;
-        if (task is null || task.IsCompletedSuccessfully)
+        if (task is not null && task.IsCompletedSuccessfully)
+        {
+            return new(GetCurrentExchangeRates());
+        }
+
+        return GetExchangeRatesTask(task, cancellationToken);
+
+        async ValueTask<ExchangeRateCollection> GetExchangeRatesTask(Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? exchangeRatesTask, CancellationToken cancellationToken)
+        {
+            if (exchangeRatesTask is null)
+            {
+                await _serviceStartCompletion.Task.ConfigureAwait(false);
+                return GetCurrentExchangeRates();
+            }
+            var exchangeRates = await exchangeRatesTask.ConfigureAwait(false);
+            return new(exchangeRates);
+        }
+
+        ExchangeRateCollection GetCurrentExchangeRates()
         {
             lock (_exchangeRatesLock)
             {
-                return new(new ExchangeRateCollection(_exchangeRates));
+                return new(_exchangeRates);
             }
-        }
-
-        return GetExchangeRatesTask(task.WaitAsync(cancellationToken));
-
-        static async ValueTask<ExchangeRateCollection> GetExchangeRatesTask(Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> exchangeRatesTask)
-        {
-            var exchangeRates = await exchangeRatesTask.ConfigureAwait(false);
-            return new(exchangeRates);
         }
     }
 
