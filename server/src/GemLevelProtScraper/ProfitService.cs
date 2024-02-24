@@ -2,8 +2,16 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.Skills;
+using Microsoft.Extensions.Options;
 
 namespace GemLevelProtScraper;
+
+public sealed class ProfitServiceOptions : IOptions<ProfitServiceOptions>
+{
+    public required Dictionary<string, double> SpecialExperienceFactorPerQualityGams { get; init; }
+
+    ProfitServiceOptions IOptions<ProfitServiceOptions>.Value => this;
+}
 
 public sealed record ProfitRequest
 {
@@ -66,17 +74,23 @@ public enum GemColor
 internal readonly record struct PriceWithExp(SkillGemPrice Data, double Exp);
 internal readonly record struct PriceDelta(ProfitMargin QualityThenLevel, ProfitMargin LevelVendorLevel, PriceWithExp Min, PriceWithExp Max, SkillGem Data);
 
-public sealed class ProfitService(SkillGemRepository repository, ExchangeRateProvider exchangeRateProvider)
+public sealed class ProfitService(SkillGemRepository repository, ExchangeRateProvider exchangeRateProvider, IOptions<ProfitServiceOptions> options)
 {
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        var valueSpecialExperienceFactorPerQualityGams = options.Value.SpecialExperienceFactorPerQualityGams;
         var exchangeRates = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
         var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken);
         var eligiblePricedGems = pricedGems
             .SelectTruthy(g
-                => new ProftMarginCalculator(request, g.Skill, exchangeRates).ComputeProfitMargin(g.Prices) is { } delta
-                ? new { g.Skill, Delta = delta }
-                : null
+                => new ProftMarginCalculator(
+                    request,
+                    g.Skill,
+                    exchangeRates,
+                    valueSpecialExperienceFactorPerQualityGams
+                ).ComputeProfitMargin(g.Prices) is { } delta
+                    ? new { g.Skill, Delta = delta }
+                    : null
             )
             .OrderByDescending(g => Math.Max(g.Delta.LevelVendorLevel.GainMargin, g.Delta.QualityThenLevel.GainMargin))
             ;
@@ -124,24 +138,11 @@ public sealed class ProfitService(SkillGemRepository repository, ExchangeRatePro
     }
 }
 
-internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem skill, ExchangeRateCollection exchangeRates)
+internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem skill, ExchangeRateCollection exchangeRates, IReadOnlyDictionary<string, double> experienceFactorAddQualityByName)
 {
     public const double GainMarginFactor = 1000000;
-    private static readonly ImmutableDictionary<string, double> s_experienceFactorAddQualityByName = CreateExperienceFactorPerQualityByName();
 
     private readonly double _chaosToChisels = exchangeRates.TryGetValue(request.League, CurrencyTypeName.CartographersChisel, out var rate) ? rate.ChaosEquivalent : 1;
-
-    private static ImmutableDictionary<string, double> CreateExperienceFactorPerQualityByName()
-    {
-        var dict = ImmutableDictionary.CreateBuilder<string, double>(StringComparer.InvariantCultureIgnoreCase);
-        dict.Add("Empower Support", 5.0 / 100);
-        dict.Add("Awakened Empower Support", 5.0 / 100);
-        dict.Add("Enhance Support", 5.0 / 100);
-        dict.Add("Awakened Enhance  Support", 5.0 / 100);
-        dict.Add("Enlighten Support", 5.0 / 100);
-        dict.Add("Awakened Enlighten Support", 5.0 / 100);
-        return dict.ToImmutable();
-    }
 
     private static double ComputeGainMargin(double earnings, double experience)
     {
@@ -155,7 +156,7 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
 
     private double ExperienceFactor(long quality)
     {
-        if (s_experienceFactorAddQualityByName.TryGetValue(skill.BaseType, out var addFactorPerQuality))
+        if (experienceFactorAddQualityByName.TryGetValue(skill.BaseType, out var addFactorPerQuality))
         {
             return 1.0 / (1.0 + (addFactorPerQuality * quality));
         }

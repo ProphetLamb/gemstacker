@@ -36,6 +36,7 @@ AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
 
 builder.Services
     .Configure<PoeDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDatabaseSettings"))
+    .Configure<ProfitServiceOptions>(builder.Configuration.GetSection("ProfitService"))
     .AddMigrations()
     .AddSystemClock()
     .AddSingleton<SignalCompletionStorage>()
