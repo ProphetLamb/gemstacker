@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.Skills;
@@ -35,10 +34,10 @@ public sealed record ProfitResponse
     public required string Type { get; init; }
     public required string? Discriminator { get; init; }
     public required string ForeignInfoUrl { get; init; }
-    public required ProfitResponseRecipies Recipies { get; init; }
+    public required ProfitResponseRecipes Recipes { get; init; }
 }
 
-public sealed record ProfitResponseRecipies
+public sealed record ProfitResponseRecipes
 {
     public required ProfitMargin QualityThenLevel { get; init; }
     public required ProfitMargin LevelVendorLevel { get; init; }
@@ -99,7 +98,7 @@ public sealed class ProfitService(SkillGemRepository repository, ExchangeRatePro
             .Select(g
                 =>
             {
-                ProfitResponseRecipies recipies = new()
+                ProfitResponseRecipes recipes = new()
                 {
                     LevelVendorLevel = g.Delta.LevelVendorLevel,
                     QualityThenLevel = g.Delta.QualityThenLevel,
@@ -112,15 +111,15 @@ public sealed class ProfitService(SkillGemRepository repository, ExchangeRatePro
                     Discriminator = g.Skill.Discriminator,
                     Type = g.Skill.BaseType,
                     ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
-                    Recipies = recipies,
+                    Recipes = recipes,
                     GainMargin = gainMargin,
                     Icon = g.Delta.Min.Data.Icon ?? g.Delta.Max.Data.Icon ?? g.Skill.IconUrl,
                     Max = FromPrice(g.Delta.Max.Data, g.Delta.Max.Exp),
-                    Min = FromPrice(g.Delta.Min.Data, g.Delta.Min.Exp)
+                    Min = FromPrice(g.Delta.Min.Data, g.Delta.Min.Exp),
                 };
             });
 
-        var en = result.GetAsyncEnumerator(cancellationToken);
+        await using var en = result.GetAsyncEnumerator(cancellationToken);
         while (await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
         {
             yield return en.Current;
