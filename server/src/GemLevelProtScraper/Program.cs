@@ -15,7 +15,7 @@ using Yoh.Text.Json.NamingPolicies;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-var apiKey = builder.Configuration["Authen1tication:ApiKey"];
+var apiKey = builder.Configuration["Authentication:ApiKey"];
 var webShareKey = builder.Configuration["Authentication:WebShareApiKey"];
 
 // Encoding
