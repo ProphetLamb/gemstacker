@@ -134,12 +134,12 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
     private static ImmutableDictionary<string, double> CreateExperienceFactorPerQualityByName()
     {
         var dict = ImmutableDictionary.CreateBuilder<string, double>(StringComparer.InvariantCultureIgnoreCase);
-        dict.Add("Empower Support", 5 / 100);
-        dict.Add("Awakened Empower Support", 5 / 100);
-        dict.Add("Enhance Support", 5 / 100);
-        dict.Add("Awakened Enhance  Support", 5 / 100);
-        dict.Add("Enlighten Support", 5 / 100);
-        dict.Add("Awakened Enlighten Support", 5 / 100);
+        dict.Add("Empower Support", 5.0 / 100);
+        dict.Add("Awakened Empower Support", 5.0 / 100);
+        dict.Add("Enhance Support", 5.0 / 100);
+        dict.Add("Awakened Enhance  Support", 5.0 / 100);
+        dict.Add("Enlighten Support", 5.0 / 100);
+        dict.Add("Awakened Enlighten Support", 5.0 / 100);
         return dict.ToImmutable();
     }
 
@@ -148,12 +148,12 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
         return experience == 0 ? 0 : earnings * GainMarginFactor / experience;
     }
 
-    public long GemQuality(SkillGemPrice price)
+    private long GemQuality(SkillGemPrice price)
     {
         return price.GemQuality + request.AddedQuality;
     }
 
-    public double ExperienceFactor(long quality)
+    private double ExperienceFactor(long quality)
     {
         if (s_experienceFactorAddQualityByName.TryGetValue(skill.BaseType, out var addFactorPerQuality))
         {
@@ -177,8 +177,8 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
         // order by ChaosValue descending
         pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
 
-        var minPrice = pricesOrdered.Where(p => p.GemLevel == 1).LastOrDefault();
-        var maxPrice = pricesOrdered.Where(p => p.GemLevel == skillGem.MaxLevel).FirstOrDefault();
+        var minPrice = pricesOrdered.LastOrDefault(p => p.GemLevel == 1);
+        var maxPrice = pricesOrdered.FirstOrDefault(p => p.GemLevel == skillGem.MaxLevel);
         if (minPrice is null || maxPrice is null)
         {
             return null;
@@ -207,11 +207,11 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
         var qualitySpent = Math.Max(0, max.GemQuality - min.GemQuality);
         var qualityCost = qualitySpent * _chaosToChisels;
 
-        var experineceFactor = ExperienceFactor(GemQuality(max));
+        var experienceFactor = ExperienceFactor(GemQuality(max));
 
         var adjustedEarnings = levelEarning - qualityCost;
 
-        var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
+        var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experienceFactor);
 
         return new()
         {
@@ -222,24 +222,24 @@ internal readonly struct ProftMarginCalculator(ProfitRequest request, SkillGem s
         };
     }
 
-    private ProfitMargin ComputeLevelVendorLevel(double experineceDelta, SkillGemPrice min, SkillGemPrice max)
+    private ProfitMargin ComputeLevelVendorLevel(double experienceDelta, SkillGemPrice min, SkillGemPrice max)
     {
         // level the gem, vendor it with 1x Gem Cutter, level it again
         var vendorRequired = max.GemQuality > min.GemQuality;
         var levelEarning = max.ChaosValue - min.ChaosValue;
         var qualitySpent = vendorRequired ? 1 : 0;
-        var qualityCost = qualitySpent; // todo calcualte price
+        var qualityCost = qualitySpent * _chaosToChisels;
 
-        var experineceFactor = ExperienceFactor(GemQuality(min)) + (vendorRequired ? ExperienceFactor(GemQuality(max)) : 0);
+        var experienceFactor = ExperienceFactor(GemQuality(min)) + (vendorRequired ? ExperienceFactor(GemQuality(max)) : 0);
 
         var adjustedEarnings = levelEarning - qualityCost;
 
-        var gainMargin = ComputeGainMargin(adjustedEarnings, experineceDelta * experineceFactor);
+        var gainMargin = ComputeGainMargin(adjustedEarnings, experienceDelta * experienceFactor);
 
         return new()
         {
             GainMargin = gainMargin,
-            ExperienceDelta = experineceDelta,
+            ExperienceDelta = experienceDelta,
             AdjustedEarnings = adjustedEarnings,
             QualitySpent = qualitySpent
         };
