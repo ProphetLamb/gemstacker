@@ -85,7 +85,8 @@ export const gemProfitResponseItemSchema = z.object({
 	gain_margin: z.number(),
 	type: z.string(),
 	discriminator: z.string().nullable().optional(),
-	foreign_info_url: z.string()
+	foreign_info_url: z.string(),
+	recipes: profitResponseRecipesSchema
 });
 
 export type GemProfitResponse = GemProfitResponseItem[]
