@@ -39,6 +39,30 @@ export const gemProfitResponseItemPriceSchema = z.object({
 export type GemColor = "white" | "blue" | "green" | "red";
 export const gemColorSchema = z.enum(["white", "blue", "green", "red"]);
 
+export interface ProfitMargin {
+	adjusted_earnings: number;
+	experience_delta: number;
+	gain_margin: number;
+	quality_spent: number;
+}
+
+export const profitMarginSchema = z.object({
+	adjusted_earnings: z.number(),
+	experience_delta: z.number(),
+	gain_margin: z.number(),
+	quality_spent: z.number(),
+})
+
+export interface ProfitResponseRecipes {
+	quality_then_level: ProfitMargin;
+	level_vendor_level: ProfitMargin;
+}
+
+export const profitResponseRecipesSchema = z.object({
+	quality_then_level: profitMarginSchema,
+	level_vendor_level: profitMarginSchema,
+})
+
 export interface GemProfitResponseItem {
 	name: string,
 	icon?: string | null,
@@ -49,6 +73,7 @@ export interface GemProfitResponseItem {
 	type: string;
 	discriminator?: string | null;
 	foreign_info_url: string;
+	recipes: ProfitResponseRecipes;
 }
 
 export const gemProfitResponseItemSchema = z.object({
