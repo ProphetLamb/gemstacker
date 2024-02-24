@@ -39,17 +39,15 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
     }
 }
 
-internal sealed class PoeNinjaSkillGemSpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiGemPriceEnvalope> gemPublisher) : IDataflowHandler<PoeNinjaList>
+internal sealed class PoeNinjaSkillGemSpider(IStaticPageLoader pageLoader, IDataflowPublisher<PoeNinjaApiGemPriceEnvalope> gemPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
     public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
     {
-        var url = $"{root.ApiUrl}/data/itemoverview?league={root.League.Name}&type=SkillGem&language=en";
-        var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        _ = response.EnsureSuccessStatusCode();
-        await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        Uri url = new($"{root.ApiUrl}/data/itemoverview?league={root.League.Name}&type=SkillGem&language=en");
+        var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
+        await using var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPriceEnvalope");
         await gemPublisher.PublishAllAsync(
@@ -59,17 +57,15 @@ internal sealed class PoeNinjaSkillGemSpider(IHttpClientFactory httpClientFactor
     }
 }
 
-internal sealed class PoeNinjaCurrencySpider(IHttpClientFactory httpClientFactory, IDataflowPublisher<PoeNinjaApiCurrencyPriceEnvalope> currencyPublisher) : IDataflowHandler<PoeNinjaList>
+internal sealed class PoeNinjaCurrencySpider(IStaticPageLoader pageLoader, IDataflowPublisher<PoeNinjaApiCurrencyPriceEnvalope> currencyPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
     public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
     {
-        var url = $"{root.ApiUrl}/data/currencyoverview?league={root.League.Name}&type=Currency&language=en";
-        var httpClient = httpClientFactory.CreateClient();
-        var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        _ = response.EnsureSuccessStatusCode();
-        await using var content = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        Uri url = new($"{root.ApiUrl}/data/currencyoverview?league={root.League.Name}&type=Currency&language=en");
+        var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
+        await using var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiCurrencyResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
             ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiCurrencyPriceEnvalope");
         await currencyPublisher.PublishAllAsync(
