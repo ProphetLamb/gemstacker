@@ -53,7 +53,6 @@ public sealed class HttpRequestPaginator<TValue>(IMemoryCache cache, HttpRequest
 public sealed class HttpRequestPaginator<TKey, TValue>(IMemoryCache cache, HttpRequest request, PaginatorOptions? options = null)
     where TKey : IEquatable<TKey>
 {
-    private readonly IMemoryCache _cache = cache;
     private readonly PaginatorOptions _options = options ?? new();
     private readonly HttpRequestPaginatable _paginatable = new(request, options ?? new());
 
@@ -65,7 +64,7 @@ public sealed class HttpRequestPaginator<TKey, TValue>(IMemoryCache cache, HttpR
             return false;
         }
 
-        if (_cache.TryGetValue(new PaginatorId(id, key), out PageinatorContainer? container))
+        if (cache.TryGetValue(new PaginatorId(id, key), out PageinatorContainer? container))
         {
             var data = container!.Data;
             page = _paginatable.CreatePage(data, id, pageIndex);
@@ -83,7 +82,7 @@ public sealed class HttpRequestPaginator<TKey, TValue>(IMemoryCache cache, HttpR
             pageIndex = 0;
         }
         PaginatorId pageId = new(Guid.NewGuid(), key);
-        _cache.Set(pageId, new PageinatorContainer(data), _options.MemoryCacheEntryOptions);
+        cache.Set(pageId, new PageinatorContainer(data), _options.MemoryCacheEntryOptions);
         return _paginatable.CreatePage(data, pageId.Value, pageIndex);
     }
 

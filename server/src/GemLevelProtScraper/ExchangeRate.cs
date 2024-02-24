@@ -7,9 +7,6 @@ namespace GemLevelProtScraper;
 
 public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
 {
-    private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository;
-    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
-
     private readonly TaskCompletionSource _serviceStartCompletion = new();
     private readonly object _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = [];
@@ -17,18 +14,15 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using var scope = _scopeFactory.CreateAsyncScope();
+        await using var scope = scopeFactory.CreateAsyncScope();
         var signal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeNinjaListCompleted>>();
         _exchangeRatesTask = InitializeAsync(stoppingToken);
         await foreach (var completion in signal.ToEnumerableAsync(stoppingToken).ConfigureAwait(false))
         {
             var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, stoppingToken));
-            if (task is not null)
-            {
-                _ = await task.ConfigureAwait(false);
-                // notify listeners that the service has started
-                _ = _serviceStartCompletion.TrySetResult();
-            }
+            _ = await task.ConfigureAwait(false);
+            // notify listeners that the service has started
+            _ = _serviceStartCompletion.TrySetResult();
             stoppingToken.ThrowIfCancellationRequested();
         }
     }
@@ -66,7 +60,7 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
 
     private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> InitializeAsync(CancellationToken cancellationToken)
     {
-        var results = await Task.WhenAll(LeagueModeHelper.WellknownLeagues.Select(league => GetExchangeRatesAsync(league, cancellationToken))).ConfigureAwait(false);
+        var results = await Task.WhenAll(LeagueModeHelper.WellknownLeagues.Select(league => LeagueExchangeRatesAsync(league, cancellationToken))).ConfigureAwait(false);
         Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(results.Sum(r => r.ExchangeRates.Count));
         foreach (var (league, rates) in results)
         {
@@ -78,16 +72,17 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
         AmendAndReplaceExchangeRates(null, exchangeRates);
         return exchangeRates;
 
-        async Task<(LeagueMode League, List<PoeNinjaCurrencyExchangeRate> ExchangeRates)> GetExchangeRatesAsync(LeagueMode league, CancellationToken cancellationToken)
+        async Task<(LeagueMode League, List<PoeNinjaCurrencyExchangeRate> ExchangeRates)> LeagueExchangeRatesAsync(LeagueMode league, CancellationToken cancellationToken)
         {
-            var rates = await _currencyRepository.GetExchangeRatesAsync(league, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+            var rates = await currencyRepository.GetExchangeRatesAsync(league, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
             return (league, rates);
         }
     }
 
     private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> RefreshAsync(LeagueMode league, CancellationToken cancellationToken)
     {
-        var newExchangeRates = _currencyRepository.GetExchangeRatesAsync(league, cancellationToken);
+        var newExchangeRates = currencyRepository.GetExchangeRatesAsync(league, cancellationToken);
+        // ReSharper disable once InconsistentlySynchronizedField
         Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(_exchangeRates.Count);
         await foreach (var rate in newExchangeRates.ConfigureAwait(false))
         {
@@ -98,11 +93,11 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
         return exchangeRates;
     }
 
-    private void AmendAndReplaceExchangeRates(LeagueMode? amendExceptleague, Dictionary<Key, PoeNinjaCurrencyExchangeRate> newExchangeRates)
+    private void AmendAndReplaceExchangeRates(LeagueMode? amendExceptLeague, Dictionary<Key, PoeNinjaCurrencyExchangeRate> newExchangeRates)
     {
         lock (_exchangeRatesLock)
         {
-            if (amendExceptleague is { } l)
+            if (amendExceptLeague is { } l)
             {
                 foreach (var (key, value) in _exchangeRates.Where(kvp => kvp.Key.Mode != l))
                 {

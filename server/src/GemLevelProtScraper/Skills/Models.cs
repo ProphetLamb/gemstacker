@@ -14,7 +14,7 @@ public record SkillGem
     string BaseType,
     string? Discriminator,
     double SumExperience,
-    double MaxLevel
+    long MaxLevel
 );
 
 public sealed record SkillGemPrice
