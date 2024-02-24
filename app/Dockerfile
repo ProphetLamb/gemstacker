@@ -12,15 +12,15 @@ RUN npm ci
 
 COPY . .
 RUN npx svelte-kit sync
-RUN npm run build
-RUN npm prune --production
+RUN npm run build --omit=dev
+RUN npm prune --omit=dev
 
 FROM node:hydrogen-alpine
 ENV API_ENDPOINT=${API_ENDPOINT}
 ENV API_KEY=${API_KEY}
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 WORKDIR /app
-COPY --from=builder /app/.svelte-kit .svelte-kit/
+COPY --from=builder /app/build build
 COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
 EXPOSE 3000
