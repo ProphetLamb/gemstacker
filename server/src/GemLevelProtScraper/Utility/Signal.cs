@@ -10,21 +10,27 @@ public sealed class SignalCompletionStorage
 {
     private readonly Dictionary<Type, Entry> _tcsByType = new();
 
-    public TaskCompletionSource<T> GetOrAdd<T>()
+    public TaskCompletionSource<T> TakeOrWait<T>()
     {
         lock (_tcsByType)
         {
             ref var entry = ref CollectionsMarshal.GetValueRefOrAddDefault(_tcsByType, typeof(T), out var exists);
-
+            TaskCompletionSource<T> cts;
             if (!exists)
             {
-                entry = new()
-                {
-                    Completion = new TaskCompletionSource<T>(),
-                };
+                cts = new();
+                entry = new() { Completion = cts, };
+                return cts;
             }
-            Debug.Assert(entry is not null);
-            return entry!.CompletionOf<T>()!;
+            cts = entry!.CompletionOf<T>()!;
+            if (cts is not { Task.IsCompleted: true })
+            {
+                return cts;
+            }
+
+            cts = new();
+            entry = new() { Completion = cts, };
+            return cts;
         }
     }
 
@@ -105,7 +111,7 @@ public sealed class DataflowSignal<T>(SignalCompletionStorage storage) : IDatafl
 
     public Task<T> WaitOneAsync(CancellationToken cancellationToken = default)
     {
-        return storage.GetOrAdd<T>().Task.WaitAsync(cancellationToken);
+        return storage.TakeOrWait<T>().Task.WaitAsync(cancellationToken);
     }
 
     public async Task<T?> WaitOneAsync(Func<T, bool> predicate, CancellationToken cancellationToken = default)
