@@ -11,7 +11,7 @@ COPY package*.json .
 RUN npm ci
 
 COPY . .
-RUN svelte-kit sync
+RUN npx svelte-kit sync
 RUN npm run build
 RUN npm prune --production
 
