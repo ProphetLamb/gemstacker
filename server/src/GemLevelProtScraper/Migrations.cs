@@ -161,7 +161,7 @@ public sealed class CreateSkillViewMigration(IOptions<PoeDatabaseSettings> optio
 
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
-        var createViewMql = /*lang=json*/ $$"""
+        var createViewMql = /*lang=mql*/ $$"""
         {
             'create': '{{optionsAccessor.Value.SkillGemViewName}}',
             'viewOn': '{{optionsAccessor.Value.PoeDbSkillCollectionName}}',

@@ -8,7 +8,7 @@ namespace GemLevelProtScraper;
 public sealed record ProfitRequest
 {
     public required LeagueMode League { get; init; }
-    public required string? GemNameWindcard { get; init; }
+    public required string? GemNameWildcard { get; init; }
     public long AddedQuality { get; init; }
     public double? MinSellPriceChaos { get; init; }
     public double? MaxBuyPriceChaos { get; init; }
@@ -71,7 +71,7 @@ public sealed class ProfitService(SkillGemRepository repository, ExchangeRatePro
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var exchangeRates = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
-        var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWindcard, cancellationToken);
+        var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken);
         var eligiblePricedGems = pricedGems
             .SelectTruthy(g
                 => new ProftMarginCalculator(request, g.Skill, exchangeRates).ComputeProfitMargin(g.Prices) is { } delta

@@ -89,7 +89,7 @@ app
         [FromServices] ProfitService profitService,
         [FromServices] PoeRepository poeRepository,
         [FromQuery(Name = "league")] string? league = null,
-        [FromQuery(Name = "gem_name")] string? gemNameWindcard = null,
+        [FromQuery(Name = "gem_name")] string? gemNameWildcard = null,
         [FromQuery(Name = "added_quality")] long addedQuality = 0,
         [FromQuery(Name = "min_sell_price_chaos")] double? minSellPriceChaos = null,
         [FromQuery(Name = "max_buy_price_chaos")] double? maxBuyPriceChaos = null,
@@ -121,7 +121,7 @@ app
         ProfitRequest request = new()
         {
             League = leagueMode,
-            GemNameWindcard = gemNameWindcard,
+            GemNameWildcard = gemNameWildcard,
             AddedQuality = addedQuality,
             MinSellPriceChaos = minSellPriceChaos,
             MaxBuyPriceChaos = maxBuyPriceChaos,
@@ -130,12 +130,7 @@ app
         };
         var result = profitService.GetProfitAsync(request, cancellationToken);
 
-        if (itemsCount is <= 0 or >= 20000)
-        {
-            return Results.Ok(result);
-        }
-
-        return Results.Ok(result.Take(itemsCount));
+        return Results.Ok(itemsCount is <= 0 or >= 20000 ? result : result.Take(itemsCount));
     }).CacheOutput(b => b
         .Cache()
         .Expire(TimeSpan.FromMinutes(30))
