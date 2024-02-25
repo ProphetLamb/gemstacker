@@ -4,6 +4,8 @@ COPY package*.json .
 RUN npm ci
 
 COPY . .
+COPY .env .
+COPY .env.* .
 RUN npm install -g dotenv-cli
 RUN dotenv -- npx svelte-kit sync
 RUN dotenv -- npm run build --omit=dev
