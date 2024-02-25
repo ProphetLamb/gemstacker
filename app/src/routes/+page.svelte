@@ -20,7 +20,15 @@
 		taintedMessage: null
 	});
 
-	$: loadoutHref = locationWithSearch($loadoutForm, '/loadout').pathSearchHash();
+	$: loadoutHref = locationWithSearch(
+		{
+			red: $loadoutForm.red,
+			green: $loadoutForm.green,
+			blue: $loadoutForm.blue,
+			white: $loadoutForm.white
+		},
+		'/loadout'
+	).pathSearchHash();
 
 	async function gotoPob() {
 		try {
