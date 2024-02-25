@@ -10,8 +10,6 @@ RUN npm prune --omit=dev
 
 FROM node:hydrogen-alpine
 WORKDIR /app
-COPY .env .
-COPY .env.* .
 COPY --from=builder /app/build build
 COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
