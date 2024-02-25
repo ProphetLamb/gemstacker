@@ -1,24 +1,44 @@
+# why the fucking hell dont we have build environment variables?! fucking shit
+# fuck this crap fuck!
+ARG API_ENDPOINT
+ARG API_KEY
+ARG SENTRY_AUTH_TOKEN
+ARG ORIGIN
+ARG PROTOCOL_HEADER
+ARG HOST_HEADER
+ARG ADDRESS_HEADER
+ARG XFF_DEPTH
 FROM node:hydrogen-alpine AS builder
+ENV API_ENDPOINT=${API_ENDPOINT}
+ENV API_KEY=${API_KEY}
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+ARG ORIGIN=${ORIGIN}
+ARG PROTOCOL_HEADER=${PROTOCOL_HEADER}
+ARG HOST_HEADER=${HOST_HEADER}
+ARG ADDRESS_HEADER=${ADDRESS_HEADER}
+ARG XFF_DEPTH=${XFF_DEPTH}
 WORKDIR /app
 COPY package*.json .
 RUN npm ci
 
 COPY . .
-COPY .env .
-COPY .env.* .
-RUN npm install -g dotenv-cli
-RUN dotenv -- npx svelte-kit sync
-RUN dotenv -- npm run build --omit=dev
-RUN dotenv -- npm prune --omit=dev
+RUN npx svelte-kit sync
+RUN npm run build --omit=dev
+RUN npm prune --omit=dev
 
 FROM node:hydrogen-alpine
+ENV API_ENDPOINT=${API_ENDPOINT}
+ENV API_KEY=${API_KEY}
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+ARG ORIGIN=${ORIGIN}
+ARG PROTOCOL_HEADER=${PROTOCOL_HEADER}
+ARG HOST_HEADER=${HOST_HEADER}
+ARG ADDRESS_HEADER=${ADDRESS_HEADER}
+ARG XFF_DEPTH=${XFF_DEPTH}
 WORKDIR /app
-RUN npm install -g dotenv-cli
-COPY .env .
-COPY .env.* .
 COPY --from=builder /app/build build
 COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
 EXPOSE 3000
 ENV NODE_ENV=production
-CMD [ "dotenv", "--", "node", "build" ]
+CMD [ "node", "build" ]
