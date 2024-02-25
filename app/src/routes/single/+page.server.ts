@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ request }) => {
 export const actions: Actions = {
 	default: async ({ request, fetch }) => {
 		const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
-		let response = { gemLevelsProfitForm }
+		const response = { gemLevelsProfitForm }
 
 		if (!gemLevelsProfitForm.valid) {
 			return fail(400, response);
@@ -28,7 +28,9 @@ export const actions: Actions = {
 			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
 			return { ...response, gemProfit };
 		} catch (error) {
-			return fail(500, response);
+			const error_message = error instanceof Error ? error.cause : "Unknown error";
+			const error_response = { ...response, error_message }
+			return fail(500, error_response);
 		}
 	}
 };

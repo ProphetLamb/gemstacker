@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ request }) => {
 export const actions: Actions = {
   default: async ({ request, fetch }) => {
     const loadoutForm = await superValidate(request, loadoutRequestSchema);
-    let response = { loadoutForm }
+    const response = { loadoutForm }
 
     if (!loadoutForm.valid) {
       return fail(400, response);
@@ -29,7 +29,9 @@ export const actions: Actions = {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       return { ...response, gemProfit };
     } catch (error) {
-      return fail(500, response);
+      const error_message = error instanceof Error ? error.cause : "Unknown error";
+      const error_response = { ...response, error_message }
+      return fail(500, error_response);
     }
   }
 };
