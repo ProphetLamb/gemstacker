@@ -1,44 +1,40 @@
-# why the fucking hell dont we have build environment variables?! fucking shit
-# fuck this crap fuck!
-ARG API_ENDPOINT
-ARG API_KEY
-ARG SENTRY_AUTH_TOKEN
-ARG ORIGIN
-ARG PROTOCOL_HEADER
-ARG HOST_HEADER
-ARG ADDRESS_HEADER
-ARG XFF_DEPTH
 FROM node:hydrogen-alpine AS builder
-ENV API_ENDPOINT=${API_ENDPOINT}
-ENV API_KEY=${API_KEY}
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
-ENV ORIGIN=${ORIGIN}
-ENV PROTOCOL_HEADER=${PROTOCOL_HEADER}
-ENV HOST_HEADER=${HOST_HEADER}
-ENV ADDRESS_HEADER=${ADDRESS_HEADER}
-ENV XFF_DEPTH=${XFF_DEPTH}
+ARG SENTRY_AUTH_TOKEN
+
+RUN apk update && apk upgrade && adduser -D svelteuser
+USER svelteuser
+
 WORKDIR /app
-COPY package*.json .
+COPY --chown=svelteuser:svelteuser package*.json .
 RUN npm ci
 
-COPY . .
+COPY --chown=svelteuser:svelteuser  . .
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 RUN npx svelte-kit sync
 RUN npm run build --omit=dev
 RUN npm prune --omit=dev
 
 FROM node:hydrogen-alpine
-ENV API_ENDPOINT=${API_ENDPOINT}
-ENV API_KEY=${API_KEY}
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
-ENV ORIGIN=${ORIGIN}
-ENV PROTOCOL_HEADER=${PROTOCOL_HEADER}
-ENV HOST_HEADER=${HOST_HEADER}
-ENV ADDRESS_HEADER=${ADDRESS_HEADER}
-ENV XFF_DEPTH=${XFF_DEPTH}
+# node arguments
+ARG NODE_ENV=production
+ARG ORIGIN=localhost
+ARG PROTOCOL_HEADER=x-forwarded-proto
+ARG HOST_HEADER=x-forwarded-host
+ARG ADDRESS_HEADER=True-Client-IP
+ARG XFF_DEPTH=1
+
+RUN apk update && apk upgrade && apk add dumb-init && adduser -D svelteuser
+USER svelteuser
+
 WORKDIR /app
-COPY --from=builder /app/build build
-COPY --from=builder /app/node_modules node_modules/
+COPY --chown=svelteuser:svelteuser --from=builder /app/build build
+COPY --chown=svelteuser:svelteuser --from=builder /app/node_modules node_modules/
 COPY package.json .
 EXPOSE 3000
-ENV NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV} \
+  ORIGIN=${ORIGIN} \
+  PROTOCOL_HEADER=${PROTOCOL_HEADER} \
+  HOST_HEADER=${HOST_HEADER} \
+  ADDRESS_HEADER=${ADDRESS_HEADER} \
+  XFF_DEPTH=${XFF_DEPTH}
 CMD [ "node", "build" ]
