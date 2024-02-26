@@ -28,7 +28,7 @@ export const actions: Actions = {
 			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
 			return { ...response, gemProfit };
 		} catch (error) {
-			const error_message = error instanceof Error ? error.cause : "Unknown error";
+			const error_message = error instanceof Error && 'message' in error ? error.message : "Unknown error";
 			const error_response = { ...response, error_message }
 			return fail(500, error_response);
 		}
