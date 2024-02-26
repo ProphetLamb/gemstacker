@@ -4,7 +4,6 @@ import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { superValidate } from 'sveltekit-superforms/client';
 import type { PageServerLoad } from './$types';
 import { loadoutRequestSchema } from '$lib/loadout';
-import { object } from 'zod';
 
 export const load: PageServerLoad = async ({ request }) => {
   const loadoutForm = await superValidate(request, loadoutRequestSchema);
@@ -31,8 +30,7 @@ export const actions: Actions = {
       return { ...response, gemProfit };
     } catch (error) {
       const error_message = error instanceof Error && 'message' in error ? error.message : "Unknown error";
-      const error_response = { ...response, error_message }
-      return fail(500, error_response);
+      return fail(500, { ...response, error_message });
     }
   }
 };
