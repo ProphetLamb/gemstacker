@@ -29,7 +29,7 @@ export const actions: Actions = {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       return { ...response, gemProfit };
     } catch (error) {
-      const error_message = error instanceof Error && 'message' in error ? error.message : "Unknown error";
+      const error_message = error instanceof Error ? `${error.name}: ${error.message}` : "Unknown error";
       return fail(500, { ...response, error_message });
     }
   }
