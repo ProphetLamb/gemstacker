@@ -33,7 +33,7 @@ export const actions: Actions = {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       return { ...response, gemProfit };
     } catch (error) {
-      const message = error instanceof Error ? `Oooops... ${error.name}: ${error.message}` : "Oooops... something's really fucked";
+      const message = [error instanceof Error ? `Oooops... something went wrong: ${error.message}` : "Oooops... something's really fucked", JSON.stringify(error, Object.getOwnPropertyNames(error))];
       setFlash({ message, type: 'error' } satisfies ToastMessage, event)
       return fail(500, response);
     }
