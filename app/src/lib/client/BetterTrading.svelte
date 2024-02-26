@@ -44,14 +44,14 @@
 </script>
 
 <button class="btn btn-sm variant-ghost-warning flex" use:popup={betterTradingPopup}
-	><img class="w-8 h-8" src="\better-trading.png" alt="" /> <span>Better Trading</span></button
+	><img class="w-8 h-8" src="/better-trading.png" alt="" /> <span>Better Trading</span></button
 >
 <div class="">
 	<div data-popup="betterTradingPopup" class="w-[calc(100%-2rem)] pr-4 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
 		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
 			<div class="flex flex-row items-center justify-center w-full space-x-2 text-center">
-				<img class="w-8 h-8 pt-1" src="\better-trading.png" alt="" />
+				<img class="w-8 h-8 pt-1" src="/better-trading.png" alt="" />
 				<h2 class="h2">Export Folder</h2>
 			</div>
 			<label class="label">
