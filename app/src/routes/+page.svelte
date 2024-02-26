@@ -159,7 +159,7 @@
 		height: 30rem;
 		padding-top: 4rem;
 		& > div {
-			@apply h-full w-0.5 bg-surface-200-700-token opacity-70 rounded-full;
+			@apply h-full w-0.5 bg-surface-200-700-token opacity-20 rounded-full;
 		}
 	}
 </style>
