@@ -9,6 +9,9 @@
 	import GemFilterModal from '$lib/client/GemFilterModal.svelte';
 	import RootHeader from '$lib/client/RootHeader.svelte';
 	import { leagues } from '$lib/client/leagues';
+	import { page } from '$app/stores';
+	import { showFlash } from '$lib/client/toast';
+	import Toast from '$lib/client/Toast.svelte';
 
 	export let data;
 
@@ -20,8 +23,11 @@
 		gemFilterModal: { ref: GemFilterModal }
 	};
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+
+	showFlash(page);
 </script>
 
+<Toast />
 <Modal components={modals} />
 <RootDrawer />
 

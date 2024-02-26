@@ -4,6 +4,8 @@ import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { superValidate } from 'sveltekit-superforms/client';
 import type { PageServerLoad } from './$types';
 import { loadoutRequestSchema } from '$lib/loadout';
+import { setFlash } from 'sveltekit-flash-message/server';
+import type { ToastMessage } from '$lib/toast';
 
 export const load: PageServerLoad = async ({ request }) => {
   const loadoutForm = await superValidate(request, loadoutRequestSchema);
@@ -11,11 +13,13 @@ export const load: PageServerLoad = async ({ request }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, fetch }) => {
+  default: async (event) => {
+    const { request, fetch } = event
     const loadoutForm = await superValidate(request, loadoutRequestSchema);
     const response = { loadoutForm }
 
     if (!loadoutForm.valid) {
+      setFlash({ message: 'Please enter valid data', type: 'error' } satisfies ToastMessage, event)
       return fail(400, response);
     }
 
@@ -29,8 +33,9 @@ export const actions: Actions = {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       return { ...response, gemProfit };
     } catch (error) {
-      const error_message = error instanceof Error ? `${error.name}: ${error.message}` : "Unknown error";
-      return fail(500, { ...response, error_message });
+      const message = error instanceof Error ? `Oooops... ${error.name}: ${error.message}` : "Oooops... something's really fucked";
+      setFlash({ message, type: 'error' } satisfies ToastMessage, event)
+      return fail(500, response);
     }
   }
 };

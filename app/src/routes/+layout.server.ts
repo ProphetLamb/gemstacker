@@ -1,5 +1,6 @@
 import type { PoeTradeLeagueResponse } from "$lib/pathOfExileApi";
 import { createPathOfExileApi } from "$lib/server/pathOfExileApi";
+import { loadFlash } from "sveltekit-flash-message/server";
 import type { LayoutServerLoad } from "./$types";
 
 async function getLeauges(fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>): Promise<PoeTradeLeagueResponse[]> {
@@ -8,7 +9,7 @@ async function getLeauges(fetch: (input: RequestInfo | URL, init?: RequestInit |
   return leaguesResponse.result;
 }
 
-export const load: LayoutServerLoad = async ({ fetch }) => {
+export const load: LayoutServerLoad = loadFlash(async ({ fetch }) => {
   const leagues = await getLeauges(fetch);
   return { leagues };
-}
+})
