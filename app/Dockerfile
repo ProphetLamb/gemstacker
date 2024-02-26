@@ -42,4 +42,4 @@ ENV NODE_ENV=${NODE_ENV} \
   HOST_HEADER=${HOST_HEADER} \
   ADDRESS_HEADER=${ADDRESS_HEADER} \
   XFF_DEPTH=${XFF_DEPTH}
-CMD [ "node", "build" ]
+CMD [ "dumb-init", "node", "build" ]
