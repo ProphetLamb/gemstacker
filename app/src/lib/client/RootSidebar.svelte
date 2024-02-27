@@ -24,7 +24,7 @@
 		<div class="p-4 bg-surface-100-800-token">
 			<div class="py-2 space-x-4">
 				<button class="btn-icon btn-icon-sm" on:click={drawerClose}>
-					<Icon src={hi.Bars3} size="24" />
+					<img src="/favicon.png" alt="ico" class="w-8 h-8" />
 				</button>
 				<a href="/" class="text-3xl uppercase font-extrabold" on:click={drawerClose}>Gem Stacker</a>
 			</div>
