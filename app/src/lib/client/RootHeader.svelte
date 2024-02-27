@@ -19,7 +19,10 @@
 		<button on:click={drawerOpen} class="btn-icon btn-icon-sm md:!hidden">
 			<Icon src={hi.Bars3} size="24" />
 		</button>
-		<a href="/" class="btn text-3xl uppercase font-extrabold"> Gem Stacker </a>
+		<img src="/favicon.png" alt="ico" class="w-8 h-8 hidden md:inline" />
+		<a href="/" class="btn">
+			<span class="text-3xl uppercase font-extrabold">Gem Stacker</span>
+		</a>
 		<div class="hidden md:flex">
 			{#each menuNavLinks as { href, icon, title }}
 				<a {href} class="btn hover:variant-soft-primary">
