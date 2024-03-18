@@ -61,9 +61,9 @@
 			background-image: url(/background.png);
 			background-repeat: no-repeat;
 			z-index: -1;
-			filter: blur(calc(100vw * 0.001));
-			-webkit-filter: blur(calc(100vw * 0.001));
-			image-rendering: pixelated;
+			filter: blur(calc(100vw * 0.004)) brightness(0.95);
+			-webkit-filter: blur(calc(100vw * 0.004)) brightness(0.95);
+			image-rendering: optimizeSpeed;
 		}
 
 		& > div {
