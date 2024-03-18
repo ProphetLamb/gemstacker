@@ -49,7 +49,7 @@
 	});
 
 	function setExcluded(idx: number | number[], newValue: boolean) {
-		const gems = $availableGems ?? [];
+		const gems = selectedGems ?? [];
 		const excludedGems = new Set($localSettings.exclude_gems);
 		if (!Array.isArray(idx)) {
 			const gemName = gems[idx].name.toLowerCase();
