@@ -74,7 +74,7 @@
 			<span class="mr-0.5">Build</span>
 		</button>
 	</WrapperItem>
-	<div class="divider py-4 hidden sm:flex items-center flex-col">
+	<div class="divider">
 		<div>&nbsp;</div>
 		<span class="text-3xl py-2">OR</span>
 		<div>&nbsp;</div>
@@ -140,7 +140,7 @@
 			<span class="mr-0.5">Loadout</span>
 		</a>
 	</WrapperItem>
-	<div class="divider py-4 hidden sm:flex items-center flex-col">
+	<div class="divider">
 		<div>&nbsp;</div>
 		<span class="text-3xl py-2">OR</span>
 		<div>&nbsp;</div>
@@ -155,11 +155,11 @@
 </Wrapper>
 
 <style lang="postcss">
-	div.divider {
-		height: 30rem;
-		padding-top: 4rem;
+	.divider {
+		@apply flex items-center space-x-2 md:space-x-0 md:flex-col sm:flex-row w-full md:w-fit px-4 md:px-0 py-0 md:py-4  md:h-[30rem] pt-[4rem];
+
 		& > div {
-			@apply h-full w-0.5 bg-surface-200-700-token opacity-20 rounded-full;
+			@apply h-0.5 md:h-full w-full md:w-0.5 bg-surface-200-700-token opacity-20 rounded-full;
 		}
 	}
 </style>
