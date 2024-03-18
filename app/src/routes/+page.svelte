@@ -134,11 +134,11 @@
 					<aside class="alert variant-glass-error">{$errors.white}</aside>
 				{/if}
 			</label>
-			<a href={loadoutHref} class="btn variant-filled-primary shadow-lg text-2xl">
-				<Icon src={hi.ArrowTopRightOnSquare} size="22" />
-				<span class="mr-0.5">Loadout</span>
-			</a>
 		</div>
+		<a href={loadoutHref} class="btn variant-filled-primary shadow-lg text-2xl">
+			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
+			<span class="mr-0.5">Loadout</span>
+		</a>
 	</WrapperItem>
 	<div class="divider py-4 hidden sm:flex items-center flex-col">
 		<div>&nbsp;</div>
