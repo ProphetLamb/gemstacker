@@ -18,31 +18,27 @@
 		!$availableGems || !filter
 			? $availableGems ?? []
 			: $availableGems?.filter((x) => x.name.toLowerCase().includes(filter.toLowerCase()));
-	let initialLoad = true;
-	$: data = Promise.resolve().then(() => {
-		let v = firstN(selectedGems, maxDataCount);
-		initialLoad = false;
-		return v;
-	});
+	$: data = firstN(selectedGems, maxDataCount);
 
 	function firstN<T>(arr: T[], items: number): T[] {
 		return arr.slice(0, Math.min(arr.length, items));
 	}
 
 	const loadMoreTriggerObserver = new IntersectionObserver((entries) => {
-		if (initialLoad || entries.length === 0 || !entries[0].isIntersecting) {
+		if (entries.length === 0 || !entries[0].isIntersecting) {
 			return;
 		}
 		maxDataCount += lazyLoadIncrement;
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
-		data.then(async () => {
+		Promise.resolve().then(async () => {
 			await tick();
 			if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
 				maxDataCount += lazyLoadIncrement;
 			}
+			await tick();
+			loadMoreTriggerObserver.observe(e);
 		});
-		loadMoreTriggerObserver.observe(e);
 	}
 	onDestroy(() => {
 		loadMoreTriggerObserver.disconnect();
@@ -120,19 +116,17 @@
 			</div>
 		</div>
 		<div class="card-body px-4 overflow-y-auto max-w-full">
-			{#await data then data}
-				<GemFilterTable
-					on:filtered={(e) => {
-						setExcluded(e.detail.dataIndex, e.detail.newValue);
-					}}
-					{data}
-				/>
-				{#if data.length === maxDataCount}
-					<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
-						Search a gem name for more...
-					</div>
-				{/if}
-			{/await}
+			<GemFilterTable
+				on:filtered={(e) => {
+					setExcluded(e.detail.dataIndex, e.detail.newValue);
+				}}
+				{data}
+			/>
+			{#if data.length === maxDataCount}
+				<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
+					Search a gem name for more...
+				</div>
+			{/if}
 		</div>
 		<div class="px-2 w-full">
 			<button class="btn variant-soft-error align-middle w-full" on:click={() => modalStore.close()}
