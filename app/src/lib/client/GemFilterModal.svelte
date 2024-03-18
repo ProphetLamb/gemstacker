@@ -9,11 +9,11 @@
 
 	export let parent;
 
-	const lazyLoadIncrement = 40;
+	const lazyLoadIncrement = 20;
 
 	let filter = '';
 	const modalStore = getModalStore();
-	let maxDataCount = 10;
+	let maxDataCount = 0;
 	$: selectedGems =
 		!$availableGems || !filter
 			? $availableGems ?? []
