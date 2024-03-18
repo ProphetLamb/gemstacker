@@ -9,7 +9,7 @@
 
 	export let parent;
 
-	const lazyLoadIncrement = 20;
+	const lazyLoadIncrement = 10;
 
 	let filter = '';
 	const modalStore = getModalStore();
