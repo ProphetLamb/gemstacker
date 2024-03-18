@@ -32,8 +32,7 @@
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
 		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
-			tick();
-			maxDataCount += lazyLoadIncrement;
+			tick().then(() => (maxDataCount += lazyLoadIncrement));
 		}
 		loadMoreTriggerObserver.observe(e);
 	}
