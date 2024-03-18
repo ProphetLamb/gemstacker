@@ -13,7 +13,7 @@
 
 	let filter = '';
 	const modalStore = getModalStore();
-	let maxDataCount = lazyLoadIncrement;
+	let maxDataCount = 10;
 	$: selectedGems =
 		!$availableGems || !filter
 			? $availableGems ?? []
