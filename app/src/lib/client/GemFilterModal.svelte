@@ -9,9 +9,11 @@
 
 	export let parent;
 
+	const lazyLoadIncrement = 40;
+
 	let filter = '';
 	const modalStore = getModalStore();
-	let maxDataCount = 10;
+	let maxDataCount = lazyLoadIncrement;
 	$: selectedGems =
 		!$availableGems || !filter
 			? $availableGems ?? []
@@ -26,11 +28,11 @@
 		if (entries.length === 0 || !entries[0].isIntersecting) {
 			return;
 		}
-		maxDataCount += 20;
+		maxDataCount += lazyLoadIncrement;
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
 		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
-			maxDataCount += 20;
+			maxDataCount += lazyLoadIncrement;
 		}
 		loadMoreTriggerObserver.observe(e);
 	}
