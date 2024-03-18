@@ -5,6 +5,7 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
 	import { menuNavLinks } from '$lib/links';
+	import { page } from '$app/stores';
 
 	const drawerStore = getDrawerStore();
 
@@ -12,6 +13,8 @@
 		const s: DrawerSettings = { id: 'root-sidenav' };
 		drawerStore.open(s);
 	}
+	$: listboxItemActive = (href: string) =>
+		$page.url.pathname?.includes(href) ? 'bg-primary-active-token' : '';
 </script>
 
 <AppBar>
@@ -25,7 +28,7 @@
 		</a>
 		<div class="hidden md:flex">
 			{#each menuNavLinks as { href, icon, title }}
-				<a {href} class="btn hover:variant-soft-primary">
+				<a {href} class="{listboxItemActive(href)} btn hover:variant-soft-primary">
 					<Icon src={icon} size="24" />
 					<span class="">{title}</span>
 				</a>
