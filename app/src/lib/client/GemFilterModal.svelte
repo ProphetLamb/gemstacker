@@ -18,7 +18,7 @@
 		!$availableGems || !filter
 			? $availableGems ?? []
 			: $availableGems?.filter((x) => x.name.toLowerCase().includes(filter.toLowerCase()));
-	$: data = firstN(selectedGems, maxDataCount);
+	$: data = Promise.resolve().then(() => firstN(selectedGems, maxDataCount));
 
 	function firstN<T>(arr: T[], items: number): T[] {
 		return arr.slice(0, Math.min(arr.length, items));
@@ -112,17 +112,19 @@
 			</div>
 		</div>
 		<div class="card-body px-4 overflow-y-auto max-w-full">
-			<GemFilterTable
-				on:filtered={(e) => {
-					setExcluded(e.detail.dataIndex, e.detail.newValue);
-				}}
-				{data}
-			/>
-			{#if data.length === maxDataCount}
-				<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
-					Search a gem name for more...
-				</div>
-			{/if}
+			{#await data then data}
+				<GemFilterTable
+					on:filtered={(e) => {
+						setExcluded(e.detail.dataIndex, e.detail.newValue);
+					}}
+					{data}
+				/>
+				{#if data.length === maxDataCount}
+					<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
+						Search a gem name for more...
+					</div>
+				{/if}
+			{/await}
 		</div>
 		<div class="px-2 w-full">
 			<button class="btn variant-soft-error align-middle w-full" on:click={() => modalStore.close()}
