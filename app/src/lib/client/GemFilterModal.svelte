@@ -4,7 +4,7 @@
 	import { availableGems } from './availableGems';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, tick } from 'svelte';
 	import { localSettings } from './localSettings';
 
 	export let parent;
@@ -32,6 +32,7 @@
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
 		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+			tick();
 			maxDataCount += lazyLoadIncrement;
 		}
 		loadMoreTriggerObserver.observe(e);
