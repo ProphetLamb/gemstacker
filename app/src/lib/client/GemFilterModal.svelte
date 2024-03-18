@@ -18,22 +18,30 @@
 		!$availableGems || !filter
 			? $availableGems ?? []
 			: $availableGems?.filter((x) => x.name.toLowerCase().includes(filter.toLowerCase()));
-	$: data = Promise.resolve().then(() => firstN(selectedGems, maxDataCount));
+	let initialLoad = true;
+	$: data = Promise.resolve().then(() => {
+		let v = firstN(selectedGems, maxDataCount);
+		initialLoad = false;
+		return v;
+	});
 
 	function firstN<T>(arr: T[], items: number): T[] {
 		return arr.slice(0, Math.min(arr.length, items));
 	}
 
 	const loadMoreTriggerObserver = new IntersectionObserver((entries) => {
-		if (entries.length === 0 || !entries[0].isIntersecting) {
+		if (initialLoad || entries.length === 0 || !entries[0].isIntersecting) {
 			return;
 		}
 		maxDataCount += lazyLoadIncrement;
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
-		if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
-			tick().then(() => (maxDataCount += lazyLoadIncrement));
-		}
+		data.then(async () => {
+			await tick();
+			if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+				maxDataCount += lazyLoadIncrement;
+			}
+		});
 		loadMoreTriggerObserver.observe(e);
 	}
 	onDestroy(() => {
