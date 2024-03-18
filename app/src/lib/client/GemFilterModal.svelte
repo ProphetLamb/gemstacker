@@ -34,6 +34,7 @@
 		Promise.resolve().then(async () => {
 			while (maxDataCount < lazyLoadIncrement * 2) {
 				await tick();
+				await new Promise((resolve) => setTimeout(resolve, 100));
 				if (!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
 					break;
 				}
