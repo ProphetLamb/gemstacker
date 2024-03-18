@@ -17,7 +17,7 @@
 	$: selectedGems =
 		!$availableGems || !filter
 			? $availableGems ?? []
-			: $availableGems?.filter((x) => x.name.includes(filter));
+			: $availableGems?.filter((x) => x.name.toLowerCase().includes(filter.toLowerCase()));
 	$: data = firstN(selectedGems, maxDataCount);
 
 	function firstN<T>(arr: T[], items: number): T[] {
