@@ -32,11 +32,14 @@
 	});
 	function loadMoreTrigger(e: HTMLDivElement) {
 		Promise.resolve().then(async () => {
-			await tick();
-			if (!!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+			while (maxDataCount < lazyLoadIncrement * 2) {
+				await tick();
+				if (!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+					break;
+				}
 				maxDataCount += lazyLoadIncrement;
+				await tick();
 			}
-			await tick();
 			loadMoreTriggerObserver.observe(e);
 		});
 	}
@@ -123,7 +126,7 @@
 				{data}
 			/>
 			{#if data.length === maxDataCount}
-				<div class="align-middle w-full text-center pb-4" use:loadMoreTrigger>
+				<div class="align-middle w-full text-center pb-[8rem]" use:loadMoreTrigger>
 					Search a gem name for more...
 				</div>
 			{/if}
