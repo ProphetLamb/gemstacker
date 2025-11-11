@@ -20,7 +20,7 @@
 		href="https://poe.ninja/"
 		target="_blank"
 		class="anchor flex flex-row items-center align-middle"
-		><img src="https://poe.ninja/images/ninja-logo.png" alt="" class="w-4 h-4" /> poe.ninja</a
+		><img src="https://poe.ninja/shared-assets/ninja-logo.png" alt="" class="w-4 h-4" /> poe.ninja</a
 	>&nbsp;&amp;&nbsp;
 	<a
 		href="https://poedb.tw/us/"
