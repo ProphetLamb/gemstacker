@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
 using MongoDB.Migration;
 using ScrapeAAS;
-using Sentry;
 using Yoh.Text.Json.NamingPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,15 +23,6 @@ Encoding.RegisterProvider(provider);
 
 // BSON Serialization
 BsonSerializer.RegisterSerializationProvider(new ImmutableArraySerializationProvider());
-// Sentry
-using var flush = SentrySdk.Init("https://bcf0ff9fab08594e449c0638263a731f@o4505884379250688.ingest.sentry.io/4505884389670912");
-AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-{
-    if (args.Exception is not Polly.ExecutionRejectedException and not OperationCanceledException and not ObjectDisposedException)
-    {
-        SentrySdk.CaptureException(args.Exception);
-    }
-};
 
 builder.Services
     .Configure<PoeDatabaseSettings>(builder.Configuration.GetSection("Database:PoeDatabaseSettings"))

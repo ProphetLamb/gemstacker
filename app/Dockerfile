@@ -1,6 +1,5 @@
 FROM node:hydrogen-alpine AS builder
 # build arguments
-ARG SENTRY_AUTH_TOKEN
 ARG API_KEY
 ARG API_ENDPOINT
 
@@ -12,8 +11,7 @@ COPY --chown=svelteuser:svelteuser package*.json .
 RUN npm ci
 
 COPY --chown=svelteuser:svelteuser  . .
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN} \
-  API_KEY=${API_KEY} \
+ENV API_KEY=${API_KEY} \
   API_ENDPOINT=${API_ENDPOINT}
 RUN npx svelte-kit sync
 RUN npm run build --omit=dev
