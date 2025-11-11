@@ -28,7 +28,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <PackageReference Include="Microsoft.Owin" Version="4.2.3" />
     <PackageReference Include="Microsoft.Owin.Cors" Version="4.2.3" />
-    <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
     <PackageReference Include="ScrapeAAS" Version="1.1.2" />
     <PackageReference Include="ScrapeAAS.WebShare" Version="1.1.2" />
     <PackageReference Include="Sentry.AspNet" Version="5.16.2" />
