@@ -1,37 +1,26 @@
-FROM node:hydrogen-alpine AS builder
-# build arguments
+FROM node:current-alpine AS builder
 ARG API_KEY
 ARG API_ENDPOINT
-
-RUN apk update && apk upgrade && adduser -D svelteuser
-USER svelteuser
-
-WORKDIR /app
-COPY --chown=svelteuser:svelteuser package*.json .
-RUN npm ci
-
-COPY --chown=svelteuser:svelteuser  . .
 ENV API_KEY=${API_KEY} \
   API_ENDPOINT=${API_ENDPOINT}
-RUN npx svelte-kit sync
-RUN npm run build --omit=dev
-RUN npm prune --omit=dev
+WORKDIR /app
+COPY package*.json .
+RUN npm ci
 
-FROM node:hydrogen-alpine
-# node arguments
+COPY . .
+RUN npm run build
+RUN npm prune --production
+
+FROM node:current-alpine
 ARG NODE_ENV=production
 ARG ORIGIN=localhost
 ARG PROTOCOL_HEADER=x-forwarded-proto
 ARG HOST_HEADER=x-forwarded-host
 ARG ADDRESS_HEADER=True-Client-IP
 ARG XFF_DEPTH=1
-
-RUN apk update && apk upgrade && apk add dumb-init && adduser -D svelteuser
-USER svelteuser
-
 WORKDIR /app
-COPY --chown=svelteuser:svelteuser --from=builder /app/build build
-COPY --chown=svelteuser:svelteuser --from=builder /app/node_modules node_modules/
+COPY --from=builder /app/build build/
+COPY --from=builder /app/node_modules node_modules/
 COPY package.json .
 EXPOSE 3000
 ENV NODE_ENV=${NODE_ENV} \
@@ -40,4 +29,4 @@ ENV NODE_ENV=${NODE_ENV} \
   HOST_HEADER=${HOST_HEADER} \
   ADDRESS_HEADER=${ADDRESS_HEADER} \
   XFF_DEPTH=${XFF_DEPTH}
-CMD [ "dumb-init", "node", "build" ]
+CMD [ "node", "build" ]
