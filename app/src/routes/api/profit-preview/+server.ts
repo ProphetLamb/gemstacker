@@ -6,7 +6,7 @@ import { error, json } from '@sveltejs/kit';
 export const GET = async ({ fetch,  url }) => {
 	const request = gemProfitRequestParameterSchema.parse({
 		league: url.searchParams.get('league'),
-		min_experience_delta: url.searchParams.get('min_experience_delta')
+		min_experience_delta: parseInt(url.searchParams.get('min_experience_delta') || '0')
 	})
 	const gemProfitApi = createGemProfitApi(fetch, {
 		api_endpoint: API_ENDPOINT,
