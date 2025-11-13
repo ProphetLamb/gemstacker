@@ -69,14 +69,16 @@
 	}
 </script>
 
-<div class="w-full align-middle flex justify-center p-4">
-	<h1 class="h1">
-		The best
-		<span
-			class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
-			>gems</span
-		>
-	</h1>
+<div class="flex flex-col justify-center">
+	<div class="w-full align-middle flex justify-center p-4">
+		<h1 class="h1">
+			The best
+			<span
+				class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
+				>gems</span
+			>
+		</h1>
+	</div>
 	<div class="text-token flex flex-col items-center card p-4 space-y-2">
 		{#await gemProfit}
 			<LoadingPlaceholder
