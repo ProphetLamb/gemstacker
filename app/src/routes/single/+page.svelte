@@ -81,6 +81,20 @@
 				{/if}
 			</label>
 			<label class="label">
+				<span>Added Quality</span>
+				<input
+					name="added_quality"
+					class="input"
+					type="number"
+					placeholder="Quality fom Sockets..."
+					bind:value={$profitForm.added_quality}
+					{...$constraints.added_quality}
+				/>
+				{#if $errors.added_quality}
+					<aside class="alert variant-glass-error">{$errors.added_quality}</aside>
+				{/if}
+			</label>
+			<label class="label">
 				<span>Sell price (minimum Chaos value)</span>
 				<input
 					name="min_sell_price_chaos"

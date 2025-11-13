@@ -3,6 +3,7 @@ import { z } from 'zod';
 export interface GemProfitRequestParameter {
 	league: string;
 	gem_name?: string | null;
+	added_quality?: number | null;
 	min_sell_price_chaos?: number | null;
 	max_buy_price_chaos?: number | null;
 	min_experience_delta?: number | null;
@@ -13,8 +14,9 @@ export interface GemProfitRequestParameter {
 export const gemProfitRequestParameterSchema = z.object({
 	league: z.string(),
 	gem_name: z.string().nullable().optional(),
-	min_sell_price_chaos: z.number().nullable().optional(),
-	max_buy_price_chaos: z.number().nullable().optional(),
+	added_quality: z.number().min(0).max(100).nullable().optional(),
+	min_sell_price_chaos: z.number().min(1).max(999).nullable().optional(),
+	max_buy_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	min_experience_delta: z.number().min(200000000).max(2000000000).default(340000000),
 	items_offset: z.number().nullable().optional().default(0),
 	items_count: z.number().nullable().optional().default(10)
