@@ -7,6 +7,11 @@
 	import { locationWithSearch } from '$lib/client/navigation';
 	import * as pob from '$lib/pathOfBuilding';
 	import { goto } from '$app/navigation';
+	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
+	import type { GemProfitResponse, GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import { localSettings } from '$lib/client/localSettings';
 
 	let pobText: string = '';
 	$: pobError = '';
@@ -29,6 +34,21 @@
 		},
 		'/loadout'
 	).pathSearchHash();
+
+	$: gemProfit = getProfitPreview()
+
+	async function getProfitPreview(): Promise<GemProfitResponseItem[] | undefined> {
+		const query = new URLSearchParams();
+		query.set('league', $localSettings.league)
+		query.set('min_experience_delta', $localSettings.min_experience_delta.toString())
+		const rsp = await fetch(`/api/profit-preview?${query}`)
+		const content: GemProfitResponse | string = await rsp.json()
+		if (typeof content === "string") {
+			console.log(content)
+			return undefined
+		}
+		return content
+	}
 
 	async function gotoPob() {
 		try {
@@ -57,6 +77,28 @@
 			>gems</span
 		>
 	</h1>
+	<div class="text-token flex flex-col items-center card p-4 space-y-2">
+		{#await gemProfit}
+			<LoadingPlaceholder
+				class="w-[51rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				placeholder="animate-pulse"
+				rows={10}
+			>
+				<ProgressRadial
+					stroke={100}
+					value={undefined}
+					meter="stroke-tertiary-500"
+					track="stroke-tertiary-500/30"
+				/>
+				<p class="text-xl">Loading...</p></LoadingPlaceholder
+			>
+		{:then gemProfit}
+		{#if gemProfit}
+			<GemProfitTable data={gemProfit} />
+		{/if}
+		{/await}
+	</div>
 </div>
 <Wrapper>
 	<WrapperItem>
