@@ -36,12 +36,9 @@
 		<svelte:fragment slot="header">
 			<RootHeader />
 		</svelte:fragment>
-		<svelte:fragment slot="footer">
-			<RootFooter />
-		</svelte:fragment>
-
 		<!-- Page Route Content -->
 		<slot />
+		<RootFooter />
 	</AppShell>
 </div>
 
