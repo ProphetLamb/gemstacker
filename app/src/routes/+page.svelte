@@ -43,11 +43,12 @@
 		query.set('min_experience_delta', $localSettings.min_experience_delta.toString())
 		const rsp = await fetch(`/api/profit-preview?${query}`)
 		const content: GemProfitResponse | string = await rsp.json()
-		if (typeof content === "string") {
-			console.log(content)
-			return undefined
+		if (Array.isArray(content)) {
+			return content
 		}
-		return content
+
+		console.log(content)
+		return undefined
 	}
 
 	async function gotoPob() {
@@ -71,7 +72,7 @@
 
 <div class="flex flex-col justify-center">
 	<div class="w-full align-middle flex justify-center p-4">
-		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
+		<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>
 			The best
@@ -81,28 +82,30 @@
 			></span>
 		</h1>
 	</div>
-	<div class="text-token flex flex-col items-center card p-4 space-y-2">
 		{#await gemProfit}
-			<LoadingPlaceholder
-				class="w-[51rem] max-w-[calc(100vw-4rem)]"
-				front="bg-surface-backdrop-token"
-				placeholder="animate-pulse"
-				rows={10}
-			>
-				<ProgressRadial
-					stroke={100}
-					value={undefined}
-					meter="stroke-tertiary-500"
-					track="stroke-tertiary-500/30"
-				/>
-				<p class="text-xl">Loading...</p></LoadingPlaceholder
-			>
+			<div class="text-token flex flex-col items-center bg-surface-100/50 dark:bg-surface-800/50 card p-4 space-y-2">
+				<LoadingPlaceholder
+					class="w-[51rem] max-w-[calc(100vw-4rem)]"
+					front="bg-surface-backdrop-token"
+					placeholder="animate-pulse"
+					rows={10}
+				>
+					<ProgressRadial
+						stroke={100}
+						value={undefined}
+						meter="stroke-tertiary-500"
+						track="stroke-tertiary-500/30"
+					/>
+					<p class="text-xl">Loading...</p></LoadingPlaceholder
+				>
+			</div>
 		{:then gemProfit}
 		{#if gemProfit}
-			<GemProfitTable data={gemProfit} />
+			<div class="text-token flex flex-col items-center bg-surface-100/50 dark:bg-surface-800/50 card p-4 space-y-2">
+				<GemProfitTable data={gemProfit} />
+			</div>
 		{/if}
 		{/await}
-	</div>
 </div>
 <Wrapper>
 	<WrapperItem>
