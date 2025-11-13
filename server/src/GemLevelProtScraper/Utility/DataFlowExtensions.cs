@@ -17,11 +17,8 @@ public static class DataFlowExtensions
 
     public static async Task PublishAllAsync<T>(this IDataflowPublisher<T> publisher, IEnumerable<T> seq, ParallelOptions parallelOptions)
     {
-        var tcs = CancellationTokenSource.CreateLinkedTokenSource(parallelOptions.CancellationToken);
         var ch = Channel.CreateBounded<T>(parallelOptions.MaxDegreeOfParallelism);
-        var deflators = Enumerable
-            .Range(0, parallelOptions.MaxDegreeOfParallelism)
-            .Select(_ => Deflate(ch.Reader));
+        var deflators = Enumerable.Range(0, parallelOptions.MaxDegreeOfParallelism).Select(_ => Deflate(ch.Reader));
         var inflator = Inflate(ch.Writer);
 
         await Task.WhenAll(deflators).ConfigureAwait(false);
@@ -29,19 +26,23 @@ public static class DataFlowExtensions
 
         async Task Inflate(ChannelWriter<T> writer)
         {
-            foreach (var item in seq)
+            try
             {
-                await writer.WriteAsync(item, parallelOptions.CancellationToken).ConfigureAwait(false);
+                foreach (var item in seq)
+                {
+                    await writer.WriteAsync(item, parallelOptions.CancellationToken).ConfigureAwait(false);
+                }
             }
-            tcs.Cancel();
-            writer.Complete();
+            finally
+            {
+                _ = writer.TryComplete();
+            }
         }
 
         async Task Deflate(ChannelReader<T> reader)
         {
-            while (!tcs.IsCancellationRequested)
+            await foreach (var item in reader.ReadAllAsync(parallelOptions.CancellationToken))
             {
-                var item = await reader.ReadAsync(tcs.Token).ConfigureAwait(false);
                 await publisher.PublishAsync(item).ConfigureAwait(false);
             }
         }
