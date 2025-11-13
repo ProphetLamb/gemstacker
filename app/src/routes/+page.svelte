@@ -71,12 +71,14 @@
 
 <div class="flex flex-col justify-center">
 	<div class="w-full align-middle flex justify-center p-4">
-		<h1 class="h1">
+		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
+			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
+			<span>
 			The best
 			<span
 				class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
 				>gems</span
-			>
+			></span>
 		</h1>
 	</div>
 	<div class="text-token flex flex-col items-center card p-4 space-y-2">
