@@ -18,6 +18,7 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
+	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -202,21 +203,27 @@
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
 			{:else if loadout && loadout.items.length > 0}
-				<LoadoutInfo bind:loadout>
-					<GemFilter />
-					<LocalSettings on:close={submitWhenSettingsChanged} />
-				</LoadoutInfo>
+				<GemProfitTableHeader>
+					<LoadoutInfo slot="text"bind:loadout/>
+					<svelte:fragment slot="buttons">
+						<GemFilter />
+						<LocalSettings on:close={submitWhenSettingsChanged} />
+					</svelte:fragment>
+				</GemProfitTableHeader>
 				<LoadoutTable bind:data={loadout.items} />
 				<BetterTrading data={loadout.items.map((x) => x.gem)} />
 			{:else}
-				<LoadoutInfo
-					loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
-				>
-					{#if $availableGems && $availableGems.length > 0}
-						<GemFilter />
-					{/if}
-					<LocalSettings on:close={submitWhenSettingsChanged} />
-				</LoadoutInfo>
+				<GemProfitTableHeader>
+					<LoadoutInfo slot="text"
+						loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
+					/>
+					<svelte:fragment slot="buttons">
+						{#if $availableGems && $availableGems.length > 0}
+							<GemFilter />
+						{/if}
+						<LocalSettings on:close={submitWhenSettingsChanged} />
+					</svelte:fragment>
+				</GemProfitTableHeader>
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
