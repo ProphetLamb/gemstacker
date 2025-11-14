@@ -116,6 +116,7 @@
 		</h1>
 		<form class="space-y-2" bind:this={htmlLoadoutForm} use:enhance method="POST">
 			<input type="hidden" name="league" value={$localSettings.league} />
+			<input type="hidden" name="min_listing_count" value={$localSettings.min_listing_count} />
 			<input
 				type="hidden"
 				name="min_experience_delta"

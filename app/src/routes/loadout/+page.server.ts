@@ -30,7 +30,12 @@ export const actions: Actions = {
 
     const loadoutRequest = loadoutForm.data;
     try {
-      const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
+      const gemProfit = await gemProfitApi.getGemProfit({
+        league: loadoutRequest.league,
+        min_experience_delta: loadoutRequest.min_experience_delta,
+        min_listing_count: loadoutRequest.min_listing_count,
+        items_count: -1,
+      });
       return { ...response, gemProfit };
     } catch (err) {
       console.log('/loadout:actions.default', err)

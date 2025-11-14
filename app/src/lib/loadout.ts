@@ -1,5 +1,5 @@
-import { boolean, z } from "zod";
-import type { GemColor, GemProfitResponseItem } from "./gemLevelProfitApi";
+import { z } from "zod";
+import { gemProfitRequestParameterMinListingCountSchema, type GemColor, type GemProfitResponseItem } from "./gemLevelProfitApi";
 
 export interface LoadoutRequest {
   league: string;
@@ -9,6 +9,7 @@ export interface LoadoutRequest {
   blue: number;
   white: number;
   max_budget_chaos?: number | null;
+  min_listing_count?: number | null;
 }
 
 const loadoutRequestSchemaNoSocketsError = "At least one socket required"
@@ -20,7 +21,8 @@ export const loadoutRequestSchema = z.object({
   green: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
   blue: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
   white: z.number().int().min(0).max(36).nullable().optional().transform(v => v ?? 0),
-  max_budget_chaos: z.number().optional().nullable().optional().transform(v => v ?? 0)
+  max_budget_chaos: z.number().optional().nullable().optional().transform(v => v ?? 0),
+  min_listing_count: gemProfitRequestParameterMinListingCountSchema,
 })
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["red"] })
   .refine(req => maxCountLoadout(req) > 0, { message: loadoutRequestSchemaNoSocketsError, path: ["green"] })
