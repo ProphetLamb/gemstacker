@@ -53,7 +53,7 @@
 			left: 0;
 			width: 100%;
 			height: 100%;
-			background-size: contain;
+			background-size: cover;
 			background-position: center;
 			background-image: url(/background.png);
 			background-repeat: no-repeat;
