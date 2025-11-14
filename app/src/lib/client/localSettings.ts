@@ -1,6 +1,7 @@
 import { localStorageStore } from "@skeletonlabs/skeleton";
-import { derived, type Invalidator, type Subscriber } from "svelte/store";
+import { derived } from "svelte/store";
 import { leagues } from "./leagues";
+import { gemProfitRequestParameterConstraints } from "$lib/gemLevelProfitApi";
 
 export interface LocalSettings {
   league: string
@@ -11,7 +12,7 @@ export interface LocalSettings {
 function localSettingsStore() {
   const storage = localStorageStore<LocalSettings>('poe-gemleveling-profit-calculator-local-settings', {
     league: '',
-    min_experience_delta: 300000000,
+    min_experience_delta: gemProfitRequestParameterConstraints.min_experience_delta.defaultValue,
     exclude_gems: []
   })
   const reader = derived([storage, leagues], ([$storage, $leagues]) => {

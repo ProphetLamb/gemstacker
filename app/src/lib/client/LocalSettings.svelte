@@ -7,6 +7,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { deepEqual } from '$lib/compare';
 	import { leagues } from './leagues';
+	import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
 
 	export let textClass: CssClasses = '';
 
@@ -50,13 +51,12 @@
 			</label>
 			<label class="label">
 				<span>Minimum experience required for leveling</span>
+				<!-- svelte-ignore missing-declaration -->
 				<input
 					name="min_experience_delta"
 					class="input"
 					type="range"
-					step={5000000}
-					min={200000000}
-					max={2000000000}
+					{...gemProfitRequestParameterConstraints.min_experience_delta}
 					bind:value={$localSettings.min_experience_delta}
 				/>
 				<p>
