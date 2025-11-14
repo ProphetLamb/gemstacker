@@ -7,7 +7,7 @@ export interface GemProfitRequestParameter {
 	min_sell_price_chaos?: number | null;
 	max_buy_price_chaos?: number | null;
 	min_experience_delta?: number | null;
-	items_offset?: number | null;
+	min_listing_count?: number | null;
 	items_count?: number | null;
 }
 
