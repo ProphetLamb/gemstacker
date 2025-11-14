@@ -136,7 +136,7 @@
 </div>
 <Wrapper>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your perusal</h2>
+		<h2 class="h2">&#133;for your perusal.</h2>
 			<label class="label">
 			<span>Gem Name</span>
 			<input
@@ -162,7 +162,7 @@
 		<div>&nbsp;</div>
 	</div>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your loadout</h2>
+		<h2 class="h2">&#133;for your loadout.</h2>
 		<div class="space-y-2">
 			<label class="label">
 				<span>Red Sockets</span>
@@ -228,7 +228,7 @@
 		<div>&nbsp;</div>
 	</div>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your build</h2>
+		<h2 class="h2">&#133;for your build.</h2>
 		<label class="label">
 			<span>Build code</span>
 			<input class="input" type="text" name="red" bind:value={pobText} />
