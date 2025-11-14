@@ -13,6 +13,8 @@
 	import { intlCompactNumber } from '$lib/intl';
 	import { onMount } from 'svelte';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
+	import { getStateFromQuery, replaceStateWithQuery } from '$lib/client/navigation';
+	import { browser } from '$app/environment';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -31,13 +33,56 @@
 
 	export const snapshot = { capture, restore };
 
-	onMount(() => {
+	let htmlProfitForm: HTMLFormElement
+
+	function fillFormFromQuery() {
+		function num(s?: string): number | undefined {
+			try {
+				return !!s ? parseInt(s) : undefined
+			} catch {
+				return undefined
+			}
+		}
 		const initialSettings = {
 			league: $localSettings.league,
 			min_experience_delta: $localSettings.min_experience_delta
 		};
 		if (!form?.gemProfit) {
-			$profitForm = { ...$profitForm, ...initialSettings };
+			$profitForm = {
+				...$profitForm,
+				...initialSettings,
+				...getStateFromQuery((x) => {
+					return {
+						league: x['league'],
+						gem_name: x['gem_name'],
+						added_quality: num(x['added_quality']),
+						min_sell_price_chaos: num(x['min_sell_price_chaos']),
+						max_buy_price_chaos: num(x['max_buy_price_chaos']),
+						min_experience_delta: num(x['min_experience_delta']),
+					}
+				})
+			}
+		}
+	}
+
+	function shouldAutoRequestForm() {
+		return !!$profitForm.gem_name && $profitForm.gem_name.trim().length > 0
+	}
+
+	function submitFormFilledFromQuery() {
+		// remove query parameters
+		replaceStateWithQuery({
+			gem_name: undefined,
+		});
+		// submit form filled via query
+		htmlProfitForm.requestSubmit();
+	}
+	if (browser) {
+		fillFormFromQuery();
+	}
+	onMount(() => {
+		if (browser && shouldAutoRequestForm()) {
+			submitFormFilledFromQuery()
 		}
 	});
 </script>
@@ -50,7 +95,7 @@
 				>profit</span
 			>.
 		</h1>
-		<form class="space-y-2" use:enhance method="POST">
+		<form class="space-y-2" bind:this={htmlProfitForm} use:enhance method="POST">
 			<label class="label">
 				<span>League</span>
 				<select
