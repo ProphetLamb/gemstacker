@@ -1,7 +1,7 @@
 import { API_ENDPOINT, API_KEY } from '$env/static/private';
 import {
 	gemProfitRequestParameterSchema,
-	type ExchangeRateToChaosResponse,
+	type WellKnownExchangeRateToChaosResponse,
 	type GemProfitResponse
 } from '$lib/gemLevelProfitApi';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
@@ -9,7 +9,7 @@ import { error, json } from '@sveltejs/kit';
 
 export type ProfitPreviewResponse = {
 	gem_profit: GemProfitResponse;
-	exchange_rates: ExchangeRateToChaosResponse;
+	exchange_rates: WellKnownExchangeRateToChaosResponse;
 };
 
 export const GET = async ({ fetch, url }) => {
@@ -23,14 +23,10 @@ export const GET = async ({ fetch, url }) => {
 	});
 
 	try {
-		const exchangeRatesPromise = gemProfitApi.getExchangeRateToChaos({
-			league: request.league,
-			currency: ["Cartographer's Chisel", 'Divine Orb', 'Vaal Orb']
-		});
 		return json(
 			{
 				gem_profit: await gemProfitApi.getGemProfit(request),
-				exchange_rates: await exchangeRatesPromise
+				exchange_rates: await gemProfitApi.getWellKnownExchangeRatesToChaos(request.league)
 			} satisfies ProfitPreviewResponse,
 			{
 				headers: {
