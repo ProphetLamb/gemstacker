@@ -102,7 +102,7 @@
 			</div>
 		{:then gemProfit}
 		{#if gemProfit}
-			<div class="text-token bg-surface-100/70 dark:bg-surface-800/50 card p-4 space-y-2">
+			<div class="text-token bg-surface-100/70 dark:bg-surface-800/80 card p-4 space-y-2">
 				<GemProfitTable data={gemProfit} />
 			</div>
 		{/if}
