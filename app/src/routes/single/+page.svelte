@@ -15,6 +15,9 @@
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import { getStateFromQuery, replaceStateWithQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
+	import GemFilter from '$lib/client/GemFilter.svelte';
+	import { availableGems } from '$lib/client/availableGems';
+	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -30,6 +33,14 @@
 		validators: gemProfitRequestParameterSchema,
 		taintedMessage: null
 	});
+
+	$: $availableGems = form?.gemProfit;
+	$: excludedGems = new Set($localSettings.exclude_gems);
+	$: gemProfit = $delayed || !$availableGems
+			? undefined
+			: !excludedGems
+				? $availableGems
+				: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()))
 
 	export const snapshot = { capture, restore };
 
@@ -216,6 +227,7 @@
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
 		</h1>
+		
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
 				<LoadingPlaceholder
@@ -232,10 +244,20 @@
 					/>
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
-			{:else if form?.gemProfit && form.gemProfit.length > 0}
-				<GemProfitTable data={form.gemProfit} />
-				<BetterTrading data={form.gemProfit} />
+			{:else if gemProfit && gemProfit.length > 0}
+				<GemProfitTableHeader>
+					<GemFilter slot="buttons" />
+				</GemProfitTableHeader>
+				<GemProfitTable data={gemProfit} />
+				<BetterTrading data={gemProfit} />
 			{:else}
+				<GemProfitTableHeader>
+					<svelte:fragment slot="buttons">
+						{#if $availableGems && $availableGems.length > 0}
+							<GemFilter />
+						{/if}
+					</svelte:fragment>
+				</GemProfitTableHeader>
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
