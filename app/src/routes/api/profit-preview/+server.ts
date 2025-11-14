@@ -15,7 +15,7 @@ export const GET = async ({ fetch, url, setHeaders }) => {
 
 	try {
 		const gemProfit = await gemProfitApi.getGemProfit(request);
-		setHeaders({ 'Cache-Control': 'max-age=1800' });
+		setHeaders({ 'Cache-Control': 'public, immutable, no-transform, max-age=1800' });
 		return json(gemProfit);
 	} catch (err) {
 		const message =
