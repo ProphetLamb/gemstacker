@@ -14,6 +14,7 @@
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import MetaHead from '$lib/client/MetaHead.svelte';
+	import type { ProfitPreviewResponse } from './api/profit-preview/+server.js';
 
 	export let data
 
@@ -55,19 +56,18 @@
 		'/single'
 	).pathSearchHash()
 
-	$: gemProfit = getProfitPreview()
+	$: profitPreview = getProfitPreview()
 
-	async function getProfitPreview(): Promise<GemProfitResponseItem[] | undefined> {
+	async function getProfitPreview(): Promise<ProfitPreviewResponse | undefined> {
 		const query = new URLSearchParams();
 		query.set('league', $localSettings.league)
 		query.set('min_experience_delta', $localSettings.min_experience_delta.toString())
 		const rsp = await fetch(`/api/profit-preview?${query}`)
-		const content: GemProfitResponse | string = await rsp.json()
-		if (Array.isArray(content)) {
-			return content
+		if (rsp.status < 200 || rsp.status >= 300) {
+			console.log('/.getProfitPreview', await rsp.text())
+			return undefined
 		}
-
-		console.log(content)
+		const content: ProfitPreviewResponse = await rsp.json()
 		return undefined
 	}
 
@@ -104,7 +104,7 @@
 		</h1>
 	</div>
 	<div class="flex flex-col items-center">
-		{#await gemProfit}
+		{#await profitPreview}
 			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
@@ -121,11 +121,11 @@
 					<p class="text-xl">Loading...</p></LoadingPlaceholder
 				>
 			</div>
-		{:then gemProfit}
-		{#if gemProfit}
+		{:then profitPreview}
+		{#if profitPreview}
 			<div class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
-				<GemProfitTable data={gemProfit} />
-				<BetterTrading data={gemProfit} />
+				<GemProfitTable data={profitPreview.gem_profit} />
+				<BetterTrading data={profitPreview.gem_profit} />
 			</div>
 		{/if}
 		{/await}

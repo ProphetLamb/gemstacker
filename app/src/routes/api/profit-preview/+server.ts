@@ -1,7 +1,16 @@
 import { API_ENDPOINT, API_KEY } from '$env/static/private';
-import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
+import {
+	gemProfitRequestParameterSchema,
+	type ExchangeRateToChaosResponse,
+	type GemProfitResponse
+} from '$lib/gemLevelProfitApi';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { error, json } from '@sveltejs/kit';
+
+export type ProfitPreviewResponse = {
+	gem_profit: GemProfitResponse;
+	exchange_rates: ExchangeRateToChaosResponse;
+};
 
 export const GET = async ({ fetch, url }) => {
 	const request = gemProfitRequestParameterSchema.parse({
@@ -14,14 +23,23 @@ export const GET = async ({ fetch, url }) => {
 	});
 
 	try {
-		const gemProfit = await gemProfitApi.getGemProfit(request);
-		return json(gemProfit, {
-			headers: {
-				'Cache-Control': 'public, immutable, no-transform, max-age=1800'
-			}
+		const exchangeRatesPromise = gemProfitApi.getExchangeRateToChaos({
+			league: request.league,
+			currency: ["Cartographer's Chisel", 'Divine Orb', 'Vaal Orb']
 		});
+		return json(
+			{
+				gem_profit: await gemProfitApi.getGemProfit(request),
+				exchange_rates: await exchangeRatesPromise
+			} satisfies ProfitPreviewResponse,
+			{
+				headers: {
+					'Cache-Control': 'public, immutable, no-transform, max-age=1800'
+				}
+			}
+		);
 	} catch (err) {
-		console.log("/api/profit-preview.GET", err)
+		console.log('/api/profit-preview.GET', err);
 		const message =
 			err instanceof Error
 				? `Oooops... something went wrong: ${err.message}`
