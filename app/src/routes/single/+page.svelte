@@ -39,7 +39,8 @@
 		function num(s?: string): number | undefined {
 			try {
 				return !!s ? parseInt(s) : undefined
-			} catch {
+			} catch (err) {
+				console.log('fillFormFromQuery.num', err)
 				return undefined
 			}
 		}

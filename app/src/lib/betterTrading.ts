@@ -274,7 +274,8 @@ export class BetterTradingBookmarks {
 			});
 
 			return [folder, trades];
-		} catch (e) {
+		} catch (err) {
+			console.log('BetterTradingBookmarks.deserialize', err)
 			return null;
 		}
 	}

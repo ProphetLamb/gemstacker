@@ -61,7 +61,8 @@
 		function num(s?: string): number | undefined {
 			try {
 				return !!s ? parseInt(s) : undefined
-			} catch {
+			} catch (err) {
+				console.log('/single.fillFromFromQuery.num', err)
 				return undefined
 			}
 		}

@@ -79,9 +79,10 @@
 			const sockets = pob.availableSockets(xml);
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
 			goto(url);
-		} catch (e) {
-			if (e instanceof Error) {
-				pobError = e.message;
+		} catch (err) {
+			console.log('/.gotoPob', err)
+			if (err instanceof Error) {
+				pobError = err.message;
 			} else {
 				pobError = 'Invalid build code';
 			}

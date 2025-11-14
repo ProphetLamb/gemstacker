@@ -21,6 +21,7 @@ export const GET = async ({ fetch, url }) => {
 			}
 		});
 	} catch (err) {
+		console.log("/api/profit-preview.GET", err)
 		const message =
 			err instanceof Error
 				? `Oooops... something went wrong: ${err.message}`
