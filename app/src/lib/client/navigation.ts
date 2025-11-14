@@ -9,15 +9,14 @@ export function getStateFromQuery<T extends Record<string, string | number | boo
   const query = Object.fromEntries(url.searchParams)
   const values = filter(query)
   const entires = Object.entries(values).filter(x => x[1] !== undefined && x[1] !== null)
-  // @ts-ignore: 2322
-  return Object.fromEntries(entires)
+  return Object.fromEntries(entires) as NoUndefinedField<T>
 }
 
-export function locationWithSearch<T extends Record<string, string | number | boolean | undefined>>(searchParams: T, location?: URL | string): URL {
+export function locationWithSearch<T extends Record<string, string | number | boolean | null | undefined>>(searchParams: T, location?: URL | string): URL {
   const exampleLocation = "http://example.com"
   const url = location === undefined ? new URL(exampleLocation) : new URL(location, exampleLocation)
   const entires = Object.entries(searchParams)
-  for (let [k, v] of entires) {
+  for (const [k, v] of entires) {
     if (v !== undefined && v !== null) {
       url.searchParams.set(encodeURIComponent(k), encodeURIComponent(v));
     } else {
