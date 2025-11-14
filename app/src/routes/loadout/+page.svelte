@@ -59,7 +59,11 @@
 
 	function fillFromFromQuery() {
 		function num(s?: string): number | undefined {
-			return !!s ? parseInt(s) : undefined;
+			try {
+				return !!s ? parseInt(s) : undefined
+			} catch {
+				return undefined
+			}
 		}
 		// fill form from query
 		$loadoutForm = {
@@ -74,25 +78,28 @@
 			})
 		};
 	}
+
+	function shouldAutoRequestForm() {
+		return !$availableGems && maxCountLoadout($loadoutForm) > 0
+	}
+
 	function submitFormFilledFromQuery() {
-		if (!$availableGems && maxCountLoadout($loadoutForm) > 0) {
-			// remove query parameters
-			replaceStateWithQuery({
-				red: undefined,
-				green: undefined,
-				blue: undefined,
-				white: undefined
-			});
-			// submit form filled via query
-			htmlLoadoutForm.requestSubmit();
-		}
+		// remove query parameters
+		replaceStateWithQuery({
+			red: undefined,
+			green: undefined,
+			blue: undefined,
+			white: undefined
+		});
+		// submit form filled via query
+		htmlLoadoutForm.requestSubmit();
 	}
 
 	if (browser) {
 		fillFromFromQuery();
 	}
 	onMount(async () => {
-		if (browser) {
+		if (browser && shouldAutoRequestForm()) {
 			submitFormFilledFromQuery();
 		}
 	});
