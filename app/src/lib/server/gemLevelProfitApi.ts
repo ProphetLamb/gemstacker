@@ -9,6 +9,7 @@ import {
 	type GemProfitRequestParameter,
 	type GemProfitResponse
 } from '$lib/gemLevelProfitApi';
+import { objectToQueryParams } from '$lib/url';
 
 export interface GemProfitApiOptions {
 	api_endpoint: string;
@@ -70,21 +71,4 @@ export class RawGemProfitApi {
 		const result = exchangeRateToChaosResponseSchema.parse(rawResult) as ExchangeRateToChaosResponse;
 		return result;
 	};
-}
-
-function objectToQueryParams(param: object) {
-	return Object.entries(param)
-		.filter(
-			([key, value]) => key !== undefined && key !== null && value !== undefined && value !== null
-		)
-		.flatMap(([key, value]) =>
-			Array.isArray(value)
-				? value.map((inner) => encodeKeyValue(key, inner))
-				: encodeKeyValue(key, value)
-		)
-		.join('&');
-
-	function encodeKeyValue(key: string, value: unknown) {
-		return `${encodeURIComponent(key)}=${encodeURIComponent(value as string | number | boolean)}`;
-	}
 }

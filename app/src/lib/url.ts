@@ -21,3 +21,20 @@ export function createRedirectTo(source: URL) {
   }
   return encodeURIComponent(ensureRootPath(source.searchParams.get('redirectTo')));
 }
+
+export function objectToQueryParams(param: object) {
+	return Object.entries(param)
+		.filter(
+			([key, value]) => key !== undefined && key !== null && value !== undefined && value !== null
+		)
+		.flatMap(([key, value]) =>
+			Array.isArray(value)
+				? value.map((inner) => encodeKeyValue(key, inner))
+				: encodeKeyValue(key, value)
+		)
+		.join('&');
+
+	function encodeKeyValue(key: string, value: unknown) {
+		return `${encodeURIComponent(key)}=${encodeURIComponent(value as string | number | boolean)}`;
+	}
+}
