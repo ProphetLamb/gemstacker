@@ -3,7 +3,7 @@ import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { error, json } from '@sveltejs/kit';
 
-export const GET = async ({ fetch, url, setHeaders }) => {
+export const GET = async ({ fetch, url }) => {
 	const request = gemProfitRequestParameterSchema.parse({
 		league: url.searchParams.get('league'),
 		min_experience_delta: parseInt(url.searchParams.get('min_experience_delta') || '0')
@@ -15,8 +15,11 @@ export const GET = async ({ fetch, url, setHeaders }) => {
 
 	try {
 		const gemProfit = await gemProfitApi.getGemProfit(request);
-		setHeaders({ 'Cache-Control': 'public, immutable, no-transform, max-age=1800' });
-		return json(gemProfit);
+		return json(gemProfit, {
+			headers: {
+				'Cache-Control': 'public, immutable, no-transform, max-age=1800'
+			}
+		});
 	} catch (err) {
 		const message =
 			err instanceof Error
