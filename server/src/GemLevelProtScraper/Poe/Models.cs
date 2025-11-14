@@ -90,6 +90,31 @@ public static class LeagueModeHelper
         }
         throw new ArgumentException($"Failed to parse {nameof(LeagueMode)} from text in league `{league}`", nameof(text));
     }
+
+    public static async Task<(LeagueMode Mode, IResult? Failure)> TryParseLeague(this PoeRepository poeRepository, string? league, CancellationToken cancellationToken = default)
+    {
+        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeagueMode.League | LeagueMode.Softcore, Realm.Pc, cancellationToken).ConfigureAwait(false);
+        if (baseLeague is null)
+        {
+            return (LeagueMode.None, Results.BadRequest(new
+            {
+                Error = "Invalid parameter value `league`",
+                Message = $"Failed to parse the league value `{league}`"
+            }));
+        }
+
+        if (!LeagueModeHelper.TryParse(league, baseLeague.Name, out var mode))
+        {
+            return (mode, Results.BadRequest(new
+            {
+                Error = "Invalid parameter value `league`",
+                Message = $"Failed to parse the league value `{league}`"
+            }));
+        }
+
+        return (mode, null);
+    }
+
 }
 
 public static class RealmHelper

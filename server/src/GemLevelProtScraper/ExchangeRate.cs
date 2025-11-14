@@ -154,10 +154,60 @@ public readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Ke
     }
 }
 
-public readonly struct CurrencyTypeName(string value)
+public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeName>, IParsable<CurrencyTypeName>
 {
+    public CurrencyTypeName(CurrencyTypeName existing) : this(existing.Value) {}
+
     public string Value { get; } = value;
 
     public static CurrencyTypeName DivineOrb => new("Divine Orb");
     public static CurrencyTypeName CartographersChisel => new("Cartographer's Chisel");
+    public static CurrencyTypeName ChaosOrb => new("Chaos Orb");
+    public static CurrencyTypeName VaalOrb => new("Vaal Orb");
+
+
+    public bool Equals(CurrencyTypeName other)
+    {
+        return StringComparer.OrdinalIgnoreCase.Equals(Value, other.Value);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is CurrencyTypeName other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+    public static bool operator ==(CurrencyTypeName left, CurrencyTypeName right) => left.Equals(right);
+
+    public static bool operator !=(CurrencyTypeName left, CurrencyTypeName right) => !(left == right);
+
+    public static CurrencyTypeName Parse(string? value)
+    {
+        return Parse(value, null);
+    }
+
+    public static CurrencyTypeName Parse(string? s, IFormatProvider? provider)
+    {
+        return TryParse(s, provider, out var c) ? c : throw new FormatException("Currency must not be null or empty");
+    }
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out CurrencyTypeName result)
+    {
+        return TryParse(s, null, out result);
+    }
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out CurrencyTypeName result)
+    {
+        if (!string.IsNullOrEmpty(s))
+        {
+            result = new(s);
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
 }

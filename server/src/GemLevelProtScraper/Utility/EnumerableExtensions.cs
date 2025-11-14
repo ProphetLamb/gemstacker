@@ -8,25 +8,39 @@ public static class EnumerableExtensions
 {
     public static IReadOnlyDictionary<TKey, ImmutableArray<T>> ToImmutableMap<T, TKey>(
         this IEnumerable<T> sequence,
-        Func<T, TKey> keySelector)
-    where TKey : notnull
+        Func<T, TKey> keySelector
+    )
+        where TKey : notnull
     {
-        return ToImmutableMap(sequence, keySelector, null, static item => item);
+        return ToImmutableMap(
+            sequence,
+            keySelector,
+            null,
+            static item => item
+        );
     }
 
     public static IReadOnlyDictionary<TKey, ImmutableArray<TValue>> ToImmutableMap<T, TKey, TValue>(
         this IEnumerable<T> sequence,
         Func<T, TKey> keySelector,
-        Func<T, TValue> valueSelector)
+        Func<T, TValue> valueSelector
+    )
         where TKey : notnull
     {
-        return ToImmutableMap(sequence, keySelector, null, valueSelector);
+        return ToImmutableMap(
+            sequence,
+            keySelector,
+            null,
+            valueSelector
+        );
     }
+
     public static ImmutableDictionary<TKey, ImmutableArray<TValue>> ToImmutableMap<T, TKey, TValue>(
         this IEnumerable<T> sequence,
         Func<T, TKey> keySelector,
         EqualityComparer<TKey>? keyComparer,
-        Func<T, TValue> valueSelector)
+        Func<T, TValue> valueSelector
+    )
         where TKey : notnull
     {
         // immutable dictionary is optimized for many keys.
@@ -56,7 +70,10 @@ public static class EnumerableExtensions
         return dict.ToImmutable();
     }
 
-    public static IEnumerable<TOut> SelectTruthy<TIn, TOut>(this IEnumerable<TIn> sequence, Func<TIn, TOut?> filterPredicate)
+    public static IEnumerable<TOut> SelectTruthy<TIn, TOut>(
+        this IEnumerable<TIn> sequence,
+        Func<TIn, TOut?> filterPredicate
+    )
         where TOut : class
     {
         foreach (var item in sequence)
@@ -68,7 +85,10 @@ public static class EnumerableExtensions
         }
     }
 
-    public static IEnumerable<TOut> SelectTruthy<TIn, TOut>(this IEnumerable<TIn> sequence, Func<TIn, TOut?> filterPredicate)
+    public static IEnumerable<TOut> SelectTruthy<TIn, TOut>(
+        this IEnumerable<TIn> sequence,
+        Func<TIn, TOut?> filterPredicate
+    )
         where TOut : struct
     {
         foreach (var item in sequence)
@@ -113,7 +133,10 @@ public static class EnumerableExtensions
         return true;
     }
 
-    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(this IAsyncEnumerable<TValue> seq, Func<TValue, TResult?> predicate)
+    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(
+        this IAsyncEnumerable<TValue> seq,
+        Func<TValue, TResult?> predicate
+    )
         where TResult : class
     {
         var en = seq.GetAsyncEnumerator();
@@ -125,7 +148,11 @@ public static class EnumerableExtensions
             }
         }
     }
-    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(this IAsyncEnumerable<TValue> seq, Func<TValue, TResult?> predicate)
+
+    public static async IAsyncEnumerable<TResult> SelectTruthy<TValue, TResult>(
+        this IAsyncEnumerable<TValue> seq,
+        Func<TValue, TResult?> predicate
+    )
         where TResult : struct
     {
         var en = seq.GetAsyncEnumerator();
@@ -136,5 +163,31 @@ public static class EnumerableExtensions
                 yield return result;
             }
         }
+    }
+
+    public static (List<TLeft>, List<TRight>) BiPartition<TIn, TLeft, TRight>(
+        this IEnumerable<TIn> seq,
+        Func<TIn, (TLeft?, TRight?)> biParitioner
+    )
+        where TLeft : class
+        where TRight : class
+    {
+        List<TLeft> leftItems = new();
+        List<TRight> rightItems = new();
+        foreach (var item in seq)
+        {
+            var (left, right) = biParitioner(item);
+            if (left is not null)
+            {
+                leftItems.Add(left);
+            }
+
+            if (right is not null)
+            {
+                rightItems.Add(right);
+            }
+        }
+
+        return (leftItems, rightItems);
     }
 }

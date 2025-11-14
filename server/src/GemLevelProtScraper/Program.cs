@@ -76,6 +76,53 @@ var app = builder.Build();
 
 app.UseResponseCaching();
 
+app.MapGet(
+    "exchange-rate-to-chaos",
+    async (
+        [FromServices] ExchangeRateProvider exchangeRateProvider,
+        [FromServices] PoeRepository poeRepository,
+        [FromQuery(Name = "currency")] string[] currencyNames,
+        [FromQuery(Name = "league")] string? league = null,
+        CancellationToken cancellationToken = default) =>
+    {
+        var (leagueMode, failure) = await poeRepository.TryParseLeague(league, cancellationToken).ConfigureAwait(false);
+        if (failure is not null)
+        {
+            return failure;
+        }
+
+        if (currencyNames.Length == 0)
+        {
+            return Results.Ok(new Dictionary<string, double>());
+        }
+
+        var col = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
+        var (exchangeRates, missingCurrencies) = currencyNames
+            .Where(s => !string.IsNullOrEmpty(s))
+            .Select(CurrencyTypeName.Parse)
+            .Distinct()
+            .BiPartition(ValueTuple<PoeNinjaCurrencyExchangeRate?, string?> (c) => col.TryGetValue(leagueMode, c, out var exchangeRate)
+                ? (exchangeRate, null)
+                : (null, c.Value)
+            );
+        if (missingCurrencies.Count != 0)
+        {
+            return Results.BadRequest(
+                new
+                {
+                    Error = "Invalid parameter value `from_currency`",
+                    Message = $"No exchange rates found for currency {string.Join(", ", missingCurrencies)}",
+                }
+            );
+        }
+
+        return Results.Ok(exchangeRates.ToDictionary(x => x.CurrencyTypeName, x => x.ChaosEquivalent));
+    }).CacheOutput(b => b
+        .Cache()
+        .Expire(TimeSpan.FromMinutes(30))
+        .SetVaryByQuery("league", "from_currency", "to_currency")
+    );
+
 app
     .MapGet("gem-profit", async (
         [FromServices] ProfitService profitService,
@@ -91,23 +138,10 @@ app
         CancellationToken cancellationToken = default
     ) =>
     {
-        var baseLeague = await poeRepository.GetByModeAndRealmAsync(LeagueMode.League | LeagueMode.Softcore, Realm.Pc, cancellationToken).ConfigureAwait(false);
-        if (baseLeague is null)
+        var (leagueMode, failure) = await poeRepository.TryParseLeague(league, cancellationToken).ConfigureAwait(false);
+        if (failure is not null)
         {
-            return Results.BadRequest(new
-            {
-                Error = "Invalid parameter value `league`",
-                Message = $"Failed to parse the league value `{league}`"
-            });
-        }
-
-        if (!LeagueModeHelper.TryParse(league, baseLeague.Name, out var leagueMode))
-        {
-            return Results.BadRequest(new
-            {
-                Error = "Invalid parameter value `league`",
-                Message = $"Failed to parse the league value `{league}`"
-            });
+            return failure;
         }
 
         ProfitRequest request = new()
