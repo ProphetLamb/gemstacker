@@ -46,7 +46,8 @@
 		}
 		const initialSettings = {
 			league: $localSettings.league,
-			min_experience_delta: $localSettings.min_experience_delta
+			min_experience_delta: $localSettings.min_experience_delta,
+			min_listing_count: $localSettings.min_listing_count
 		};
 		if (!form?.gemProfit) {
 			$profitForm = {
@@ -186,7 +187,25 @@
 				{#if $errors.min_experience_delta}
 					<aside class="alert variant-glass-error">{$errors.min_experience_delta}</aside>
 				{/if}
-			</label><AnimatedSearchButton type="submit" class="shadow-lg text-2xl">
+			</label>
+			<label class="label">
+				<span>Minimum number of listings for gem</span>
+				<input name="min_listing_count"
+				class="input"
+				type="range"
+				bind:value={$profitForm.min_listing_count}
+				{...$constraints.min_listing_count}
+				/>
+				<p>
+					<span class="text-token"
+						>{intlCompactNumber.format($profitForm.min_listing_count || 0)}</span
+					><span class="text-sm text-surface-600-300-token">&nbsp;listing</span>
+				</p>
+				{#if $errors.min_listing_count}
+					<aside class="alert variant-glass-error">{$errors.min_listing_count}</aside>
+				{/if}
+			</label>
+			<AnimatedSearchButton type="submit" class="shadow-lg text-2xl">
 				<Icon src={hi.MagnifyingGlass} size="22" />
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
 			>
