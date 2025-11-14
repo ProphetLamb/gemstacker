@@ -1,3 +1,7 @@
+<script lang="ts">
+	export let data
+</script>
+
 <div class="w-full h-full mx-auto flex flex-col gap-4 justify-center items-center">
 	<h1 class="h1">Imprint</h1>
 	<div class="text-token card p-4">
@@ -33,3 +37,11 @@
 		</table>
 	</div>
 </div>
+
+<svelte:head>
+	<meta property="og:title" content="Gem Stacker - Imprint" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="{data.request_url}" />
+	<meta property="og:locale" content="en-US" />
+	<meta property="og:locale:alternate" content="en-GB" />
+</svelte:head> 

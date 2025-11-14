@@ -230,3 +230,11 @@
 </Wrapper>
 
 <style lang="postcss"></style>
+
+<svelte:head>
+	<meta property="og:title" content="Gem Stacker - The best gems for your loadout" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="{data.request_url}" />
+	<meta property="og:locale" content="en-US" />
+	<meta property="og:locale:alternate" content="en-GB" />
+</svelte:head> 

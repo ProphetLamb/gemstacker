@@ -14,6 +14,8 @@
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 
+	export let data
+
 	let pobText: string = '';
 	$: pobError = '';
 
@@ -246,3 +248,12 @@
 		}
 	}
 </style>
+
+<svelte:head>
+	<meta property="og:title" content="Gem Stacker - Gem leveling for profit" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="{data.request_url}" />
+	<meta property="og:locale" content="en-US" />
+	<meta property="og:locale:alternate" content="en-GB" />
+	<meta property="og:image" content="{data.request_url.split(/[?#]/)[0]}/api/og.png" />
+</svelte:head> 

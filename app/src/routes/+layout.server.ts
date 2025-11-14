@@ -9,7 +9,7 @@ async function getLeauges(fetch: (input: RequestInfo | URL, init?: RequestInit |
   return leaguesResponse.result;
 }
 
-export const load: LayoutServerLoad = loadFlash(async ({ fetch }) => {
+export const load: LayoutServerLoad = loadFlash(async ({ fetch, url }) => {
   const leagues = await getLeauges(fetch);
-  return { leagues };
+  return { leagues, request_url: url.toString() };
 })
