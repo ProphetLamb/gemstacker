@@ -136,19 +136,25 @@
 </div>
 <Wrapper>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your build</h2>
-		<label class="label">
-			<span>Build code</span>
-			<input class="input" type="text" name="red" bind:value={pobText} />
-			{#if pobError}
-				<aside class="alert variant-glass-error">{pobError}</aside>
+		<h2 class="h2">&#133;for your perusal</h2>
+			<label class="label">
+			<span>Gem Name</span>
+			<input
+				name="gem_name"
+				class="input"
+				type="text"
+				placeholder="Gem name glob..."
+				bind:value={$profitForm.gem_name}
+				{...$profitConstraints.gem_name}
+			/>
+			{#if $profitErrors.gem_name}
+				<aside class="alert variant-glass-error">{$profitErrors.gem_name}</aside>
 			{/if}
 		</label>
-
-		<button class="btn variant-filled-primary shadow-lg text-2xl" on:click={gotoPob}>
+		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl">
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
-			<span class="mr-0.5">Build</span>
-		</button>
+			<span class="mr-0.5">Search</span>
+		</a>
 	</WrapperItem>
 	<div class="divider">
 		<div>&nbsp;</div>
@@ -222,25 +228,19 @@
 		<div>&nbsp;</div>
 	</div>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your perusal</h2>
-			<label class="label">
-			<span>Gem Name</span>
-			<input
-				name="gem_name"
-				class="input"
-				type="text"
-				placeholder="Gem name glob..."
-				bind:value={$profitForm.gem_name}
-				{...$profitConstraints.gem_name}
-			/>
-			{#if $profitErrors.gem_name}
-				<aside class="alert variant-glass-error">{$profitErrors.gem_name}</aside>
+		<h2 class="h2">&#133;for your build</h2>
+		<label class="label">
+			<span>Build code</span>
+			<input class="input" type="text" name="red" bind:value={pobText} />
+			{#if pobError}
+				<aside class="alert variant-glass-error">{pobError}</aside>
 			{/if}
 		</label>
-		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl">
+
+		<button class="btn variant-filled-primary shadow-lg text-2xl" on:click={gotoPob}>
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
-			<span class="mr-0.5">Search</span>
-		</a>
+			<span class="mr-0.5">Build</span>
+		</button>
 	</WrapperItem>
 </Wrapper>
 
