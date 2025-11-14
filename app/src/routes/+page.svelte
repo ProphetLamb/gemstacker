@@ -13,6 +13,7 @@
 	import { gemProfitRequestParameterSchema, type GemProfitResponse, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
+	import MetaHead from '$lib/client/MetaHead.svelte';
 
 	export let data
 
@@ -251,10 +252,5 @@
 </style>
 
 <svelte:head>
-	<meta property="og:title" content="Gem Stacker - Gem leveling for profit" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="{data.request_url}" />
-	<meta property="og:locale" content="en-US" />
-	<meta property="og:locale:alternate" content="en-GB" />
-	<meta property="og:image" content="{data.request_url.split(/[?#]/)[0].replace(/\/$/, '')}/api/og.png" />
-</svelte:head> 
+	<MetaHead request_url={data.request_url} />
+</svelte:head>
