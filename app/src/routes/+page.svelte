@@ -10,7 +10,7 @@
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
-	import type { GemProfitResponse, GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import { gemProfitRequestParameterSchema, type GemProfitResponse, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 
@@ -19,12 +19,21 @@
 
 	const {
 		form: loadoutForm,
-		errors,
-		constraints
+		errors: loadoutErrors,
+		constraints: loadoutConstraints
 	} = superForm(superValidateSync(loadoutRequestSchema), {
 		validators: loadoutRequestSchema,
 		taintedMessage: null
 	});
+
+	const {
+		form: profitForm,
+		errors: profitErrors,
+		constraints: profitConstraints
+	} = superForm(superValidateSync(gemProfitRequestParameterSchema), {
+		validators: gemProfitRequestParameterSchema,
+		taintedMessage: null
+	})
 
 	$: loadoutHref = locationWithSearch(
 		{
@@ -34,7 +43,14 @@
 			white: $loadoutForm.white
 		},
 		'/loadout'
-	).pathSearchHash();
+	).pathSearchHash()
+
+	$: profitHref = locationWithSearch(
+		{
+			gem_name: $profitForm.gem_name
+		},
+		'/single'
+	).pathSearchHash()
 
 	$: gemProfit = getProfitPreview()
 
@@ -142,10 +158,10 @@
 					type="number"
 					name="red"
 					bind:value={$loadoutForm.red}
-					{...$constraints.red}
+					{...$loadoutConstraints.red}
 				/>
-				{#if $errors.red}
-					<aside class="alert variant-glass-error">{$errors.red}</aside>
+				{#if $loadoutErrors.red}
+					<aside class="alert variant-glass-error">{$loadoutErrors.red}</aside>
 				{/if}
 			</label>
 			<label class="label">
@@ -155,10 +171,10 @@
 					type="number"
 					name="green"
 					bind:value={$loadoutForm.green}
-					{...$constraints.green}
+					{...$loadoutConstraints.green}
 				/>
-				{#if $errors.green}
-					<aside class="alert variant-glass-error">{$errors.green}</aside>
+				{#if $loadoutErrors.green}
+					<aside class="alert variant-glass-error">{$loadoutErrors.green}</aside>
 				{/if}
 			</label>
 			<label class="label">
@@ -168,10 +184,10 @@
 					type="number"
 					name="blue"
 					bind:value={$loadoutForm.blue}
-					{...$constraints.blue}
+					{...$loadoutConstraints.blue}
 				/>
-				{#if $errors.blue}
-					<aside class="alert variant-glass-error">{$errors.blue}</aside>
+				{#if $loadoutErrors.blue}
+					<aside class="alert variant-glass-error">{$loadoutErrors.blue}</aside>
 				{/if}
 			</label>
 			<label class="label">
@@ -181,10 +197,10 @@
 					type="number"
 					name="white"
 					bind:value={$loadoutForm.white}
-					{...$constraints.white}
+					{...$loadoutConstraints.white}
 				/>
-				{#if $errors.white}
-					<aside class="alert variant-glass-error">{$errors.white}</aside>
+				{#if $loadoutErrors.white}
+					<aside class="alert variant-glass-error">{$loadoutErrors.white}</aside>
 				{/if}
 			</label>
 		</div>
@@ -200,7 +216,21 @@
 	</div>
 	<WrapperItem>
 		<h2 class="h2">&#133;for your perusal</h2>
-		<a href="/single" class="btn variant-filled-primary shadow-lg text-2xl">
+			<label class="label">
+			<span>Gem Name</span>
+			<input
+				name="gem_name"
+				class="input"
+				type="text"
+				placeholder="Gem name glob..."
+				bind:value={$profitForm.gem_name}
+				{...$profitConstraints.gem_name}
+			/>
+			{#if $profitErrors.gem_name}
+				<aside class="alert variant-glass-error">{$profitErrors.gem_name}</aside>
+			{/if}
+		</label>
+		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl">
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
 			<span class="mr-0.5">Search</span>
 		</a>
