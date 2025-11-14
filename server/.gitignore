@@ -355,3 +355,6 @@ MigrationBackup/
 .env
 .env.*
 !.env.example
+
+# IIS
+applicationhost.config
