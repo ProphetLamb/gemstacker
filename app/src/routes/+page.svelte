@@ -157,9 +157,13 @@
 				<aside class="alert variant-glass-error">{$profitErrors.gem_name}</aside>
 			{/if}
 		</label>
-		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl">
+		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl relative">
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
 			<span class="mr-0.5">Search</span>
+			<div class="btn variant-filled-warning absolute -top-4 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-sm">
+				<Icon src={hi.Scale} size="16" />
+				Advanced
+			</div>
 		</a>
 	</WrapperItem>
 	<div class="divider">
