@@ -10,11 +10,12 @@
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
-	import { gemProfitRequestParameterSchema, type GemProfitResponse, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import { gemProfitRequestParameterSchema, type GemProfitRequestParameter, type GemProfitResponse, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import MetaHead from '$lib/client/MetaHead.svelte';
 	import type { ProfitPreviewResponse } from './api/profit-preview/+server.js';
+	import { objectToQueryParams } from '$lib/url.js';
 
 	export let data
 
@@ -59,9 +60,11 @@
 	$: profitPreview = getProfitPreview()
 
 	async function getProfitPreview(): Promise<ProfitPreviewResponse | undefined> {
-		const query = new URLSearchParams();
-		query.set('league', $localSettings.league)
-		query.set('min_experience_delta', $localSettings.min_experience_delta.toString())
+		const query = objectToQueryParams({
+			league: $localSettings.league,
+			min_experience_delta: $localSettings.min_experience_delta,
+			min_listing_count: $localSettings.min_listing_count,
+		} satisfies GemProfitRequestParameter)
 		const rsp = await fetch(`/api/profit-preview?${query}`)
 		if (rsp.status < 200 || rsp.status >= 300) {
 			console.log('/.getProfitPreview', await rsp.text())
