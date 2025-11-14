@@ -256,5 +256,5 @@
 	<meta property="og:url" content="{data.request_url}" />
 	<meta property="og:locale" content="en-US" />
 	<meta property="og:locale:alternate" content="en-GB" />
-	<meta property="og:image" content="{data.request_url.split(/[?#]/)[0]}/api/og.png" />
+	<meta property="og:image" content="{data.request_url.split(/[?#]/)[0].replace(/\/$/, '')}/api/og.png" />
 </svelte:head> 
