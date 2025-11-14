@@ -84,7 +84,7 @@
 	</div>
 	<div class="flex flex-col items-center">
 		{#await gemProfit}
-			<div class="text-token bg-surface-100/70 dark:bg-surface-800/50 card p-4 space-y-2">
+			<div class="text-token bg-surface-100/70 dark:bg-surface-800/80 card p-4 space-y-2">
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
