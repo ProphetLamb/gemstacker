@@ -149,4 +149,6 @@ export type ExchangeRateToChaosResponse = Record<CurrencyTypeName, number>;
 
 export const exchangeRateToChaosResponseSchema = z.record(z.string(), z.number());
 
-export type CurrencyTypeName = 'Divine Orb' | "Cartographer's Chisel" | 'Chaos Orb' | 'Vaal Orb';
+export type CurrencyTypeName = 'Divine Orb' | "Gemcutter's Prism" | "Cartographer's Chisel" | 'Chaos Orb' | 'Vaal Orb';
+
+export interface WellKnownExchangeRateToChaosResponse { divine_orb: number, cartographers_chisel: number, gemcutters_prism: number, vaal_orb: number }
