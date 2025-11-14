@@ -8,6 +8,8 @@
 	import { deepEqual } from '$lib/compare';
 	import { leagues } from './leagues';
 	import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
+	import GemFilter from './GemFilter.svelte';
+	import { availableGems } from './availableGems';
 
 	export let textClass: CssClasses = '';
 
@@ -51,7 +53,6 @@
 			</label>
 			<label class="label">
 				<span>Minimum experience required for leveling</span>
-				<!-- svelte-ignore missing-declaration -->
 				<input
 					name="min_experience_delta"
 					class="input"
@@ -65,6 +66,23 @@
 					><span class="text-sm text-surface-600-300-token">exp</span>
 				</p>
 			</label>
+			<label class="label">
+				<span>Minimum number of listings for gem</span>
+				<input name="min_listing_count"
+				class="input"
+				type="range"
+				bind:value={$localSettings.min_listing_count}
+				{...gemProfitRequestParameterConstraints.min_listing_count}
+				/>
+				<p>
+					<span class="text-token"
+						>{intlCompactNumber.format($localSettings.min_listing_count || 0)}</span
+					><span class="text-sm text-surface-600-300-token">&nbsp;listing</span>
+				</p>
+			</label>
+			{#if $availableGems && $availableGems.length > 0}
+				<GemFilter />
+			{/if}
 			<hr class="!border-t-2 w-full opacity-50" />
 			<button class="btn variant-soft-error align-middle"
 				><Icon src={hi.XMark} size="16" />
