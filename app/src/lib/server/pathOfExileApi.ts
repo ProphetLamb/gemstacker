@@ -1,3 +1,4 @@
+import type { Fetch } from '$lib/fetch';
 import {
 	type PoeTradeLeaguesResponse,
 	type PoeTradeLeagueRequest,
@@ -10,8 +11,6 @@ import {
 	poeTradeQueryRequestSchema,
 	poeTradeQueryResponseDataSchema
 } from '$lib/pathOfExileApi';
-
-type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
 
 export interface PoeTradeLeagueApiOptions {
 	api_endpoint: string;

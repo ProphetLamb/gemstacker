@@ -1,3 +1,4 @@
+import type { Fetch } from '$lib/fetch';
 import {
 	exchangeRateToChaosRequestSchema as exchangeRateToChaosRequestParameterSchema,
 	exchangeRateToChaosResponseSchema,
@@ -13,8 +14,6 @@ export interface GemProfitApiOptions {
 	api_endpoint: string;
 	api_key: string;
 }
-
-type Fetch = (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>;
 
 export interface GemProfitApi {
 	getGemProfit(param: GemProfitRequestParameter): Promise<GemProfitResponse>;

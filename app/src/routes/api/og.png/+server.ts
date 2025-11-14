@@ -1,4 +1,5 @@
 import { API_ENDPOINT, API_KEY } from '$env/static/private';
+import type { Fetch } from '$lib/fetch';
 import {
 	gemProfitRequestParameterConstraints,
 	type GemProfitResponse
@@ -123,7 +124,7 @@ async function imageFromHtml(html: string) {
 }
 
 async function defaultGemProfit(
-	fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+	fetch: Fetch
 ): Promise<GemProfitResponse | undefined> {
 	try {
 		const poeApi = createPathOfExileApi(fetch);
