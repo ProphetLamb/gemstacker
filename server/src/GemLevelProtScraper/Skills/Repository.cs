@@ -28,7 +28,7 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
             )
             .Where(r
                 => (containsName == null || r.Skill.Name.Contains(containsName))
-                && r.Prices.Count() > 0)
+                && r.Prices.Any())
             .Select(r
                 => new
                 {

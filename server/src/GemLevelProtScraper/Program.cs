@@ -4,6 +4,7 @@ using GemLevelProtScraper;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
+using GemLevelProtScraper.Profit;
 using GemLevelProtScraper.Skills;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;

@@ -1,9 +1,8 @@
 using System.Runtime.CompilerServices;
-using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.Options;
 
-namespace GemLevelProtScraper;
+namespace GemLevelProtScraper.Profit;
 
 public sealed class ProfitServiceOptions : IOptions<ProfitServiceOptions>
 {
@@ -11,68 +10,6 @@ public sealed class ProfitServiceOptions : IOptions<ProfitServiceOptions>
 
     ProfitServiceOptions IOptions<ProfitServiceOptions>.Value => this;
 }
-
-public sealed record ProfitRequest
-{
-    public required LeagueMode League { get; init; }
-    public required string? GemNameWildcard { get; init; }
-    public long AddedQuality { get; init; }
-    public double? MinSellPriceChaos { get; init; }
-    public double? MaxBuyPriceChaos { get; init; }
-    public double? MinExperienceDelta { get; init; }
-    public long MinimumListingCount { get; init; }
-}
-
-public sealed record ProfitResponse
-{
-    public required string Name { get; init; }
-    public required string? Icon { get; init; }
-    public required GemColor Color { get; init; }
-    public required ProfitLevelResponse Min { get; init; }
-    public required ProfitLevelResponse Max { get; init; }
-    public required double GainMargin { get; init; }
-    public required string Type { get; init; }
-    public required string? Discriminator { get; init; }
-    public required string ForeignInfoUrl { get; init; }
-    public required ProfitResponseRecipes Recipes { get; init; }
-}
-
-public sealed record ProfitResponseRecipes
-{
-    public required ProfitMargin QualityThenLevel { get; init; }
-    public required ProfitMargin LevelVendorLevel { get; init; }
-}
-
-public sealed record ProfitLevelResponse
-{
-    public required long Level { get; init; }
-    public required long Quality { get; init; }
-    public required double Price { get; init; }
-    public required double PriceInDivines { get; init; }
-    public required double Experience { get; init; }
-    public required long ListingCount { get; init; }
-}
-
-public sealed record ProfitMargin
-{
-    public required double AdjustedEarnings { get; init; }
-    public required double ExperienceDelta { get; init; }
-    public required double GainMargin { get; init; }
-    public required double QualitySpent { get; init; }
-}
-
-
-public enum GemColor
-{
-    White = 0,
-    Blue = 1,
-    Green = 2,
-    Red = 3,
-}
-
-internal readonly record struct PriceWithExp(SkillGemPrice Data, double Exp);
-internal readonly record struct PriceDelta(ProfitMargin QualityThenLevel, ProfitMargin LevelVendorLevel, PriceWithExp Min, PriceWithExp Max, SkillGem Data);
-
 public sealed class ProfitService(SkillGemRepository repository, ExchangeRateProvider exchangeRateProvider, IOptions<ProfitServiceOptions> options)
 {
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(ProfitRequest request, [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -113,7 +50,9 @@ public sealed class ProfitService(SkillGemRepository repository, ExchangeRatePro
                     ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
                     Recipes = recipes,
                     GainMargin = gainMargin,
+                    // ReSharper disable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
                     Icon = g.Delta.Min.Data.Icon ?? g.Delta.Max.Data.Icon ?? g.Skill.IconUrl,
+                    // ReSharper enable NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
                     Max = FromPrice(g.Delta.Max.Data, g.Delta.Max.Exp),
                     Min = FromPrice(g.Delta.Min.Data, g.Delta.Min.Exp),
                 };

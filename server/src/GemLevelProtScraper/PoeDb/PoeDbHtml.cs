@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using GemLevelProtScraper.Profit;
 
 namespace GemLevelProtScraper.PoeDb;
 
@@ -14,7 +15,7 @@ public static partial class PoeDbHtml
         }
 
         if (!a.ClassList
-            .SelectTruthy(c => TryParseColour(c, out var color) ? color : default(GemColor?))
+            .SelectTruthy(c => TryParseColour(c, out var gc) ? gc : default(GemColor?))
             .TryGetFirst(out var color)
         )
         {
@@ -68,7 +69,7 @@ public static partial class PoeDbHtml
     public static IHtmlHeadingElement? TryGetHeader(IHtmlCollection<IElement> headers, string skillName, string headerName, ILogger? logger = null)
     {
 
-        if (headers.OfType<IHtmlHeadingElement>().FirstOrDefault(header => IsHeaderTextEqual(header, headerName)) is not { } header)
+        if (headers.OfType<IHtmlHeadingElement>().FirstOrDefault(h => IsHeaderTextEqual(h, headerName)) is not { } header)
         {
             logger?.LogWarning("Failed to find table for header: Missing card with card-header {Header} for {Skill}", headerName, skillName);
             return null;
@@ -108,6 +109,7 @@ public static partial class PoeDbHtml
 
     public static bool IsHeaderTextEqual(IElement header, ReadOnlySpan<char> expectedText)
     {
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         var input = header.TextContent ?? "";
         if (input.AsSpan().Equals(expectedText, StringComparison.InvariantCultureIgnoreCase))
         {

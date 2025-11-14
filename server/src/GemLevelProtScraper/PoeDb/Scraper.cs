@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using MongoDB.Driver;
 using MongoDB.Migration;
 using ScrapeAAS;
 
@@ -112,11 +111,11 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
 
             var qualities = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
                 ? ParseQualitiesTable(qualitiesTable).ToImmutableArray()
-                : ImmutableArray<PoeDbGemQuality>.Empty;
+                : [];
 
             var skillLevels = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Level Effect", logger) is { } levelsTable
                 ? ParseLevelsTable(levelsTable).ToImmutableArray()
-                : ImmutableArray<PoeDbSkillLevel>.Empty;
+                : [];
 
             var skillDescription = PoeDbHtml.TryGetHeader(headers, skillName, skillName) is { } header
                 && PoeDbHtml.TryGetTableForHeader(headers, skillName, skillName) is { } descriptionTable
@@ -199,9 +198,9 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
             var class_ = titleView.Match("Class*").Single().First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href)).Single();
             var metadata = titleView["ItemType"].Single().First().TextContent;
             var acronyms = titleView["Acronym"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
-                ?? Enumerable.Empty<PoeDbLink>();
+                ?? [];
             var references = titleView["Reference"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
-                ?? Enumerable.Empty<PoeDbLink>();
+                ?? [];
             return new(
                 baseType,
                 class_,

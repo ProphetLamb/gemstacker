@@ -35,9 +35,9 @@ public sealed partial class ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAu
         }
         return Task.FromResult(AuthenticateResult.NoResult());
 
-        AuthenticateResult TryAuthenticate(string authorizationHeader)
+        AuthenticateResult TryAuthenticate(string h)
         {
-            if (MatchAuthenticationHeader().Match(authorizationHeader) is not { Success: true } match)
+            if (MatchAuthenticationHeader().Match(h) is not { Success: true } match)
             {
                 return AuthenticateResult.NoResult();
             }

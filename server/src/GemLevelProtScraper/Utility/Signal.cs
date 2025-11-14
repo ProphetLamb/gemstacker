@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Channels;
 using ScrapeAAS;
@@ -8,7 +7,7 @@ namespace GemLevelProtScraper;
 
 public sealed class SignalCompletionStorage
 {
-    private readonly Dictionary<Type, Entry> _tcsByType = new();
+    private readonly Dictionary<Type, Entry> _tcsByType = [];
 
     public TaskCompletionSource<T> TakeOrWait<T>()
     {

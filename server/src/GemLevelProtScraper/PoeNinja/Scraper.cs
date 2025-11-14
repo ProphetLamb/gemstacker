@@ -14,6 +14,7 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
         {
             await using var scope = serviceScopeFactory.CreateAsyncScope();
             await Task.WhenAll(
+                // ReSharper disable once AccessToDisposedClosure
                 LeagueModeHelper.WellknownLeagues.Select(league => ScrapeTradeLeague(scope, league, stoppingToken))
             ).ConfigureAwait(false);
 
@@ -77,7 +78,7 @@ internal sealed class PoeNinjaCurrencySpider(IStaticPageLoader pageLoader, IData
 
 internal sealed class PoeNinjaCleanup(PoeNinjaGemRepository gemRepository, PoeNinjaCurrencyRepository currencyRepository) : IDataflowHandler<PoeNinjaList>, IDataflowHandler<PoeNinjaListCompleted>
 {
-    private readonly Dictionary<LeagueMode, DateTime> _startTimestamp = new();
+    private readonly Dictionary<LeagueMode, DateTime> _startTimestamp = [];
 
     public ValueTask HandleAsync(PoeNinjaList message, CancellationToken cancellationToken = default)
     {
@@ -113,7 +114,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaGemRepository gemRepository, PoeNi
 internal sealed class PoeNinjaSink(PoeNinjaGemRepository gemRepository, PoeNinjaCurrencyRepository currencyRepository) : IDataflowHandler<PoeNinjaApiGemPriceEnvalope>, IDataflowHandler<PoeNinjaApiCurrencyPriceEnvalope>
 {
     private readonly PoeNinjaGemRepository _gemRepository = gemRepository ?? throw new ArgumentNullException(nameof(gemRepository));
-    private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository ?? throw new ArgumentNullException(nameof(gemRepository));
+    private readonly PoeNinjaCurrencyRepository _currencyRepository = currencyRepository ?? throw new ArgumentNullException(nameof(currencyRepository));
 
     public async ValueTask HandleAsync(PoeNinjaApiGemPriceEnvalope newGem, CancellationToken cancellationToken = default)
     {

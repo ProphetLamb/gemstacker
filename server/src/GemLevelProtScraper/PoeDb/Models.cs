@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using GemLevelProtScraper.Profit;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeDb;

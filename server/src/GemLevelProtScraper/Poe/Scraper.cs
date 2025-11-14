@@ -21,7 +21,7 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
     }
 }
 
-public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeague> publisher, IStaticPageLoader pageLoader, IHttpClientFactory httpClientFactory) : IDataflowHandler<PoeLeagueList>
+public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeague> publisher, IHttpClientFactory httpClientFactory) : IDataflowHandler<PoeLeagueList>
 {
     private readonly JsonSerializerOptions _jsonSerializerOptions = new(JsonSerializerDefaults.Web);
     public async ValueTask HandleAsync(PoeLeagueList message, CancellationToken cancellationToken = default)

@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using GemLevelProtScraper.Profit;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.Skills;

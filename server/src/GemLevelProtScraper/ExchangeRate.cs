@@ -8,7 +8,7 @@ namespace GemLevelProtScraper;
 public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
 {
     private readonly TaskCompletionSource _serviceStartCompletion = new();
-    private readonly object _exchangeRatesLock = new();
+    private readonly Lock _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = [];
     private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
 
