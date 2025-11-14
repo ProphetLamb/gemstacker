@@ -17,10 +17,19 @@ export const gemProfitRequestParameterSchema = z.object({
 	added_quality: z.number().min(0).max(100).nullable().optional(),
 	min_sell_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	max_buy_price_chaos: z.number().min(1).max(999).nullable().optional(),
-	min_experience_delta: z.number().min(200000000).max(2000000000).default(340000000),
+	min_experience_delta: z.number().min(200000000).max(2000000000).step(50000000).default(300000000),
 	items_offset: z.number().nullable().optional().default(0),
 	items_count: z.number().nullable().optional().default(10)
-});
+})
+
+export const gemProfitRequestParameterConstraints = {
+	min_experience_delta: {
+		defaultValue: gemProfitRequestParameterSchema.shape.min_experience_delta._def.defaultValue(),
+		step: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "multipleOf") as { value: number }).value,
+		min: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "min") as { value: number }).value,
+		max: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "max") as { value: number }).value,
+	}
+}
 
 export interface GemProfitResponseItemPrice {
 	price: number;
