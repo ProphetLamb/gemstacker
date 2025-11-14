@@ -11,7 +11,6 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
     private readonly Lock _exchangeRatesLock = new();
     private Dictionary<Key, PoeNinjaCurrencyExchangeRate> _exchangeRates = [];
     private Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? _exchangeRatesTask;
-    private Timer? _clearExchangeRatesTask;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -40,17 +39,6 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
 
         async ValueTask<ExchangeRateCollection> GetExchangeRatesTask(Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? exchangeRatesTask, CancellationToken cancellationToken)
         {
-            var oldTimer = Interlocked.Exchange(ref _clearExchangeRatesTask, new(
-                static self => ((ExchangeRateProvider)self!)._exchangeRatesTask = null,
-                this,
-                TimeSpan.FromSeconds(30),
-                Timeout.InfiniteTimeSpan
-            ));
-            if (oldTimer is not null)
-            {
-                await oldTimer.DisposeAsync().ConfigureAwait(false);
-            }
-
             if (exchangeRatesTask is null)
             {
                 await _serviceStartCompletion.Task.ConfigureAwait(false);
