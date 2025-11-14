@@ -18,7 +18,7 @@ function localSettingsStore() {
 			league: '',
 			min_experience_delta: gemProfitRequestParameterConstraints.min_experience_delta.defaultValue,
 			exclude_gems: [],
-			min_listing_count: 8
+			min_listing_count: gemProfitRequestParameterConstraints.min_listing_count.defaultValue
 		}
 	);
 	const reader = derived([storage, leagues], ([storage, leagues]) => {

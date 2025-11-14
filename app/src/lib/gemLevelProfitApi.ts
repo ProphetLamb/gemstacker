@@ -18,7 +18,7 @@ export const gemProfitRequestParameterSchema = z.object({
 	min_sell_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	max_buy_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	min_experience_delta: z.number().min(200000000).max(2000000000).step(50000000).default(300000000),
-	min_listing_count: z.number().min(1).max(100).step(10).default(10).nullable().optional(),
+	min_listing_count: z.number().min(1).max(100).step(10).default(20).nullable().optional(),
 	items_count: z.number().nullable().optional().default(10)
 });
 
