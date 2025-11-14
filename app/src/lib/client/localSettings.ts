@@ -8,6 +8,7 @@ export interface LocalSettings {
 	league: string;
 	min_experience_delta: number;
 	exclude_gems: string[];
+	min_listing_count: number;
 }
 
 function localSettingsStore() {
@@ -16,15 +17,17 @@ function localSettingsStore() {
 		{
 			league: '',
 			min_experience_delta: gemProfitRequestParameterConstraints.min_experience_delta.defaultValue,
-			exclude_gems: []
+			exclude_gems: [],
+			min_listing_count: 8
 		}
 	);
 	const reader = derived([storage, leagues], ([storage, leagues]) => {
-		const { league, min_experience_delta, exclude_gems } = storage;
+		const { league, min_experience_delta, exclude_gems, min_listing_count } = storage;
 		return {
 			min_experience_delta: normalizeMinExperienceDelta(min_experience_delta),
 			league: normalizeLeague(league, leagues),
-			exclude_gems: normalizeExcludeGems(exclude_gems)
+			exclude_gems: normalizeExcludeGems(exclude_gems),
+			min_listing_count: normalizeMinListingsCount(min_listing_count)
 		};
 	});
 	return {
@@ -34,8 +37,8 @@ function localSettingsStore() {
 	};
 
 	function normalizeExcludeGems(exclude_gems: string[]) {
-    return [...new Set(exclude_gems)]
-  }
+		return [...new Set(exclude_gems)];
+	}
 
 	function normalizeLeague(league: string, leagues: PoeTradeLeagueResponse[]) {
 		if (leagues.length !== 0 && !leagues.find((l) => l.id == league)) {
@@ -44,8 +47,11 @@ function localSettingsStore() {
 		return league;
 	}
 
-	function normalizeMinExperienceDelta(min_experience_delta: number) {
+	function normalizeMinExperienceDelta(min_experience_delta?: number) {
 		const constraints = gemProfitRequestParameterConstraints.min_experience_delta;
+		if (!min_experience_delta) {
+			return constraints.defaultValue;
+		}
 		const steppedDelta = Math.floor(min_experience_delta / constraints.step) * constraints.step;
 		if (steppedDelta !== min_experience_delta) {
 			return steppedDelta;
@@ -57,6 +63,24 @@ function localSettingsStore() {
 			return constraints.max;
 		}
 		return min_experience_delta;
+	}
+
+	function normalizeMinListingsCount(min_listing_count?: number) {
+		const constraints = gemProfitRequestParameterConstraints.min_listing_count;
+		if (!min_listing_count) {
+			return constraints.defaultValue;
+		}
+		const steppedDelta = Math.floor(min_listing_count / constraints.step) * constraints.step;
+		if (steppedDelta !== min_listing_count) {
+			return steppedDelta;
+		}
+		if (min_listing_count < constraints.min) {
+			return constraints.min;
+		}
+		if (min_listing_count > constraints.max) {
+			return constraints.max;
+		}
+		return min_listing_count;
 	}
 }
 

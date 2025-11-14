@@ -18,7 +18,7 @@ export const gemProfitRequestParameterSchema = z.object({
 	min_sell_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	max_buy_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	min_experience_delta: z.number().min(200000000).max(2000000000).step(50000000).default(300000000),
-	items_offset: z.number().nullable().optional().default(0),
+	min_listing_count: z.number().min(1).max(100).step(10).default(10).nullable().optional(),
 	items_count: z.number().nullable().optional().default(10)
 });
 
@@ -37,6 +37,25 @@ export const gemProfitRequestParameterConstraints = {
 		).value,
 		max: (
 			gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(
+				({ kind }) => kind === 'max'
+			) as { value: number }
+		).value
+	},
+	min_listing_count: {
+		defaultValue:
+			gemProfitRequestParameterSchema.shape.min_listing_count._def.innerType._def.innerType._def.defaultValue(),
+		step: (
+			gemProfitRequestParameterSchema.shape.min_listing_count._def.innerType._def.innerType._def.innerType._def.checks.find(
+				({ kind }) => kind === 'multipleOf'
+			) as { value: number }
+		).value,
+		min: (
+			gemProfitRequestParameterSchema.shape.min_listing_count._def.innerType._def.innerType._def.innerType._def.checks.find(
+				({ kind }) => kind === 'min'
+			) as { value: number }
+		).value,
+		max: (
+			gemProfitRequestParameterSchema.shape.min_listing_count._def.innerType._def.innerType._def.innerType._def.checks.find(
 				({ kind }) => kind === 'max'
 			) as { value: number }
 		).value
