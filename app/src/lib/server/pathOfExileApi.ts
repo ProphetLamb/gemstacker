@@ -195,7 +195,7 @@ class RawPathofExileApi implements PathOfExileApi {
 						}
 					},
 					status: {
-						option: 'online'
+						option: 'available'
 					},
 					stats: [
 						{
