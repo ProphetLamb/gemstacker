@@ -12,6 +12,7 @@
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
 	import type { GemProfitResponse, GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { localSettings } from '$lib/client/localSettings';
+	import BetterTrading from '$lib/client/BetterTrading.svelte';
 
 	let pobText: string = '';
 	$: pobError = '';
@@ -102,8 +103,9 @@
 			</div>
 		{:then gemProfit}
 		{#if gemProfit}
-			<div class="text-token bg-surface-100/70 dark:bg-surface-800/80 card p-4 space-y-2">
+			<div class="text-token flex flex-col items-center bg-surface-100/70 dark:bg-surface-800/80 card p-4 space-y-2">
 				<GemProfitTable data={gemProfit} />
+				<BetterTrading data={gemProfit} />
 			</div>
 		{/if}
 		{/await}

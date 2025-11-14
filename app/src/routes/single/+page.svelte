@@ -12,6 +12,7 @@
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { intlCompactNumber } from '$lib/intl';
 	import { onMount } from 'svelte';
+	import BetterTrading from '$lib/client/BetterTrading.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -168,6 +169,7 @@
 				>
 			{:else if form?.gemProfit && form.gemProfit.length > 0}
 				<GemProfitTable data={form.gemProfit} />
+				<BetterTrading data={form.gemProfit} />
 			{:else}
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
