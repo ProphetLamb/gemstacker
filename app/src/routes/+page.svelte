@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { loadoutRequestSchema } from '$lib/loadout';
-	import { superForm, superValidateSync } from 'sveltekit-superforms/client';
+	import { message, superForm, superValidateSync } from 'sveltekit-superforms/client';
 	import * as hi from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { locationWithSearch } from '$lib/client/navigation';
@@ -16,8 +16,13 @@
 	import MetaHead from '$lib/client/MetaHead.svelte';
 	import type { ProfitPreviewResponse } from './api/profit-preview/+server.js';
 	import { objectToQueryParams } from '$lib/url.js';
+	import { getFlash } from 'sveltekit-flash-message';
+	import { page } from '$app/stores';
+	import type { ToastMessage } from '$lib/toast.js';
 
 	export let data
+
+	const flash = getFlash(page)
 
 	let pobText: string = '';
 	$: pobError = '';
@@ -68,10 +73,11 @@
 		const rsp = await fetch(`/api/profit-preview?${query}`)
 		if (rsp.status < 200 || rsp.status >= 300) {
 			console.log('/:getProfitPreview', await rsp.text())
+			$flash = { message: 'Failed to load profit preview', type: 'error'} satisfies ToastMessage
 			return undefined
 		}
 		const content: ProfitPreviewResponse = await rsp.json()
-		return undefined
+		return content
 	}
 
 	async function gotoPob() {
