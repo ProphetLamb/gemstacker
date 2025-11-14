@@ -20,16 +20,28 @@ export const gemProfitRequestParameterSchema = z.object({
 	min_experience_delta: z.number().min(200000000).max(2000000000).step(50000000).default(300000000),
 	items_offset: z.number().nullable().optional().default(0),
 	items_count: z.number().nullable().optional().default(10)
-})
+});
 
 export const gemProfitRequestParameterConstraints = {
 	min_experience_delta: {
 		defaultValue: gemProfitRequestParameterSchema.shape.min_experience_delta._def.defaultValue(),
-		step: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "multipleOf") as { value: number }).value,
-		min: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "min") as { value: number }).value,
-		max: (gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(({ kind }) => kind === "max") as { value: number }).value,
+		step: (
+			gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(
+				({ kind }) => kind === 'multipleOf'
+			) as { value: number }
+		).value,
+		min: (
+			gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(
+				({ kind }) => kind === 'min'
+			) as { value: number }
+		).value,
+		max: (
+			gemProfitRequestParameterSchema.shape.min_experience_delta._def.innerType._def.checks.find(
+				({ kind }) => kind === 'max'
+			) as { value: number }
+		).value
 	}
-}
+};
 
 export interface GemProfitResponseItemPrice {
 	price: number;
@@ -45,10 +57,10 @@ export const gemProfitResponseItemPriceSchema = z.object({
 	level: z.number(),
 	experience: z.number(),
 	listing_count: z.number()
-})
+});
 
-export type GemColor = "white" | "blue" | "green" | "red";
-export const gemColorSchema = z.enum(["white", "blue", "green", "red"]);
+export type GemColor = 'white' | 'blue' | 'green' | 'red';
+export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
 export interface ProfitMargin {
 	adjusted_earnings: number;
@@ -61,8 +73,8 @@ export const profitMarginSchema = z.object({
 	adjusted_earnings: z.number(),
 	experience_delta: z.number(),
 	gain_margin: z.number(),
-	quality_spent: z.number(),
-})
+	quality_spent: z.number()
+});
 
 export interface ProfitResponseRecipes {
 	quality_then_level: ProfitMargin;
@@ -71,12 +83,12 @@ export interface ProfitResponseRecipes {
 
 export const profitResponseRecipesSchema = z.object({
 	quality_then_level: profitMarginSchema,
-	level_vendor_level: profitMarginSchema,
-})
+	level_vendor_level: profitMarginSchema
+});
 
 export interface GemProfitResponseItem {
-	name: string,
-	icon?: string | null,
+	name: string;
+	icon?: string | null;
 	color: GemColor;
 	min: GemProfitResponseItemPrice;
 	max: GemProfitResponseItemPrice;
@@ -100,6 +112,22 @@ export const gemProfitResponseItemSchema = z.object({
 	recipes: profitResponseRecipesSchema
 });
 
-export type GemProfitResponse = GemProfitResponseItem[]
+export type GemProfitResponse = GemProfitResponseItem[];
 
-export const gemProfitResponseSchema = z.array(gemProfitResponseItemSchema)
+export const gemProfitResponseSchema = z.array(gemProfitResponseItemSchema);
+
+export interface ExchangeRateToChaosRequestParameter {
+	currency: CurrencyTypeName[];
+	league: string;
+}
+
+export const exchangeRateToChaosRequestSchema = z.object({
+	currency: z.array(z.string()),
+	league: z.string()
+});
+
+export type ExchangeRateToChaosResponse = Record<CurrencyTypeName, number>;
+
+export const exchangeRateToChaosResponseSchema = z.record(z.string(), z.number());
+
+export type CurrencyTypeName = 'Divine Orb' | "Cartographer's Chisel" | 'Chaos Orb' | 'Vaal Orb';
