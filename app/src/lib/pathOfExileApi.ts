@@ -161,7 +161,7 @@ export function createGemTradeQueryBody(param: PoeTradeGemRequest) {
 				}
 			},
 			status: {
-				option: 'online'
+				option: 'available'
 			},
 			stats: [
 				{
