@@ -128,7 +128,6 @@
 					name="min_experience_delta"
 					class="input"
 					type="range"
-					step={5000000}
 					bind:value={$profitForm.min_experience_delta}
 					{...$constraints.min_experience_delta}
 				/>
