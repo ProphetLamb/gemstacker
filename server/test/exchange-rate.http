@@ -1,0 +1,2 @@
+GET http://localhost:34571/exchange-rate-to-chaos?league=Keepers&currency=Divine Orb
+Authorization: Token dGVzdA==
