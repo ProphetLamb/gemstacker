@@ -11,7 +11,7 @@ export interface LocalSettings {
 function localSettingsStore() {
   const storage = localStorageStore<LocalSettings>('poe-gemleveling-profit-calculator-local-settings', {
     league: '',
-    min_experience_delta: 340000000,
+    min_experience_delta: 300000000,
     exclude_gems: []
   })
   const reader = derived([storage, leagues], ([$storage, $leagues]) => {
