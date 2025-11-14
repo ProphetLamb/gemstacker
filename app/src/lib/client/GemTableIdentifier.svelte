@@ -44,7 +44,7 @@
 		<span class="whitespace-nowrap">
 			<span class="text-error-200-700-token">-{deltaQty}</span><img
 				src={currencyGemQuality}
-				alt="qty"
+				alt="gcp"
 				class="table-cell h-4 w-4"
 			/>
 		</span>
