@@ -110,7 +110,7 @@ app.MapGet(
             return Results.BadRequest(
                 new
                 {
-                    Error = "Invalid parameter value `from_currency`",
+                    Error = "Invalid parameter value `currency`",
                     Message = $"No exchange rates found for currency {string.Join(", ", missingCurrencies)}",
                 }
             );

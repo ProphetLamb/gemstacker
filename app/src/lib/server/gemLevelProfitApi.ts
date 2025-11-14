@@ -54,7 +54,7 @@ export class RawGemProfitApi {
 		return result;
 	};
 
-	exchangeRateToChaos: (
+	getExchangeRateToChaos: (
 		param: ExchangeRateToChaosRequestParameter
 	) => Promise<ExchangeRateToChaosResponse> = async (param) => {
 		exchangeRateToChaosRequestParameterSchema.parse(param);
