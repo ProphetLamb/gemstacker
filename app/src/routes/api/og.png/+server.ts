@@ -141,7 +141,7 @@ async function defaultGemProfit(
 		const gemProfit = await gemProfitApi.getGemProfit(request);
 		return gemProfit.splice(0, 6);
 	} catch (err) {
-		console.log('/api/og.png.getDefaultGemProfit', err);
+		console.log('/api/og.png:getDefaultGemProfit', err);
 		return undefined;
 	}
 }

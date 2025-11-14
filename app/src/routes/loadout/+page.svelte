@@ -62,7 +62,7 @@
 			try {
 				return !!s ? parseInt(s) : undefined
 			} catch (err) {
-				console.log('/single.fillFromFromQuery.num', err)
+				console.log('/single:fillFromFromQuery.num', err)
 				return undefined
 			}
 		}

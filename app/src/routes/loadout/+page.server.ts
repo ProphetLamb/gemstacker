@@ -33,7 +33,7 @@ export const actions: Actions = {
       const gemProfit = await gemProfitApi.getGemProfit({ league: loadoutRequest.league, min_experience_delta: loadoutRequest.min_experience_delta, items_count: -1 });
       return { ...response, gemProfit };
     } catch (err) {
-      console.log('/loadout.default', err)
+      console.log('/loadout:actions.default', err)
       const message = err instanceof Error ? `Oooops... something went wrong: ${err.message}` : "Oooops... something's really fucked";
       setFlash({ message, type: 'error' } satisfies ToastMessage, event)
       return fail(500, response);

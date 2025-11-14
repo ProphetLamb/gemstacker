@@ -32,7 +32,7 @@ export const actions: Actions = {
 			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
 			return { ...response, gemProfit };
 		} catch (err) {
-			console.log('/single', err)
+			console.log('/single:actions.default', err)
 			const message = err instanceof Error ? `Oooops... something went wrong: ${err.message}` : "Oooops... something's really fucked";
 			setFlash({ message, type: 'error' } satisfies ToastMessage, event)
 			return fail(500, response);

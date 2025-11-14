@@ -67,7 +67,7 @@
 		} satisfies GemProfitRequestParameter)
 		const rsp = await fetch(`/api/profit-preview?${query}`)
 		if (rsp.status < 200 || rsp.status >= 300) {
-			console.log('/.getProfitPreview', await rsp.text())
+			console.log('/:getProfitPreview', await rsp.text())
 			return undefined
 		}
 		const content: ProfitPreviewResponse = await rsp.json()
@@ -84,7 +84,7 @@
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
 			goto(url);
 		} catch (err) {
-			console.log('/.gotoPob', err)
+			console.log('/:gotoPob', err)
 			if (err instanceof Error) {
 				pobError = err.message;
 			} else {
