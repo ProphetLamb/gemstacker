@@ -14,12 +14,12 @@ export const load: PageServerLoad = async ({ request }) => {
 
 export const actions: Actions = {
 	default: async (event) => {
-		const { request, fetch } = event
+		const { request, fetch } = event;
 		const gemLevelsProfitForm = await superValidate(request, gemProfitRequestParameterSchema);
-		const response = { gemLevelsProfitForm }
+		const response = { gemLevelsProfitForm };
 
 		if (!gemLevelsProfitForm.valid) {
-			setFlash({ message: 'Please enter valid data', type: 'error' } satisfies ToastMessage, event)
+			setFlash({ message: 'Please enter valid data', type: 'error' } satisfies ToastMessage, event);
 			return fail(400, response);
 		}
 
@@ -29,12 +29,18 @@ export const actions: Actions = {
 		});
 
 		try {
-			const gemProfit = await gemProfitApi.getGemProfit(gemLevelsProfitForm.data);
+			const gemProfit = await gemProfitApi.getGemProfit({
+				...gemLevelsProfitForm.data,
+				items_count: -1
+			});
 			return { ...response, gemProfit };
 		} catch (err) {
-			console.log('/single:actions.default', err)
-			const message = err instanceof Error ? `Oooops... something went wrong: ${err.message}` : "Oooops... something's really fucked";
-			setFlash({ message, type: 'error' } satisfies ToastMessage, event)
+			console.log('/single:actions.default', err);
+			const message =
+				err instanceof Error
+					? `Oooops... something went wrong: ${err.message}`
+					: "Oooops... something's really fucked";
+			setFlash({ message, type: 'error' } satisfies ToastMessage, event);
 			return fail(500, response);
 		}
 	}
