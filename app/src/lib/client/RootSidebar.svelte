@@ -21,8 +21,8 @@
 >
 	<AppRail width="0" />
 	<section class="pb-20 space-y-4 overflow-y-auto">
-		<div class="p-4 bg-surface-100-800-token">
-			<div class="py-2 space-x-4">
+		<div class="bg-surface-100-800-token">
+			<div class="pt-2 pb-2 space-x-4 flex flex-row items-center justify-start w-full">
 				<button class="btn-icon btn-icon-sm" on:click={drawerClose}>
 					<img src="/favicon.png" alt="ico" class="w-8 h-8" />
 				</button>

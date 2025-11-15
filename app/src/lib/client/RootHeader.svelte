@@ -17,7 +17,7 @@
 		$page.url.pathname?.includes(href) ? 'bg-primary-active-token' : '';
 </script>
 
-<AppBar>
+<AppBar padding="">
 	<svelte:fragment slot="lead">
 		<button on:click={drawerOpen} class="btn-icon btn-icon-sm md:!hidden">
 			<Icon src={hi.Bars3} size="24" />
