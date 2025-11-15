@@ -5,6 +5,7 @@ using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeDb;
 using GemLevelProtScraper.PoeNinja;
 using GemLevelProtScraper.Profit;
+using GemLevelProtScraper.Profit.Recipes;
 using GemLevelProtScraper.Skills;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
@@ -42,6 +43,7 @@ builder.Services
     .AddHostedService<PoeNinjaScraper>()
     .AddHostedService<PoeDbScraper>()
     .AddHostedService<PoeScraper>()
+    .AddProfitRecipes()
     .AddScrapeAAS(config => config
         .UseDefaultConfiguration()
         .WithLongLivingServiceLifetime(ServiceLifetime.Scoped)

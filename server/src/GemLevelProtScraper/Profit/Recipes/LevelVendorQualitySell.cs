@@ -1,0 +1,37 @@
+﻿namespace GemLevelProtScraper.Profit.Recipes;
+
+public class LevelVendorQualitySell : IProfitRecipe
+{
+    public string Name => "level_vendor_quality_sell";
+
+    public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
+    {
+        if (ctx.MinLevel20Quality is not { } max || ctx.MinLevel is not { } min)
+        {
+            return null;
+        }
+
+        if (max.GemQuality <= min.GemQuality)
+        {
+            return null;
+        }
+
+        // level the gem, vendor it with 1x Gem Cutter, sell the gem
+        var levelEarning = max.ChaosValue - min.ChaosValue;
+        var qualityCost = ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1;
+
+        var adjustedEarnings = levelEarning - qualityCost;
+
+        var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
+        var gainMargin = ctx.GainMargin(adjustedEarnings, deltaExperience);
+
+        return new()
+        {
+            GainMargin = gainMargin,
+            ExperienceDelta = deltaExperience,
+            AdjustedEarnings = adjustedEarnings,
+            Buy = ctx.ToProfitLevelResponse(min, 0),
+            Sell = ctx.ToProfitLevelResponse(max, 0)
+        };
+    }
+}
