@@ -2,17 +2,16 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
-	import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
-	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
+	import { currencyGemQuality } from '$lib/knownImages';
+	import { intlCompactNumber } from '$lib/intl';
 	import Chaos from './Chaos.svelte';
 	import Currency from './Currency.svelte';
+	import { getProfit } from '$lib/gemProfit';
+	import { exchangeRates } from './exchangeRates';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
-
-	let deltaExp = gem.max.experience - gem.min.experience;
-	let deltaQty = Math.max(0, gem.max.quality - gem.min.quality);
-	let deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty);
+	const { delta_exp, delta_price, delta_qty } = getProfit(gem, $exchangeRates)
 </script>
 
 <td class="pr-2">
@@ -26,17 +25,16 @@
 		<div class=" text-xs text-surface-600-300-token">
 			lvl
 			{gem.min.level} → {gem.max.level} =
-			<span class="text-secondary-300-600-token">+{intlCompactNumber.format(deltaExp)}</span>exp
+			<span class="text-secondary-300-600-token">+{intlCompactNumber.format(delta_exp)}</span>exp
 		</div></a
 	>
 </td>
-<td />
 <td>
 	<div class="md:flex md:flex-row md:h-full items-center justify-end">
 		<Chaos value={gem.min.price} />
 	</div>
 </td>
-<td class="text-surface-600-300-token">
+<td class="w-fit text-surface-600-300-token">
 	<Icon src={hi.ArrowRight} size="14" />
 </td>
 <td>
@@ -45,9 +43,9 @@
 	</div>
 </td>
 <td>
-	{#if deltaQty > 0}
+	{#if delta_qty > 0}
 		<Currency
-			value={-deltaQty}
+			value={-delta_qty}
 			value_class="text-error-400-500-token"
 			src={currencyGemQuality}
 			alt="gcp"
@@ -57,6 +55,6 @@
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 <td>
 	<div class="md:flex md:flex-row md:h-full items-center justify-end">
-		<Chaos value={deltaPrice} />
+		<Chaos value={delta_price} />
 	</div>
 </td>
