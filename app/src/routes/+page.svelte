@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import { loadoutRequestSchema } from '$lib/loadout';
-	import { message, superForm, superValidateSync } from 'sveltekit-superforms/client';
+	import { superForm, superValidateSync } from 'sveltekit-superforms/client';
 	import * as hi from '@steeze-ui/heroicons';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import { locationWithSearch } from '$lib/client/navigation';
@@ -10,7 +10,10 @@
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
-	import { gemProfitRequestParameterSchema, type GemProfitRequestParameter, type GemProfitResponse, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
+	import {
+		gemProfitRequestParameterSchema,
+		type GemProfitRequestParameter
+	} from '$lib/gemLevelProfitApi';
 	import { localSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import MetaHead from '$lib/client/MetaHead.svelte';
@@ -20,10 +23,12 @@
 	import { page } from '$app/stores';
 	import type { ToastMessage } from '$lib/toast.js';
 	import { exchangeRates } from '$lib/client/exchangeRates.js';
+	import GemProfitRecipeInfo from '$lib/client/GemProfitRecipeInfo.svelte';
+	import { inspectProfit } from '$lib/client/gemProfitRecipeInfo.js';
 
-	export let data
+	export let data;
 
-	const flash = getFlash(page)
+	const flash = getFlash(page);
 
 	let pobText: string = '';
 	$: pobError = '';
@@ -44,7 +49,7 @@
 	} = superForm(superValidateSync(gemProfitRequestParameterSchema), {
 		validators: gemProfitRequestParameterSchema,
 		taintedMessage: null
-	})
+	});
 
 	$: loadoutHref = locationWithSearch(
 		{
@@ -54,32 +59,32 @@
 			white: $loadoutForm.white
 		},
 		'/loadout'
-	).pathSearchHash()
+	).pathSearchHash();
 
 	$: profitHref = locationWithSearch(
 		{
 			gem_name: $profitForm.gem_name
 		},
 		'/single'
-	).pathSearchHash()
+	).pathSearchHash();
 
-	$: profitPreview = getProfitPreview()
+	$: profitPreview = getProfitPreview();
 
 	async function getProfitPreview(): Promise<ProfitPreviewResponse | undefined> {
 		const query = objectToQueryParams({
 			league: $localSettings.league,
 			min_experience_delta: $localSettings.min_experience_delta,
-			min_listing_count: $localSettings.min_listing_count,
-		} satisfies GemProfitRequestParameter)
-		const rsp = await fetch(`/api/profit-preview?${query}`)
+			min_listing_count: $localSettings.min_listing_count
+		} satisfies GemProfitRequestParameter);
+		const rsp = await fetch(`/api/profit-preview?${query}`);
 		if (rsp.status < 200 || rsp.status >= 300) {
-			console.log('/:getProfitPreview', await rsp.text())
-			$flash = { message: 'Failed to load profit preview', type: 'error'} satisfies ToastMessage
-			return undefined
+			console.log('/:getProfitPreview', await rsp.text());
+			$flash = { message: 'Failed to load profit preview', type: 'error' } satisfies ToastMessage;
+			return undefined;
 		}
-		const content: ProfitPreviewResponse = await rsp.json()
-		$exchangeRates = content.exchange_rates ?? $exchangeRates
-		return content
+		const content: ProfitPreviewResponse = await rsp.json();
+		$exchangeRates = content.exchange_rates ?? $exchangeRates;
+		return content;
 	}
 
 	async function gotoPob() {
@@ -92,7 +97,7 @@
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
 			goto(url);
 		} catch (err) {
-			console.log('/:gotoPob', err)
+			console.log('/:gotoPob', err);
 			if (err instanceof Error) {
 				pobError = err.message;
 			} else {
@@ -102,50 +107,66 @@
 	}
 </script>
 
-<div class="flex flex-col justify-center">
+<div class="flex flex-col justify-center items-center">
 	<div class="w-full align-middle flex justify-center p-4">
 		<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>
-			The best
-			<span
-				class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
-				>gems</span
-			></span>
+				The best
+				<span
+					class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
+					>gems</span
+				></span
+			>
 		</h1>
 	</div>
-	<div class="flex flex-col items-center">
-		{#await profitPreview}
-			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
-				<LoadingPlaceholder
-					class="w-[51rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					placeholder="animate-pulse"
-					rows={10}
-				>
-					<ProgressRadial
-						stroke={100}
-						value={undefined}
-						meter="stroke-tertiary-500"
-						track="stroke-tertiary-500/30"
-					/>
-					<p class="text-xl">Loading...</p></LoadingPlaceholder
-				>
-			</div>
-		{:then profitPreview}
-		{#if profitPreview}
-			<div class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
-				<GemProfitTable data={profitPreview.gem_profit} />
-				<BetterTrading data={profitPreview.gem_profit} />
-			</div>
-		{/if}
-		{/await}
+	<div class="relative w-[84rem] max-w-full">
+		<GemProfitRecipeInfo
+			class="absolute left-0 w-72 h-fit {$inspectProfit.visible && !!$inspectProfit.gem ? '' : 'invisible opacity-0'} transition-opacity"
+			gem={$inspectProfit.gem}
+			close={() => ($inspectProfit.visible = false)}
+		/>
+		<button
+			type="button"
+			class="absolute left-[16rem] mt-2 button variant-ghost rounded-full w-6 h-6 flex justify-center items-center {$inspectProfit.visible ? 'invisible opacity-0' : ''} transition-opacity"
+			on:click={() => ($inspectProfit.visible = true)}
+			><Icon src={hi.ChevronLeft} size="18" /></button
+		>
+		<div class="flex flex-col items-center">
+			{#await profitPreview}
+				<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
+					<LoadingPlaceholder
+						class="w-[51rem] max-w-[calc(100vw-4rem)]"
+						front="bg-surface-backdrop-token"
+						placeholder="animate-pulse"
+						rows={10}
+					>
+						<ProgressRadial
+							stroke={100}
+							value={undefined}
+							meter="stroke-tertiary-500"
+							track="stroke-tertiary-500/30"
+						/>
+						<p class="text-xl">Loading...</p></LoadingPlaceholder
+					>
+				</div>
+			{:then profitPreview}
+				{#if profitPreview}
+					<div
+						class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2"
+					>
+						<GemProfitTable data={profitPreview.gem_profit} />
+						<BetterTrading data={profitPreview.gem_profit} />
+					</div>
+				{/if}
+			{/await}
+		</div>
 	</div>
 </div>
 <Wrapper>
 	<WrapperItem>
 		<h2 class="h2">&#133;for your perusal.</h2>
-			<label class="label">
+		<label class="label">
 			<span>Gem Name</span>
 			<input
 				name="gem_name"
@@ -162,7 +183,9 @@
 		<a href={profitHref} class="btn variant-filled-primary shadow-lg text-2xl relative">
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
 			<span class="mr-0.5">Search</span>
-			<div class="btn variant-filled-warning absolute -top-4 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-sm">
+			<div
+				class="btn variant-filled-warning absolute -top-4 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-sm"
+			>
 				<Icon src={hi.Scale} size="16" />
 				Advanced
 			</div>
@@ -256,6 +279,10 @@
 	</WrapperItem>
 </Wrapper>
 
+<svelte:head>
+	<MetaHead request_url={data.request_url} />
+</svelte:head>
+
 <style lang="postcss">
 	.divider {
 		@apply flex items-center space-x-2 md:space-x-0 md:flex-col sm:flex-row w-full md:w-fit px-4 md:px-0 py-0 md:py-4  md:h-[30rem] pt-[4rem];
@@ -265,7 +292,3 @@
 		}
 	}
 </style>
-
-<svelte:head>
-	<MetaHead request_url={data.request_url} />
-</svelte:head>
