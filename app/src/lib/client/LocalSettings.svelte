@@ -71,11 +71,12 @@
 			</label>
 			<label class="label">
 				<span>Minimum number of listings for gem</span>
-				<input name="min_listing_count"
-				class="input"
-				type="range"
-				bind:value={$localSettings.min_listing_count}
-				{...gemProfitRequestParameterConstraints.min_listing_count}
+				<input
+					name="min_listing_count"
+					class="input"
+					type="range"
+					bind:value={$localSettings.min_listing_count}
+					{...gemProfitRequestParameterConstraints.min_listing_count}
 				/>
 				<p>
 					<span class="text-token"
@@ -87,12 +88,15 @@
 				<span>Display currency</span>
 				<select name="currency_display" class="select" bind:value={$localSettings.currency_display}>
 					{#each Object.entries(currencyDisplayValues) as [currencyDisplay, text]}
-						<option value="{currencyDisplay}">{text}</option>
+						<option value={currencyDisplay}>{text}</option>
 					{/each}
 				</select>
 			</label>
 			{#if $exchangeRates}
-				<ExchangeRates />
+				<div>
+					<span>Exchange Rates</span>
+					<ExchangeRates class="pl-2" exchange_rates={$exchangeRates} />
+				</div>
 			{/if}
 			{#if $availableGems && $availableGems.length > 0}
 				<GemFilter />
