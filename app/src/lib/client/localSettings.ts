@@ -1,34 +1,38 @@
 import { localStorageStore } from '@skeletonlabs/skeleton';
-import { derived } from 'svelte/store';
+import { derived, type Writable } from 'svelte/store';
 import { leagues } from './leagues';
 import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
 import type { PoeTradeLeagueResponse } from '$lib/pathOfExileApi';
+import { currencyDisplayValues, defaultCurrencyDisplay, type CurrencyDisplay } from './currency';
 
 export interface LocalSettings {
 	league: string;
 	min_experience_delta: number;
 	exclude_gems: string[];
 	min_listing_count: number;
+	currency_display: CurrencyDisplay;
 }
 
-function localSettingsStore() {
+function localSettingsStore(): Writable<LocalSettings> {
 	const storage = localStorageStore<LocalSettings>(
 		'poe-gemleveling-profit-calculator-local-settings',
 		{
 			league: '',
 			min_experience_delta: gemProfitRequestParameterConstraints.min_experience_delta.defaultValue,
 			exclude_gems: [],
-			min_listing_count: gemProfitRequestParameterConstraints.min_listing_count.defaultValue
+			min_listing_count: gemProfitRequestParameterConstraints.min_listing_count.defaultValue,
+			currency_display: defaultCurrencyDisplay
 		}
 	);
 	const reader = derived([storage, leagues], ([storage, leagues]) => {
-		const { league, min_experience_delta, exclude_gems, min_listing_count } = storage;
+		const { league, min_experience_delta, exclude_gems, min_listing_count, currency_display } = storage;
 		return {
 			min_experience_delta: normalizeMinExperienceDelta(min_experience_delta),
 			league: normalizeLeague(league, leagues),
 			exclude_gems: normalizeExcludeGems(exclude_gems),
-			min_listing_count: normalizeMinListingsCount(min_listing_count)
-		};
+			min_listing_count: normalizeMinListingsCount(min_listing_count),
+			currency_display: normalizeCurrencyDisplay(currency_display)
+		} satisfies LocalSettings;
 	});
 	return {
 		subscribe: reader.subscribe,
@@ -81,6 +85,16 @@ function localSettingsStore() {
 			return constraints.max;
 		}
 		return min_listing_count;
+	}
+
+	function normalizeCurrencyDisplay(currency_display?: CurrencyDisplay) {
+		if (!currency_display) {
+			return defaultCurrencyDisplay
+		}
+		if (Object.keys(currencyDisplayValues).indexOf(currency_display) < 0) {
+			return defaultCurrencyDisplay
+		}
+		return currency_display
 	}
 }
 

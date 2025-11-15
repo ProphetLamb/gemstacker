@@ -10,6 +10,9 @@
 	import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
 	import GemFilter from './GemFilter.svelte';
 	import { availableGems } from './availableGems';
+	import { exchangeRates } from './exchangeRates';
+	import ExchangeRates from './ExchangeRates.svelte';
+	import { currencyDisplayValues } from './currency';
 
 	export let textClass: CssClasses = '';
 
@@ -80,6 +83,17 @@
 					><span class="text-sm text-surface-600-300-token">&nbsp;listing</span>
 				</p>
 			</label>
+			<label class="label">
+				<span>Display currency</span>
+				<select name="currency_display" class="select" bind:value={$localSettings.currency_display}>
+					{#each Object.entries(currencyDisplayValues) as [currencyDisplay, text]}
+						<option value="{currencyDisplay}">{text}</option>
+					{/each}
+				</select>
+			</label>
+			{#if $exchangeRates}
+				<ExchangeRates />
+			{/if}
 			{#if $availableGems && $availableGems.length > 0}
 				<GemFilter />
 			{/if}
