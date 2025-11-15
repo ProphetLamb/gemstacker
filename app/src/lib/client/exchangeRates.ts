@@ -1,4 +1,4 @@
 import type { WellKnownExchangeRateToChaosResponse } from "$lib/gemLevelProfitApi";
-import { localStorageStoreAllowNull } from "$lib/localStorage";
+import { localStorageStoreOptional } from "$lib/localStorage";
 
-export const exchangeRates = localStorageStoreAllowNull<WellKnownExchangeRateToChaosResponse>('poe-gemleveling-profit-calculator-exchange-rates')
+export const exchangeRates = localStorageStoreOptional<WellKnownExchangeRateToChaosResponse>('poe-gemleveling-profit-calculator-exchange-rates')

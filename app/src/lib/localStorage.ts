@@ -30,7 +30,7 @@ function ensureValidStorage<T>(key: string, options?: Options<T>) {
   }
 }
 
-export function localStorageStoreAllowNull<T extends object>(key: string, options?: Options<T>) {
+export function localStorageStoreOptional<T extends object>(key: string, options?: Options<T>) {
   ensureValidStorage(key, options);
   const { set, subscribe, update } = localStorageStore<T | {}>(key, {})
   return {
