@@ -40,7 +40,7 @@
 	export const snapshot = { capture, restore };
 
 	$: $availableGems = form?.gem_profit;
-	$: $exchangeRates = form?.exchange_rates;
+	$: $exchangeRates = form?.exchange_rates ?? $exchangeRates;
 	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: loadout =
 		$delayed || !$availableGems

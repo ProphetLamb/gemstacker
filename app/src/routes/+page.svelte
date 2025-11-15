@@ -78,7 +78,7 @@
 			return undefined
 		}
 		const content: ProfitPreviewResponse = await rsp.json()
-		$exchangeRates = content.exchange_rates
+		$exchangeRates = content.exchange_rates ?? $exchangeRates
 		return content
 	}
 

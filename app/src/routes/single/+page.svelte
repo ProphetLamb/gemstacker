@@ -36,7 +36,7 @@
 	});
 
 	$: $availableGems = form?.gem_profit;
-	$: $exchangeRates = form?.exchange_rates;
+	$: $exchangeRates = form?.exchange_rates ?? $exchangeRates;
 	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: gemProfit = $delayed || !$availableGems
 			? undefined
