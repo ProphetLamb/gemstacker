@@ -13,9 +13,9 @@
 	$: preferredRecipie = gem?.recipes[gem.preferred_recipe];
 </script>
 
-<div class="card p-2 variant-soft-surface space-y-2 {$$props.class ?? ''}">
+<div class="card p-2 flex flex-col variant-soft-surface {$$props.class ?? ''}">
 	<div class="flex flex-row justify-between">
-		<h2>{gem?.name ?? ''}</h2>
+		<h4 class="h4 font-bold">{gem?.name ?? ''}</h4>
 
 		{#if !!close}
 			<div>
@@ -27,24 +27,30 @@
 			</div>
 		{/if}
 	</div>
-	<p>{preferredRecipie?.buy.listing_count ?? 0} available</p>
-	<h3>Best Recipe: {title}</h3>
-	<p>{@html description?.replaceAll('\n', '<br/>') ?? ''}</p>
-	<h3>All Recipes</h3>
-	<ul>
-		{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain], idx}
-			{@const recipieInfo = getRecipeInfo(recipe)}
-			<li class="flex flex-col items-start align-middle">
-				<span class="mr-1">{recipieInfo.title} - {gain.sell.listing_count} selling</span>
-				<div class="flex flex-row items-end">
-					<Chaos value={gain.adjusted_earnings} />
-					<span>&#47;{intlCompactNumber.format(gain.experience_delta)}exp</span>
-					<span>={intlFixed4Number.format(gain.gain_margin)}&permil;</span>
-				</div>
-			</li>
-			<hr />
-		{/each}
-	</ul>
+	<div class="overflow-y-scroll space-y-4">
+		<p>{preferredRecipie?.buy.listing_count ?? 0} available</p>
+		<div>
+			<h5 class="h5">Best Recipe: {title}</h5>
+			<p>{@html description?.replaceAll('\n', '<br/>') ?? ''}</p>
+		</div>
+		<div>
+			<h5 class="h5">All Recipes</h5>
+			<ul>
+				{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain], idx}
+					{@const recipieInfo = getRecipeInfo(recipe)}
+					<li class="flex flex-col items-start align-middle">
+						<span class="mr-1">{recipieInfo.title} - {gain.sell.listing_count} selling</span>
+						<div class="flex flex-row items-end">
+							<Chaos value={gain.adjusted_earnings} />
+							<span>&#47;{intlCompactNumber.format(gain.experience_delta)}exp</span>
+							<span>={intlFixed4Number.format(gain.gain_margin)}&permil;</span>
+						</div>
+					</li>
+					<hr />
+				{/each}
+			</ul>
+		</div>
+	</div>
 </div>
 
 <style lang="postcss">

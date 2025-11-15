@@ -19,6 +19,8 @@
 	import { availableGems } from '$lib/client/availableGems';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 	import { exchangeRates } from '$lib/client/exchangeRates';
+	import GemProfitRecipeInfoAccordionInspect from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
+	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -38,23 +40,24 @@
 	$: $availableGems = form?.gem_profit;
 	$: $exchangeRates = form?.exchange_rates ?? $exchangeRates;
 	$: excludedGems = new Set($localSettings.exclude_gems);
-	$: gemProfit = $delayed || !$availableGems
+	$: gemProfit =
+		$delayed || !$availableGems
 			? undefined
 			: !excludedGems
-				? $availableGems
-				: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()))
+			? $availableGems
+			: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()));
 
 	export const snapshot = { capture, restore };
 
-	let htmlProfitForm: HTMLFormElement
+	let htmlProfitForm: HTMLFormElement;
 
 	function fillFormFromQuery() {
 		function num(s?: string): number | undefined {
 			try {
-				return !!s ? parseInt(s) : undefined
+				return !!s ? parseInt(s) : undefined;
 			} catch (err) {
-				console.log('/single:fillFormFromQuery.num', err)
-				return undefined
+				console.log('/single:fillFormFromQuery.num', err);
+				return undefined;
 			}
 		}
 		const initialSettings = {
@@ -73,21 +76,21 @@
 						added_quality: num(x['added_quality']),
 						min_sell_price_chaos: num(x['min_sell_price_chaos']),
 						max_buy_price_chaos: num(x['max_buy_price_chaos']),
-						min_experience_delta: num(x['min_experience_delta']),
-					}
+						min_experience_delta: num(x['min_experience_delta'])
+					};
 				})
-			}
+			};
 		}
 	}
 
 	function shouldAutoRequestForm() {
-		return !!$profitForm.gem_name && $profitForm.gem_name.trim().length > 0
+		return !!$profitForm.gem_name && $profitForm.gem_name.trim().length > 0;
 	}
 
 	function submitFormFilledFromQuery() {
 		// remove query parameters
 		replaceStateWithQuery({
-			gem_name: undefined,
+			gem_name: undefined
 		});
 		// submit form filled via query
 		htmlProfitForm.requestSubmit();
@@ -97,7 +100,7 @@
 	}
 	onMount(() => {
 		if (browser && shouldAutoRequestForm()) {
-			submitFormFilledFromQuery()
+			submitFormFilledFromQuery();
 		}
 	});
 </script>
@@ -203,11 +206,12 @@
 			</label>
 			<label class="label">
 				<span>Minimum number of listings for gem</span>
-				<input name="min_listing_count"
-				class="input"
-				type="range"
-				bind:value={$profitForm.min_listing_count}
-				{...$constraints.min_listing_count}
+				<input
+					name="min_listing_count"
+					class="input"
+					type="range"
+					bind:value={$profitForm.min_listing_count}
+					{...$constraints.min_listing_count}
 				/>
 				<p>
 					<span class="text-token"
@@ -229,58 +233,61 @@
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
 		</h1>
-		
-		<div class="text-token flex flex-col items-center card p-4 space-y-2">
-			{#if $delayed}
-				<LoadingPlaceholder
-					class="w-[51rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					placeholder="animate-pulse"
-					rows={10}
-				>
-					<ProgressRadial
-						stroke={100}
-						value={undefined}
-						meter="stroke-tertiary-500"
-						track="stroke-tertiary-500/30"
-					/>
-					<p class="text-xl">Loading...</p></LoadingPlaceholder
-				>
-			{:else if gemProfit && gemProfit.length > 0}
-				<GemProfitTableHeader>
-					<GemFilter slot="buttons" />
-				</GemProfitTableHeader>
-				<GemProfitTable data={gemProfit} />
-				<BetterTrading data={gemProfit} />
-			{:else}
-				<GemProfitTableHeader>
-					<svelte:fragment slot="buttons">
-						{#if $availableGems && $availableGems.length > 0}
-							<GemFilter />
-						{/if}
-					</svelte:fragment>
-				</GemProfitTableHeader>
-				<LoadingPlaceholder
-					class="w-[51rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					rows={10}
-				>
-					<p class="text-xl">
-						Enter your criteria or just <span class="font-extrabold">search</span>
-					</p>
-				</LoadingPlaceholder>
-			{/if}
-		</div>
+		<GemProfitRecipeInfoSidebar contentWidth='90rem' showAside='2xl'>
+			<div class="flex flex-col items-center">
+				<div class="text-token card p-4 space-y-2">
+					{#if $delayed}
+						<LoadingPlaceholder
+							class="w-[51rem] max-w-[calc(100vw-4rem)]"
+							front="bg-surface-backdrop-token"
+							placeholder="animate-pulse"
+							rows={10}
+						>
+							<ProgressRadial
+								stroke={100}
+								value={undefined}
+								meter="stroke-tertiary-500"
+								track="stroke-tertiary-500/30"
+							/>
+							<p class="text-xl">Loading...</p></LoadingPlaceholder
+						>
+					{:else if gemProfit && gemProfit.length > 0}
+						<GemProfitTableHeader>
+							<GemFilter slot="buttons" />
+						</GemProfitTableHeader>
+						<GemProfitTable data={gemProfit} />
+						<BetterTrading data={gemProfit} />
+					{:else}
+						<GemProfitTableHeader>
+							<svelte:fragment slot="buttons">
+								{#if $availableGems && $availableGems.length > 0}
+									<GemFilter />
+								{/if}
+							</svelte:fragment>
+						</GemProfitTableHeader>
+						<LoadingPlaceholder
+							class="w-[51rem] max-w-[calc(100vw-4rem)]"
+							front="bg-surface-backdrop-token"
+							rows={10}
+						>
+							<p class="text-xl">
+								Enter your criteria or just <span class="font-extrabold">search</span>
+							</p>
+						</LoadingPlaceholder>
+					{/if}
+				</div>
+			</div>
+		</GemProfitRecipeInfoSidebar>
 	</WrapperItem>
 </Wrapper>
-
-<style lang="postcss">
-</style>
 
 <svelte:head>
 	<meta property="og:title" content="Gem Stacker - The best gems for your perusal" />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="{data.request_url}" />
+	<meta property="og:url" content={data.request_url} />
 	<meta property="og:locale" content="en-US" />
 	<meta property="og:locale:alternate" content="en-GB" />
-</svelte:head> 
+</svelte:head>
+
+<style lang="postcss">
+</style>

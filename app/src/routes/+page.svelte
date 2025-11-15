@@ -23,8 +23,7 @@
 	import { page } from '$app/stores';
 	import type { ToastMessage } from '$lib/toast.js';
 	import { exchangeRates } from '$lib/client/exchangeRates.js';
-	import GemProfitRecipeInfo from '$lib/client/GemProfitRecipeInfo.svelte';
-	import { inspectProfit } from '$lib/client/gemProfitRecipeInfo.js';
+	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
 
 	export let data;
 
@@ -120,27 +119,7 @@
 			>
 		</h1>
 	</div>
-	<div class="relative w-[82rem] max-w-full">
-		<GemProfitRecipeInfo
-			class="absolute right-0 w-72 h-fit {$inspectProfit.visible && !!$inspectProfit.gem
-				? ''
-				: 'invisible opacity-0'} transition-opacity"
-			gem={$inspectProfit.gem}
-			close={() => ($inspectProfit.visible = false)}
-		/>
-		<div
-			class="absolute flex flex-row space-x-2 items-center align-middle right-0 p-2 xl:card xl:variant-soft-surface {$inspectProfit.visible
-				? 'invisible opacity-0'
-				: ''} transition-all"
-		>
-			<h2 class="invisible opacity-0 lg:visible xl:opacity-100 transition-opacity">Recipe Info</h2>
-			<button
-				type="button"
-				class="button variant-ghost rounded-full w-6 h-6 flex justify-center items-center"
-				on:click={() => ($inspectProfit.visible = true)}
-				><Icon src={hi.ChevronLeft} size="18" /></button
-			>
-		</div>
+	<GemProfitRecipeInfoSidebar contentWidth='82rem'>
 		<div class="flex flex-col items-center">
 			{#await profitPreview}
 				<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
@@ -170,7 +149,7 @@
 				{/if}
 			{/await}
 		</div>
-	</div>
+	</GemProfitRecipeInfoSidebar>
 </div>
 <Wrapper>
 	<WrapperItem>
