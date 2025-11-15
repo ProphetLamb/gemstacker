@@ -5,7 +5,10 @@ using GemLevelProtScraper.PoeNinja;
 
 namespace GemLevelProtScraper;
 
-public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepository, IServiceScopeFactory scopeFactory) : BackgroundService
+public sealed class ExchangeRateProvider(
+    PoeNinjaCurrencyRepository currencyRepository,
+    IServiceScopeFactory scopeFactory
+) : BackgroundService
 {
     private readonly TaskCompletionSource _serviceStartCompletion = new();
     private readonly Lock _exchangeRatesLock = new();
@@ -16,14 +19,47 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
     {
         await using var scope = scopeFactory.CreateAsyncScope();
         var signal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeNinjaListCompleted>>();
-        _exchangeRatesTask = InitializeAsync(stoppingToken);
-        await foreach (var completion in signal.ToEnumerableAsync(stoppingToken).ConfigureAwait(false))
+        await Task
+            .WhenAll(RefreshUsingSignal(signal, stoppingToken), RefreshPeriodically(stoppingToken))
+            .ConfigureAwait(false);
+    }
+
+    private async Task RefreshUsingSignal(
+        DataflowSignal<PoeNinjaListCompleted> signal,
+        CancellationToken cancellationToken
+    )
+    {
+        _exchangeRatesTask = InitializeAsync(cancellationToken);
+        await foreach (var completion in signal.ToEnumerableAsync(cancellationToken).ConfigureAwait(false))
         {
-            var task = Interlocked.Exchange(ref _exchangeRatesTask, RefreshAsync(completion.League.Mode, stoppingToken));
-            _ = await task.ConfigureAwait(false);
+            var task = Interlocked.Exchange(
+                ref _exchangeRatesTask,
+                RefreshAsync(completion.League.Mode, cancellationToken)
+            );
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (task is not null)
+            {
+                _ = await task.ConfigureAwait(false);
+            }
+
             // notify listeners that the service has started
             _ = _serviceStartCompletion.TrySetResult();
-            stoppingToken.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+    }
+
+    private async Task RefreshPeriodically(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(5), cancellationToken).ConfigureAwait(false);
+            var task = Interlocked.Exchange(ref _exchangeRatesTask, InitializeAsync(cancellationToken));
+            if (task is not null)
+            {
+                _ = await task.ConfigureAwait(false);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
         }
     }
 
@@ -37,7 +73,10 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
 
         return GetExchangeRatesTask(task, cancellationToken);
 
-        async ValueTask<ExchangeRateCollection> GetExchangeRatesTask(Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? exchangeRatesTask, CancellationToken cancellationToken)
+        async ValueTask<ExchangeRateCollection> GetExchangeRatesTask(
+            Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>>? exchangeRatesTask,
+            CancellationToken cancellationToken
+        )
         {
             if (exchangeRatesTask is null)
             {
@@ -45,6 +84,7 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
                 cancellationToken.ThrowIfCancellationRequested();
                 return GetCurrentExchangeRates();
             }
+
             var exchangeRates = await exchangeRatesTask.ConfigureAwait(false);
             return new(exchangeRates);
         }
@@ -58,42 +98,51 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
         }
     }
 
-    private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> InitializeAsync(CancellationToken cancellationToken)
+    private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> InitializeAsync(
+        CancellationToken cancellationToken
+    )
     {
-        var results = await Task.WhenAll(LeagueModeHelper.WellknownLeagues.Select(league => LeagueExchangeRatesAsync(league, cancellationToken))).ConfigureAwait(false);
-        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(results.Sum(r => r.ExchangeRates.Count));
-        foreach (var (league, rates) in results)
+        var results = await currencyRepository
+            .GetAllExchangeRatesAsync(cancellationToken)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(results.Count);
+        foreach (var (league, rate) in results)
         {
-            foreach (var rate in rates)
-            {
-                exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
-            }
+            exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
         }
+
         AmendAndReplaceExchangeRates(null, exchangeRates);
         return exchangeRates;
-
-        async Task<(LeagueMode League, List<PoeNinjaCurrencyExchangeRate> ExchangeRates)> LeagueExchangeRatesAsync(LeagueMode league, CancellationToken cancellationToken)
-        {
-            var rates = await currencyRepository.GetExchangeRatesAsync(league, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
-            return (league, rates);
-        }
     }
 
-    private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> RefreshAsync(LeagueMode league, CancellationToken cancellationToken)
+    private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> RefreshAsync(
+        LeagueMode league,
+        CancellationToken cancellationToken = default
+    )
     {
         var newExchangeRates = currencyRepository.GetExchangeRatesAsync(league, cancellationToken);
-        // ReSharper disable once InconsistentlySynchronizedField
-        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(_exchangeRates.Count);
+        int count;
+        lock (_exchangeRatesLock)
+        {
+            count = _exchangeRates.Count;
+        }
+
+        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(count);
         await foreach (var rate in newExchangeRates.ConfigureAwait(false))
         {
             exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
             cancellationToken.ThrowIfCancellationRequested();
         }
+
         AmendAndReplaceExchangeRates(league, exchangeRates);
         return exchangeRates;
     }
 
-    private void AmendAndReplaceExchangeRates(LeagueMode? amendExceptLeague, Dictionary<Key, PoeNinjaCurrencyExchangeRate> newExchangeRates)
+    private void AmendAndReplaceExchangeRates(
+        LeagueMode? amendExceptLeague,
+        Dictionary<Key, PoeNinjaCurrencyExchangeRate> newExchangeRates
+    )
     {
         lock (_exchangeRatesLock)
         {
@@ -104,6 +153,7 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
                     _ = newExchangeRates.TryAdd(key, value);
                 }
             }
+
             _exchangeRates = newExchangeRates;
         }
     }
@@ -134,11 +184,17 @@ public sealed class ExchangeRateProvider(PoeNinjaCurrencyRepository currencyRepo
     }
 }
 
-public readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Key, PoeNinjaCurrencyExchangeRate> exchangeRates) : IReadOnlyCollection<PoeNinjaCurrencyExchangeRate>
+public readonly struct ExchangeRateCollection(
+    Dictionary<ExchangeRateProvider.Key, PoeNinjaCurrencyExchangeRate> exchangeRates
+) : IReadOnlyCollection<PoeNinjaCurrencyExchangeRate>
 {
     public int Count => exchangeRates.Count;
 
-    public bool TryGetValue(LeagueMode mode, CurrencyTypeName name, [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates)
+    public bool TryGetValue(
+        LeagueMode mode,
+        CurrencyTypeName name,
+        [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates
+    )
     {
         return exchangeRates.TryGetValue(new(mode, name.Value), out rates);
     }
@@ -156,9 +212,15 @@ public readonly struct ExchangeRateCollection(Dictionary<ExchangeRateProvider.Ke
 
 public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeName>, IParsable<CurrencyTypeName>
 {
-    public CurrencyTypeName(CurrencyTypeName existing) : this(existing.Value) {}
+    public CurrencyTypeName(CurrencyTypeName existing)
+        : this(existing.Value)
+    {
+    }
 
-    public string Value { get; } = value;
+    public string Value
+    {
+        get;
+    } = value;
 
     public static CurrencyTypeName DivineOrb => new("Divine Orb");
     public static CurrencyTypeName CartographersChisel => new("Cartographer's Chisel");
@@ -181,6 +243,7 @@ public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeN
     {
         return Value.GetHashCode();
     }
+
     public static bool operator ==(CurrencyTypeName left, CurrencyTypeName right) => left.Equals(right);
 
     public static bool operator !=(CurrencyTypeName left, CurrencyTypeName right) => !(left == right);

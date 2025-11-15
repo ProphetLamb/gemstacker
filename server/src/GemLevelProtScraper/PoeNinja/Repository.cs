@@ -189,4 +189,23 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
             }
         }
     }
+
+    internal async IAsyncEnumerable<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>> GetAllExchangeRatesAsync(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default
+    )
+    {
+        _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
+        var cursor = await _currencyCollection
+            .Find(x => true)
+            .Project(s => new { s.League, Rate = new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent)})
+            .ToCursorAsync(cancellationToken)
+            .ConfigureAwait(false);
+        while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+        {
+            foreach (var item in cursor.Current)
+            {
+                yield return KeyValuePair.Create(item.League, item.Rate);
+            }
+        }
+    }
 }
