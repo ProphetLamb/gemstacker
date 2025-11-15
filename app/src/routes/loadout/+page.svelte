@@ -19,6 +19,7 @@
 	import { onMount } from 'svelte';
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
+	import { exchangeRates } from '$lib/client/exchangeRates';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -38,7 +39,8 @@
 
 	export const snapshot = { capture, restore };
 
-	$: $availableGems = form?.gemProfit;
+	$: $availableGems = form?.gem_profit;
+	$: $exchangeRates = form?.exchange_rates;
 	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: loadout =
 		$delayed || !$availableGems

@@ -19,6 +19,7 @@
 	import { getFlash } from 'sveltekit-flash-message';
 	import { page } from '$app/stores';
 	import type { ToastMessage } from '$lib/toast.js';
+	import { exchangeRates } from '$lib/client/exchangeRates.js';
 
 	export let data
 
@@ -77,6 +78,7 @@
 			return undefined
 		}
 		const content: ProfitPreviewResponse = await rsp.json()
+		$exchangeRates = content.exchange_rates
 		return content
 	}
 

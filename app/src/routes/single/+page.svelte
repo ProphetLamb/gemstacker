@@ -18,6 +18,7 @@
 	import GemFilter from '$lib/client/GemFilter.svelte';
 	import { availableGems } from '$lib/client/availableGems';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
+	import { exchangeRates } from '$lib/client/exchangeRates';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -34,7 +35,8 @@
 		taintedMessage: null
 	});
 
-	$: $availableGems = form?.gemProfit;
+	$: $availableGems = form?.gem_profit;
+	$: $exchangeRates = form?.exchange_rates;
 	$: excludedGems = new Set($localSettings.exclude_gems);
 	$: gemProfit = $delayed || !$availableGems
 			? undefined
@@ -60,7 +62,7 @@
 			min_experience_delta: $localSettings.min_experience_delta,
 			min_listing_count: $localSettings.min_listing_count
 		};
-		if (!form?.gemProfit) {
+		if (!$availableGems) {
 			$profitForm = {
 				...$profitForm,
 				...initialSettings,

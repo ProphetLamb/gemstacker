@@ -29,11 +29,13 @@ export const actions: Actions = {
 		});
 
 		try {
-			const gemProfit = await gemProfitApi.getGemProfit({
-				...gemLevelsProfitForm.data,
-				items_count: -1
-			});
-			return { ...response, gemProfit };
+			return { ...response, 
+				gem_profit: await gemProfitApi.getGemProfit({
+					...gemLevelsProfitForm.data,
+					items_count: -1
+				}),
+				exchange_rates: await gemProfitApi.getWellKnownExchangeRatesToChaos(gemLevelsProfitForm.data.league)
+			};
 		} catch (err) {
 			console.log('/single:actions.default', err);
 			const message =
