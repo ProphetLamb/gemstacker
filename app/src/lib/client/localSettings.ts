@@ -3,7 +3,7 @@ import { derived, type Writable } from 'svelte/store';
 import { leagues } from './leagues';
 import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
 import type { PoeTradeLeagueResponse } from '$lib/pathOfExileApi';
-import { currencyDisplayValues, defaultCurrencyDisplay, type CurrencyDisplay } from './currency';
+import { currencyDisplayValues, defaultCurrencyDisplay, type CurrencyDisplay } from '../currency';
 
 export interface LocalSettings {
 	league: string;

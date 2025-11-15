@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { currencyModValues, currencyRerollRare } from '$lib/knownImages';
-	import type { CurrencyDisplay } from '$lib/client/currency';
+	import type { CurrencyDisplay } from '$lib/currency';
 	import { localSettings } from '$lib/client/localSettings';
 	import { exchangeRates } from '$lib/client/exchangeRates';
 	import { intlWholeNumber } from '$lib/intl';

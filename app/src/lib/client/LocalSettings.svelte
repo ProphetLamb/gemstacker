@@ -12,7 +12,7 @@
 	import { availableGems } from './availableGems';
 	import { exchangeRates } from './exchangeRates';
 	import ExchangeRates from './ExchangeRates.svelte';
-	import { currencyDisplayValues } from './currency';
+	import { currencyDisplayValues } from '../currency';
 
 	export let textClass: CssClasses = '';
 
