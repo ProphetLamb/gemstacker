@@ -7,7 +7,11 @@ namespace GemLevelProtScraper.Profit;
 
 public sealed class ProfitServiceOptions : IOptions<ProfitServiceOptions>
 {
-    public required Dictionary<string, double> SpecialExperienceFactorPerQualityGams { get; init; }
+    public required Dictionary<string, double> SpecialExperienceFactorPerQualityGams
+    {
+        get;
+        init;
+    }
 
     ProfitServiceOptions IOptions<ProfitServiceOptions>.Value => this;
 }
@@ -20,7 +24,10 @@ public sealed class ProfitService(
     ILoggerFactory loggerFactory
 )
 {
-    private List<IProfitRecipe> ProfitRecipes { get; } = profitRecipes.ToList();
+    private List<IProfitRecipe> ProfitRecipes
+    {
+        get;
+    } = profitRecipes.ToList();
 
     public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(
         ProfitRequest request,
@@ -44,19 +51,21 @@ public sealed class ProfitService(
             )
             .OrderByDescending(g => g.Delta.MaxGainMargin);
 
-        var result = eligiblePricedGems.Select(g => new ProfitResponse{
-            Name = g.Skill.Name,
-            Color = g.Skill.Color,
-            Discriminator = g.Skill.Discriminator,
-            Type = g.Skill.BaseType,
-            ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
-            PreferredRecipe = g.Delta.PreferredRecipe,
-            Recipes = g.Delta.ProfitMargins,
-            GainMargin = g.Delta.MaxGainMargin,
-            Icon = g.Skill.IconUrl,
-            Max = g.Delta.Max.Data,
-            Min = g.Delta.Min.Data,
-        });
+        var result = eligiblePricedGems.Select(g => new ProfitResponse
+            {
+                Name = g.Skill.Name,
+                Color = g.Skill.Color,
+                Discriminator = g.Skill.Discriminator,
+                Type = g.Skill.BaseType,
+                ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
+                PreferredRecipe = g.Delta.PreferredRecipe,
+                Recipes = g.Delta.ProfitMargins,
+                GainMargin = g.Delta.MaxGainMargin,
+                Icon = g.Skill.IconUrl,
+                Max = g.Delta.Max.Data,
+                Min = g.Delta.Min.Data,
+            }
+        );
 
         await using var en = result.GetAsyncEnumerator(cancellationToken);
         while (await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -79,11 +88,15 @@ internal readonly struct ProfitMarginCalculator(
     {
         var profitRequest = request;
         var pricesOrdered = prices
-            .Where(p => p.ListingCount >= profitRequest.MinimumListingCount)
             .Where(p => (profitRequest.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
                         && (profitRequest.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
             )
             .ToArray();
+        if (pricesOrdered.Sum(p => p.ListingCount) < request.MinimumListingCount)
+        {
+            return null;
+        }
+
         // order by ChaosValue descending
         pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
 
@@ -120,6 +133,7 @@ internal readonly struct ProfitMarginCalculator(
         {
             return null;
         }
+
         var (recipeName, bestProfit) = profitMargins.MaxBy(kvp => kvp.Value.GainMargin);
 
         return new(
