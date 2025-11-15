@@ -11,7 +11,7 @@
 		{#each data as gem, idx}
 			<tr class="h-12">
 				<GemTableIdentifier {gem} {idx} />
-				<td class="pl-2">
+				<td class="pl-2 hidden md:table-cell">
 					<GemTradeQueryButton gemPrice={gem} />
 				</td>
 			</tr>

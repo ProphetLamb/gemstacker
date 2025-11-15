@@ -4,6 +4,8 @@
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
 	import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
+	import Chaos from './Chaos.svelte';
+	import Currency from './Currency.svelte';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
@@ -29,32 +31,32 @@
 	>
 </td>
 <td />
-<td class="text-end pt-1">
-	<span>{gem.min.price}</span>
-	<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
+<td>
+	<div class="md:flex md:flex-row md:h-full items-center justify-end">
+		<Chaos value={gem.min.price} />
+	</div>
 </td>
-<td class="pt-1 text-surface-600-300-token">
+<td class="text-surface-600-300-token">
 	<Icon src={hi.ArrowRight} size="14" />
 </td>
-<td class="text-start pt-1">
-	<span class="whitespace-nowrap">
-		{gem.max.price}<img src={currencyRerollRare} alt="c" class="table-cell h-4 w-4" />
-	</span>
+<td>
+	<div class="md:flex md:flex-row md:h-full items-center justify-end">
+		<Chaos value={gem.max.price} />
+	</div>
+</td>
+<td>
 	{#if deltaQty > 0}
-		<span class="whitespace-nowrap">
-			<span class="text-error-200-700-token">-{deltaQty}</span><img
-				src={currencyGemQuality}
-				alt="gcp"
-				class="table-cell h-4 w-4"
-			/>
-		</span>
+		<Currency
+			value={-deltaQty}
+			value_class="text-error-400-500-token"
+			src={currencyGemQuality}
+			alt="gcp"
+		/>
 	{/if}
 </td>
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
-<td class="text-end pt-1">
-	<span class="text-success-200-700-token">+{intlFractionNumber.format(deltaPrice)}</span><img
-		src={currencyRerollRare}
-		alt="c"
-		class="table-cell h-4 w-4"
-	/>
+<td>
+	<div class="md:flex md:flex-row md:h-full items-center justify-end">
+		<Chaos value={deltaPrice} />
+	</div>
 </td>
