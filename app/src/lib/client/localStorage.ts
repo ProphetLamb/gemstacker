@@ -1,5 +1,5 @@
 import { localStorageStore } from "@skeletonlabs/skeleton"
-import { isNullOrEmpty } from "./obj"
+import { isNullOrEmpty } from "../obj"
 import type { Writable } from "svelte/store"
 interface Serializer<T> {
     parse(text: string): T;
