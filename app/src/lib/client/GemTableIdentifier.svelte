@@ -7,11 +7,10 @@
 	import Chaos from './Chaos.svelte';
 	import Currency from './Currency.svelte';
 	import { getProfit } from '$lib/gemProfit';
-	import { exchangeRates } from './exchangeRates';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
-	const { delta_exp, delta_price, delta_qty } = getProfit(gem, $exchangeRates)
+	const { adjusted_earnings, experience_delta, quality_spent } = getProfit(gem)
 </script>
 
 <td class="pr-2">
@@ -25,7 +24,7 @@
 		<div class=" text-xs text-surface-600-300-token">
 			lvl
 			{gem.min.level} → {gem.max.level} =
-			<span class="text-secondary-300-600-token">+{intlCompactNumber.format(delta_exp)}</span>exp
+			<span class="text-secondary-300-600-token">+{intlCompactNumber.format(experience_delta)}</span>exp
 		</div></a
 	>
 </td>
@@ -43,9 +42,9 @@
 	</div>
 </td>
 <td>
-	{#if delta_qty > 0}
+	{#if quality_spent > 0}
 		<Currency
-			value={-delta_qty}
+			value={-quality_spent}
 			value_class="text-error-200-700-token"
 			src={currencyGemQuality}
 			alt="gcp"
@@ -55,6 +54,6 @@
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 <td>
 	<div class="md:flex md:flex-row md:h-full items-center justify-end">
-		<Chaos value={delta_price} value_class={delta_price >= 0 ? 'text-success-200-700-token' : 'text-error-200-700-token'} />
+		<Chaos value={adjusted_earnings} value_class={adjusted_earnings >= 0 ? 'text-success-200-700-token' : 'text-error-200-700-token'} />
 	</div>
 </td>
