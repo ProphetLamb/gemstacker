@@ -15,7 +15,8 @@ export type ProfitPreviewResponse = {
 export const GET = async ({ fetch, url }) => {
 	const request = gemProfitRequestParameterSchema.parse({
 		league: url.searchParams.get('league'),
-		min_experience_delta: parseInt(url.searchParams.get('min_experience_delta') || '0')
+		min_experience_delta: parseInt(url.searchParams.get('min_experience_delta') || '0'),
+		min_listing_count: parseInt(url.searchParams.get('min_listing_count') || '0'),
 	});
 	const gemProfitApi = createGemProfitApi(fetch, {
 		api_endpoint: API_ENDPOINT,
