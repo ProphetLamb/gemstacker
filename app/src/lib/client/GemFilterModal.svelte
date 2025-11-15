@@ -7,8 +7,6 @@
 	import { onDestroy, tick } from 'svelte';
 	import { localSettings } from './localSettings';
 
-	export let parent;
-
 	const lazyLoadIncrement = 10;
 
 	let filter = '';
@@ -94,7 +92,14 @@
 	<div
 		class="text-token flex flex-col items-center card max-h-[calc(100vh-2rem)] max-w-[100vw] py-2 space-y-2"
 	>
-		<h1 class="h1">Exclude unwanted gems</h1>
+		<div class="flex flex-row px-2 space-x-2 w-full justify-between items-center">
+			<h1 class="h1">Exclude gems</h1>
+			<button
+				type="button"
+				class="button variant-ghost rounded-full w-8 h-8 flex justify-center items-center"
+				on:click={() => modalStore.close()}><Icon src={hi.XMark} size="22" /></button
+			>
+		</div>
 		<slot />
 		<div class="card-header w-full space-y-2">
 			<div class="flex flex-row items-center gap-x-2">
@@ -131,11 +136,6 @@
 					Search a gem name for more...
 				</div>
 			{/if}
-		</div>
-		<div class="px-2 w-full">
-			<button class="btn variant-soft-error align-middle w-full" on:click={() => modalStore.close()}
-				><Icon src={hi.XMark} size="16" />
-			</button>
 		</div>
 	</div>
 {/if}
