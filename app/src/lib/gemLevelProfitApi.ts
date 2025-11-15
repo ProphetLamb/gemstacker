@@ -68,6 +68,7 @@ export interface GemProfitResponseItemPrice {
 	price: number;
 	quality: number;
 	level: number;
+	corrupted: boolean;
 	experience: number;
 	listing_count: number;
 }
@@ -76,6 +77,7 @@ export const gemProfitResponseItemPriceSchema = z.object({
 	price: z.number(),
 	quality: z.number(),
 	level: z.number(),
+	corrupted: z.boolean(),
 	experience: z.number(),
 	listing_count: z.number()
 });
@@ -83,29 +85,27 @@ export const gemProfitResponseItemPriceSchema = z.object({
 export type GemColor = 'white' | 'blue' | 'green' | 'red';
 export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
-export interface ProfitMargin {
+export interface GemProfitResponeItemMargin {
+	buy: GemProfitResponseItemPrice;
+	sell: GemProfitResponseItemPrice;
 	adjusted_earnings: number;
 	experience_delta: number;
 	gain_margin: number;
-	quality_spent: number;
 }
 
-export const profitMarginSchema = z.object({
+export const gemProfitResponseItemMarginSchema = z.object({
+	buy: gemProfitResponseItemPriceSchema,
+	sell: gemProfitResponseItemPriceSchema,
 	adjusted_earnings: z.number(),
 	experience_delta: z.number(),
 	gain_margin: z.number(),
-	quality_spent: z.number()
 });
 
-export interface ProfitResponseRecipes {
-	quality_then_level: ProfitMargin;
-	level_vendor_level: ProfitMargin;
-}
+export type GemProfitResponseItemRecipeName = 'level_sell' | 'level_vendor_quality_sell' | 'level_vendor_quality_level_sell' | 'quality_level_sell';
 
-export const profitResponseRecipesSchema = z.object({
-	quality_then_level: profitMarginSchema,
-	level_vendor_level: profitMarginSchema
-});
+export type GemProfitResponseItemRecipes = Record<GemProfitResponseItemRecipeName, GemProfitResponeItemMargin>
+
+export const gemProfitResponseItemRecipesSchema = z.record(z.string(), gemProfitResponseItemMarginSchema);
 
 export interface GemProfitResponseItem {
 	name: string;
@@ -117,7 +117,8 @@ export interface GemProfitResponseItem {
 	type: string;
 	discriminator?: string | null;
 	foreign_info_url: string;
-	recipes: ProfitResponseRecipes;
+	preferred_recipe: GemProfitResponseItemRecipeName;
+	recipes: GemProfitResponseItemRecipes;
 }
 
 export const gemProfitResponseItemSchema = z.object({
@@ -130,7 +131,8 @@ export const gemProfitResponseItemSchema = z.object({
 	type: z.string(),
 	discriminator: z.string().nullable().optional(),
 	foreign_info_url: z.string(),
-	recipes: profitResponseRecipesSchema
+	preferred_recipe: z.string(),
+	recipes: gemProfitResponseItemRecipesSchema
 });
 
 export type GemProfitResponse = GemProfitResponseItem[];
