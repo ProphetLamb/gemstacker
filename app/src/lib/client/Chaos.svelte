@@ -40,7 +40,7 @@
             />
         {/if}
         <Currency
-            value={value - Math.floor(value / $exchangeRates.divine_orb) * $exchangeRates.divine_orb}
+            value={Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / $exchangeRates.divine_orb) * $exchangeRates.divine_orb)}
             {value_class}
             number_format={intlWholeNumber}
             alt="c"
