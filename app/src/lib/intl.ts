@@ -5,5 +5,11 @@ export const intlCompactNumber = Intl.NumberFormat('en-US', {
 export const intlFractionNumber = Intl.NumberFormat('en-US', {
   notation: 'standard',
   maximumFractionDigits: 2,
-  minimumFractionDigits: 0
+  minimumFractionDigits: 0,
+  useGrouping: false
 });
+export const intlWholeNumber = Intl.NumberFormat('en-US', {
+  notation: 'compact',
+  maximumFractionDigits: 0,
+  useGrouping: false
+})
