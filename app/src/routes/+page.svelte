@@ -120,18 +120,27 @@
 			>
 		</h1>
 	</div>
-	<div class="relative w-[84rem] max-w-full">
+	<div class="relative w-[82rem] max-w-full">
 		<GemProfitRecipeInfo
-			class="absolute left-0 w-72 h-fit {$inspectProfit.visible && !!$inspectProfit.gem ? '' : 'invisible opacity-0'} transition-opacity"
+			class="absolute right-0 w-72 h-fit {$inspectProfit.visible && !!$inspectProfit.gem
+				? ''
+				: 'invisible opacity-0'} transition-opacity"
 			gem={$inspectProfit.gem}
 			close={() => ($inspectProfit.visible = false)}
 		/>
-		<button
-			type="button"
-			class="absolute left-[16rem] mt-2 button variant-ghost rounded-full w-6 h-6 flex justify-center items-center {$inspectProfit.visible ? 'invisible opacity-0' : ''} transition-opacity"
-			on:click={() => ($inspectProfit.visible = true)}
-			><Icon src={hi.ChevronLeft} size="18" /></button
+		<div
+			class="absolute flex flex-row space-x-2 items-center align-middle right-0 p-2 xl:card xl:variant-soft-surface {$inspectProfit.visible
+				? 'invisible opacity-0'
+				: ''} transition-all"
 		>
+			<h2 class="invisible opacity-0 lg:visible xl:opacity-100 transition-opacity">Recipe Info</h2>
+			<button
+				type="button"
+				class="button variant-ghost rounded-full w-6 h-6 flex justify-center items-center"
+				on:click={() => ($inspectProfit.visible = true)}
+				><Icon src={hi.ChevronLeft} size="18" /></button
+			>
+		</div>
 		<div class="flex flex-col items-center">
 			{#await profitPreview}
 				<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
