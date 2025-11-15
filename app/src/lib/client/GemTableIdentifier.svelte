@@ -46,7 +46,7 @@
 	{#if delta_qty > 0}
 		<Currency
 			value={-delta_qty}
-			value_class="text-error-400-500-token"
+			value_class="text-error-200-700-token"
 			src={currencyGemQuality}
 			alt="gcp"
 		/>
@@ -55,6 +55,6 @@
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 <td>
 	<div class="md:flex md:flex-row md:h-full items-center justify-end">
-		<Chaos value={delta_price} />
+		<Chaos value={delta_price} value_class={delta_price >= 0 ? 'text-success-200-700-token' : 'text-error-200-700-token'} />
 	</div>
 </td>
