@@ -129,6 +129,11 @@ internal readonly struct ProfitMarginCalculator(
             }
         }
 
+        foreach (var (key, _) in profitMargins.Where(ProfitMarginViolatesRequestConstraint).ToList())
+        {
+            profitMargins.Remove(key);
+        }
+
         if (profitMargins.Count == 0)
         {
             return null;
@@ -144,5 +149,26 @@ internal readonly struct ProfitMarginCalculator(
             bestProfit.GainMargin,
             skill
         );
+
+        bool ProfitMarginViolatesRequestConstraint(KeyValuePair<string, ProfitMargin> kvp)
+        {
+            var (_, margin) = kvp;
+            if (margin.ExperienceDelta < profitRequest.MinExperienceDelta)
+            {
+                return false;
+            }
+
+            if (margin.Buy.Price > profitRequest.MaxBuyPriceChaos)
+            {
+                return false;
+            }
+
+            if (margin.Sell.Price < profitRequest.MinSellPriceChaos)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
