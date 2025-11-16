@@ -29,9 +29,10 @@
     {:else if actualCurrencyDisplay === 'DivineFraction'}
         <Currency value={value / $exchangeRates.divine_orb} alt="d" src={currencyModValues} />
     {:else}
-        {#if value / $exchangeRates.divine_orb > 1}
+    {@const divineOrb = Math.floor($exchangeRates.divine_orb)}
+        {#if value / divineOrb >= 1}
             <Currency
-                value={value / $exchangeRates.divine_orb}
+                value={value / divineOrb}
                 {value_class}
                 number_format={intlWholeNumber}
                 alt="d"
@@ -40,7 +41,7 @@
             />
         {/if}
         <Currency
-            value={Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / $exchangeRates.divine_orb) * $exchangeRates.divine_orb)}
+            value={Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / divineOrb) * divineOrb)}
             {value_class}
             number_format={intlWholeNumber}
             alt="c"
