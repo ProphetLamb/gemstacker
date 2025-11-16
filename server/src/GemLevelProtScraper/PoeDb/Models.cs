@@ -24,7 +24,7 @@ internal sealed record PoeDbSkillLevel(double Level, double RequiresLevel, PoeDb
 
 internal sealed record PoeDbLink(string Label, string Link);
 
-internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, ImmutableArray<PoeDbLink> Acronyms, string Metadata, ImmutableArray<PoeDbLink> ReferenceUrls);
+internal sealed record PoeDbSkillStats(string BaseType, PoeDbLink Class, ImmutableArray<PoeDbLink> Acronyms, string Metadata, ImmutableArray<PoeDbLink> ReferenceUrls, long? DropLevel = null);
 
 internal sealed record PoeDbGenus(ImmutableArray<PoeDbSkillName> Skills);
 

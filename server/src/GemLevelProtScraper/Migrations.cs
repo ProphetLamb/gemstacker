@@ -70,6 +70,85 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     }
 }
 
+
+[MongoMigration(PoeDatabaseSettings.Alias, 9, 10, Description = $"Add DropLevel to view SkillGemView.")]
+public sealed class AddDropLevelToSkillViewMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await database.DropCollectionAsync(optionsAccessor.Value.SkillGemViewName, cancellationToken).ConfigureAwait(false);
+        CreateSkillViewMigration original = new(optionsAccessor);
+        await original.UpAsync(database, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await database.DropCollectionAsync(optionsAccessor.Value.SkillGemViewName, cancellationToken).ConfigureAwait(false);
+        var createViewMql = /*lang=mql*/ $$"""
+        {
+            'create': '{{optionsAccessor.Value.SkillGemViewName}}',
+            'viewOn': '{{optionsAccessor.Value.PoeDbSkillCollectionName}}',
+            'pipeline': [
+                {
+                    '$project': {
+                        'Skill': 1,
+                        'LevelEffects': {
+                            '$filter': {
+                                'input': '$Skill.LevelEffects',
+                                'cond': { '$ne': [ '$$this.Experience', null] }
+                            }
+                        },
+                    }
+                },
+                {
+                    '$project': {
+                        'Name': '$Skill.Name._id',
+                        'RelativeUrl': '$Skill.Name.RelativeUrl',
+                        'Color': '$Skill.Name.Color',
+                        'League': '$Price.League',
+                        'IconUrl': '$Skill.IconUrl',
+                        'BaseType': '$Skill.Stats.BaseType',
+                        'DropLevel': '$Skill.Stats.DropLevel',
+                        'Discriminator': '$Skill.Discriminator',
+                        'SumExperience': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Experience',
+                                'initialValue': 0.0,
+                                'in': {
+                                '$add': [
+                                    { '$toDouble': '$$value' },
+                                    { '$toDouble': '$$this' },
+                                ]
+                                }
+                            }
+                        },
+                        'MaxLevel': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Level',
+                                'initialValue': 0,
+                                'in': {
+                                    '$add': [
+                                        {
+                                            '$max': [
+                                                { '$toDouble': '$$value' },
+                                                { '$toDouble': '$$this' },
+                                            ]
+                                        },
+                                        1
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+            ]
+        }
+        """;
+        var command = new JsonCommand<BsonDocument>(createViewMql);
+        _ = await database.RunCommandAsync(command, null, cancellationToken).ConfigureAwait(false);
+    }
+}
+
 [MongoMigration(PoeDatabaseSettings.Alias, 8, 9, Description = $"Add unique composite index {CurrencyIdentifierIndexName}.")]
 public sealed class PoeNinjaCurrencyAddIdentifierIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
 {

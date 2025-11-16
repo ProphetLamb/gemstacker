@@ -201,12 +201,14 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 ?? [];
             var references = titleView["Reference"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
                 ?? [];
+            var dropLevel = titleView.Match("DropLevel*").SingleOrDefault()?.Select(x => long.Parse(x.TextContent, CultureInfo.GetCultureInfo(1033))).FirstOrDefault();
             return new(
                 baseType,
                 class_,
                 acronyms.ToImmutableArray(),
                 metadata,
-                references.ToImmutableArray()
+                references.ToImmutableArray(),
+                dropLevel
             );
         }
 
