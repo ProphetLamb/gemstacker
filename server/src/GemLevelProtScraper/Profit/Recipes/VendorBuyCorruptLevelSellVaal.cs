@@ -8,7 +8,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MaxLevel is not { } max || !ctx.Skill.IsVaalSkillGem())
+        if (ctx.MaxLevel is not { } max || max.GemLevel == 1 || !ctx.Skill.IsVaalSkillGem())
         {
             return null;
         }

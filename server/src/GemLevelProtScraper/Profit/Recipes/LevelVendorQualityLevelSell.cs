@@ -8,7 +8,7 @@ public class LevelVendorQualityLevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MaxLevel20Quality is not { } max || ctx.MinLevel is not { } min)
+        if (ctx.MaxLevel20Quality is not { } max || ctx.MinLevel is not { } min || min.GemLevel >= max.GemLevel)
         {
             return null;
         }
