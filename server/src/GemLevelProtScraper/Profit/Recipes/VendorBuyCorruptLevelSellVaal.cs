@@ -8,7 +8,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MaxLevel is not { } max || max.GemLevel == 1 || !ctx.Skill.IsVaalSkillGem())
+        if ((ctx.MaxLevel ?? ctx.CorruptedMaxLevel) is not { } max || max.GemLevel == 1 || !ctx.Skill.IsVaalSkillGem())
         {
             return null;
         }
@@ -21,7 +21,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
         var costChaos = attempts * vaalOrb;
 
         var levelEarning = max.ChaosValue - costChaos;
-        var min = max.ToVendorFreePrice();
+        var min = max.ToVendorFreePrice() with { Corrupted = false };
         var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
         return new()
         {
