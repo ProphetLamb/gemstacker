@@ -155,20 +155,20 @@ internal readonly struct ProfitMarginCalculator(
             var (_, margin) = kvp;
             if (margin.ExperienceDelta < profitRequest.MinExperienceDelta)
             {
-                return false;
+                return true;
             }
 
             if (profitRequest.MaxBuyPriceChaos is { } max && margin.Buy.Price > max)
             {
-                return false;
+                return true;
             }
 
             if (profitRequest.MinSellPriceChaos is { } min && margin.Sell.Price < min)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
     }
 }
