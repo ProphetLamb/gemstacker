@@ -34,6 +34,9 @@ public sealed class ProfitService(
         [EnumeratorCancellation] CancellationToken cancellationToken = default
     )
     {
+        var allowedRecipes = request.DisallowedRecipes is null
+            ? ProfitRecipes
+            : ProfitRecipes.Where(x => !request.DisallowedRecipes.Contains(x.Name)).ToList();
         var valueSpecialExperienceFactorPerQualityGams = options.Value.SpecialExperienceFactorPerQualityGams;
         var exchangeRates = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
         var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken);
@@ -43,7 +46,7 @@ public sealed class ProfitService(
                     g.Skill,
                     exchangeRates,
                     valueSpecialExperienceFactorPerQualityGams,
-                    ProfitRecipes,
+                    allowedRecipes,
                     loggerFactory.CreateLogger<ProfitMarginCalculator>()
                 ).ComputeProfitMargin(g.Prices) is { } delta
                     ? new { g.Skill, Delta = delta }

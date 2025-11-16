@@ -13,6 +13,7 @@ public sealed record ProfitRequest
     public double? MaxBuyPriceChaos { get; init; }
     public double? MinExperienceDelta { get; init; }
     public long MinimumListingCount { get; init; }
+    public IReadOnlySet<string>? DisallowedRecipes { get; init; }
 }
 
 public sealed record ProfitResponse
