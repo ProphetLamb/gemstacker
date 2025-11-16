@@ -15,7 +15,7 @@
 </script>
 
 <td class="pr-2">
-	<a href={gem.foreign_info_url} target="_blank" class="badge-icon variant-soft-primary h-11 w-11">
+	<a href={gem.foreign_info_url} target="_blank" class="badge-icon h-11 w-11 {gem.min.corrupted ? 'variant-soft-error' : 'variant-soft-primary'}">
 		<img src={gem.icon} alt={`${idx + 1}`} />
 	</a>
 </td>

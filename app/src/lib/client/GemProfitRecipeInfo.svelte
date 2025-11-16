@@ -26,8 +26,8 @@
 		{/if}
 	</div>
 	<div class="space-y-4">
-		<p>{preferredRecipie?.buy.listing_count ?? 0} available</p>
-		<h5 class="h5">Best Recipe: {info.title}</h5>
+		<p>{preferredRecipie?.buy.listing_count ?? 0} available <span class="text-error-400-500-token {gem?.min.corrupted ? 'inline' : 'hidden'}">corrupted</span></p>
+		<h5 class="h5">{info.title}</h5>
 		<p>{@html info.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 		<h5 class="h5">All Recipes</h5>
 		<ul>
