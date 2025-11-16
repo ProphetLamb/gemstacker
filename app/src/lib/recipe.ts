@@ -25,11 +25,17 @@ const title = {
 	level_sell: 'Level > Sell',
 	level_vendor_quality_level_sell: 'Level > Vendor Quality > Level > Sell',
 	level_vendor_quality_sell: 'Level > Vendor Quality > Sell',
-	quality_level_sell: 'Quality > Level > Sell',
+	quality_level_sell: 'Quality > Level > Sell'
 } satisfies Record<GemProfitResponseItemRecipeName, string>;
 
 export function getRecipeInfo(recipe: GemProfitResponseItemRecipeName): GemProfitRecipeInfo {
-	const info = { description: description[recipe], title: title[recipe] } satisfies GemProfitRecipeInfo;
+	const info = {
+		description: description[recipe] ?? '',
+		title: title[recipe] ?? ''
+	} satisfies GemProfitRecipeInfo;
+	if (!description[recipe]) {
+		console.log('getRecipeInfo', 'Unknown recipe', recipe);
+	}
 	if (recipe === 'level_vendor_quality_level_sell') {
 		return { ...info, gem_cuttters: 1 };
 	}
