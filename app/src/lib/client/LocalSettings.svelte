@@ -8,10 +8,6 @@
 	import { deepEqual } from '$lib/compare';
 	import { leagues } from './leagues';
 	import { gemProfitRequestParameterConstraints } from '$lib/gemLevelProfitApi';
-	import GemFilter from './GemFilter.svelte';
-	import { availableGems } from './availableGems';
-	import { exchangeRates } from './exchangeRates';
-	import ExchangeRates from './ExchangeRates.svelte';
 	import { currencyDisplayValues } from '../currency';
 
 	export let textClass: CssClasses = '';
@@ -45,7 +41,12 @@
 	<div data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
 		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
-			<h2 class="h2">Settings</h2>
+			<div class="flex flex-row justify-between items-center">
+				<h2 class="h2">Settings</h2>
+				<button class="btn align-middle variant-ghost p-0 w-8 h-8"
+					><Icon src={hi.XMark} size="16" />
+				</button>
+			</div>
 			<label class="label">
 				<span>League</span>
 				<select class="select" bind:value={$localSettings.league}>
@@ -92,15 +93,6 @@
 					{/each}
 				</select>
 			</label>
-			{#if $exchangeRates}
-				<div>
-					<span>Exchange Rates</span>
-					<ExchangeRates class="pl-2" exchange_rates={$exchangeRates} />
-				</div>
-			{/if}
-			{#if $availableGems && $availableGems.length > 0}
-				<GemFilter />
-			{/if}
 			<hr class="!border-t-2 w-full opacity-50" />
 			<button class="btn variant-soft-error align-middle"
 				><Icon src={hi.XMark} size="16" />
