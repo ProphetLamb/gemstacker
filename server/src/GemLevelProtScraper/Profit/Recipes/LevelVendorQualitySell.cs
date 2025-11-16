@@ -1,4 +1,6 @@
-﻿namespace GemLevelProtScraper.Profit.Recipes;
+﻿using GemLevelProtScraper.Skills;
+
+namespace GemLevelProtScraper.Profit.Recipes;
 
 public class LevelVendorQualitySell : IProfitRecipe
 {
@@ -16,11 +18,17 @@ public class LevelVendorQualitySell : IProfitRecipe
             return null;
         }
 
-        if (!ctx.Skill.Name.EndsWith(" support", StringComparison.OrdinalIgnoreCase))
+        if (!ctx.Skill.IsSupportGem())
         {
             return null;
         }
 
+        return ProfitMarginUnchecked(ctx, max, min);
+    }
+
+    public static ProfitMargin ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice max,
+        SkillGemPrice min)
+    {
         // level the gem, vendor it with 1x Gem Cutter, sell the gem
         var levelEarning = max.ChaosValue - min.ChaosValue;
         var qualityCost = ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1;

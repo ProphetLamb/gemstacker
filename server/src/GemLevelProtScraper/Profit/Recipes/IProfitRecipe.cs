@@ -1,4 +1,5 @@
-﻿using GemLevelProtScraper.Skills;
+﻿using System.Diagnostics.CodeAnalysis;
+using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace GemLevelProtScraper.Profit.Recipes;
@@ -23,7 +24,10 @@ public sealed class SkillProfitCalculationContext(
 {
     public const double GainMarginFactor = 1000000;
 
-    private static IComparer<SkillGemPrice> LevelComparer { get; } = Comparer<SkillGemPrice>.Create((x, y) =>
+    private static IComparer<SkillGemPrice> LevelComparer
+    {
+        get;
+    } = Comparer<SkillGemPrice>.Create((x, y) =>
         {
             var gemLevel = x.GemLevel.CompareTo(y.GemLevel);
             if (gemLevel != 0)
@@ -31,11 +35,15 @@ public sealed class SkillProfitCalculationContext(
                 return gemLevel;
             }
 
-            return x.ChaosValue.CompareTo(y.ChaosValue);;
+            return x.ChaosValue.CompareTo(y.ChaosValue);
+            ;
         }
     );
 
-    private static IComparer<SkillGemPrice> LevelDescComparer { get; } = Comparer<SkillGemPrice>.Create((x, y) =>
+    private static IComparer<SkillGemPrice> LevelDescComparer
+    {
+        get;
+    } = Comparer<SkillGemPrice>.Create((x, y) =>
         {
             var gemLevel = -x.GemLevel.CompareTo(y.GemLevel);
             if (gemLevel != 0)
@@ -43,7 +51,8 @@ public sealed class SkillProfitCalculationContext(
                 return gemLevel;
             }
 
-            return x.ChaosValue.CompareTo(y.ChaosValue);;
+            return x.ChaosValue.CompareTo(y.ChaosValue);
+            ;
         }
     );
 
@@ -51,26 +60,38 @@ public sealed class SkillProfitCalculationContext(
 
     public IReadOnlyList<SkillGemPrice> PricesAscending => pricesAscending;
 
-    public SkillGemPrice? MinLevel => field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelDescComparer);
+    public SkillGemPrice? MinLevel =>
+        field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelDescComparer);
+
     public SkillGemPrice? MaxLevel => field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelComparer);
-    public SkillGemPrice? MinLevel20Quality => field ??= PricesAscending.Where(x => x is { Corrupted: false, GemQuality: 20 }).MaxBy(x => x, LevelDescComparer);
-    public SkillGemPrice? MaxLevel20Quality => field ??= PricesAscending.Where(x => x is { Corrupted: false, GemQuality: 20 }).MaxBy(x => x, LevelComparer);
+
+    public SkillGemPrice? MinLevel20Quality =>
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: false, GemQuality: 20 })
+            .MaxBy(x => x, LevelDescComparer);
+
+    public SkillGemPrice? MaxLevel20Quality =>
+        field ??= PricesAscending.Where(x => x is { Corrupted: false, GemQuality: 20 }).MaxBy(x => x, LevelComparer);
+
     public SkillGemPrice? CorruptedLevel =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending.Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel).MaxBy(x => x, LevelComparer)
             : null;
+
     public SkillGemPrice? CorruptedLevel20Quality =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending
                 .Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel && x.GemQuality == 20)
                 .MaxBy(x => x, LevelComparer)
             : null;
+
     public SkillGemPrice? CorruptedLevel23Quality =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending
                 .Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel && x.GemQuality == 23)
                 .MaxBy(x => x, LevelComparer)
             : null;
+
     public SkillGemPrice? Corrupted23QualityMaxLevel =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending
@@ -124,10 +145,17 @@ public static class ProfitRecipeExtension
 {
     public static IServiceCollection AddProfitRecipes(this IServiceCollection services)
     {
-        services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), typeof(LevelSell), ServiceLifetime.Transient));
-        services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), typeof(LevelVendorQualityLevelSell), ServiceLifetime.Transient));
-        services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), typeof(LevelVendorQualitySell), ServiceLifetime.Transient));
-        services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), typeof(QualityLevelSell), ServiceLifetime.Transient));
+        AddRecipe(typeof(LevelSell));
+        AddRecipe(typeof(LevelVendorQualityLevelSell));
+        AddRecipe(typeof(LevelVendorQualitySell));
+        AddRecipe(typeof(QualityLevelSell));
+        AddRecipe(typeof(VendorBuyLevelSell));
+        AddRecipe(typeof(VendorBuyLevelVendorQualityLevelSell));
+        AddRecipe(typeof(VendorBuyLevelVendorQualitySell));
+        AddRecipe(typeof(VendorBuyQualityLevelSell));
         return services;
+
+        void AddRecipe([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type t) =>
+            services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), t, ServiceLifetime.Transient));
     }
 }
