@@ -65,6 +65,11 @@ public sealed class SkillProfitCalculationContext(
 
     public SkillGemPrice? MaxLevel => field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelComparer);
 
+    public SkillGemPrice? CorruptedMaxLevel =>
+        field ??= MaxLevel is { } maxLevel
+            ? PricesAscending.Where(x => x.Corrupted && x.GemLevel == maxLevel.GemLevel).MaxBy(x => x, LevelComparer)
+            : null;
+
     public SkillGemPrice? MinLevel20Quality =>
         field ??= PricesAscending
             .Where(x => x is { Corrupted: false, GemQuality: 20 })
@@ -73,19 +78,19 @@ public sealed class SkillProfitCalculationContext(
     public SkillGemPrice? MaxLevel20Quality =>
         field ??= PricesAscending.Where(x => x is { Corrupted: false, GemQuality: 20 }).MaxBy(x => x, LevelComparer);
 
-    public SkillGemPrice? CorruptedLevel =>
+    public SkillGemPrice? CorruptedAddLevel =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending.Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel).MaxBy(x => x, LevelComparer)
             : null;
 
-    public SkillGemPrice? CorruptedLevel20Quality =>
+    public SkillGemPrice? CorruptedAddLevel20Quality =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending
                 .Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel && x.GemQuality == 20)
                 .MaxBy(x => x, LevelComparer)
             : null;
 
-    public SkillGemPrice? CorruptedLevel23Quality =>
+    public SkillGemPrice? CorruptedAddLevel23Quality =>
         field ??= MaxLevel is { } maxLevel
             ? PricesAscending
                 .Where(x => x.Corrupted && x.GemLevel > maxLevel.GemLevel && x.GemQuality == 23)
@@ -141,10 +146,22 @@ public sealed class SkillProfitCalculationContext(
     }
 }
 
+public static class GemCorruptionHelper
+{
+    public static double Attempts(int successfulOutcomes)
+    {
+        return Math.Log(successfulOutcomes / 4.0) / Math.Log(.6); // 60% success needed
+    }
+
+    public static double AttemptsForOneInFour => Attempts(1);
+    public static double AttemptsForThreeInFour => Attempts(3);
+}
+
 public static class ProfitRecipeExtension
 {
     public static IServiceCollection AddProfitRecipes(this IServiceCollection services)
     {
+        AddRecipe(typeof(LevelCorruptAddLevelSell));
         AddRecipe(typeof(LevelSell));
         AddRecipe(typeof(LevelVendorQualityLevelSell));
         AddRecipe(typeof(LevelVendorQualitySell));
