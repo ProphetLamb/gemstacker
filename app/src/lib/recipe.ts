@@ -18,7 +18,7 @@ const literals = {
 	corruptAddLevel: 'Corrupt the gem for +1 Level',
 	corruptForVaalSkill: "Corrupt the gem for it's Vaal version",
 	noteCorruption60PercentChances:
-		'60% success chance is required for the corruption out come, instead of even odds'
+		'60% success expectation is required for the corruption out come, instead of even odds'
 };
 
 function buildDescription(steps: string[], note?: string[]) {
