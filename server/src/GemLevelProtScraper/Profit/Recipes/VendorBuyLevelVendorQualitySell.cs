@@ -8,7 +8,7 @@ public class VendorBuyLevelVendorQualitySell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (!ctx.Skill.CanBuyFromVendor() || ctx.MaxLevel is not { } max || max.GemLevel == 1)
+        if (!ctx.Skill.CanBuyFromVendor() || ctx.MaxLevel is not { } max)
         {
             return null;
         }
