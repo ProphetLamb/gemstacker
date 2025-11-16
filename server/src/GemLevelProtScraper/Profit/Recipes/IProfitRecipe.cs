@@ -63,6 +63,13 @@ public sealed class SkillProfitCalculationContext(
     public SkillGemPrice? MinLevel =>
         field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelDescComparer);
 
+    public SkillGemPrice? CorruptedMinLevel =>
+        field ??= MinLevel is { } minLevel
+            ? PricesAscending
+                .Where(x => x.Corrupted && x.GemLevel == minLevel.GemLevel)
+                .MaxBy(x => x, LevelDescComparer)
+            : null;
+
     public SkillGemPrice? MaxLevel => field ??= PricesAscending.Where(x => !x.Corrupted).MaxBy(x => x, LevelComparer);
 
     public SkillGemPrice? CorruptedMaxLevel =>
@@ -104,6 +111,16 @@ public sealed class SkillProfitCalculationContext(
                 .MaxBy(x => x, LevelComparer)
             : null;
 
+
+    public (SkillGemPrice Min, SkillGemPrice Max)? MinAndMaxMaybeCorrupted()
+    {
+        return (MaxLevel ?? CorruptedMaxLevel) is { } max
+               && (MinLevel ?? CorruptedMinLevel) is { } min
+               && min.GemLevel < max.GemLevel
+               && min.Corrupted == max.Corrupted
+            ? (min, max)
+            : null;
+    }
 
     public ProfitRequest Request => request;
 

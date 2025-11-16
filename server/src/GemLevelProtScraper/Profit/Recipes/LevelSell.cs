@@ -8,7 +8,7 @@ public class LevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MaxLevel is not { } max || ctx.MinLevel is not { } min || min.GemLevel >= max.GemLevel)
+        if (ctx.MinAndMaxMaybeCorrupted() is not { } prices)
         {
             return null;
         }
@@ -18,7 +18,7 @@ public class LevelSell : IProfitRecipe
             return null;
         }
 
-        return ProfitMarginUnchecked(ctx, max, min);
+        return ProfitMarginUnchecked(ctx, prices.Max, prices.Min);
     }
 
     public static ProfitMargin ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice max, SkillGemPrice min)
