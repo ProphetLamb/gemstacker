@@ -158,12 +158,12 @@ internal readonly struct ProfitMarginCalculator(
                 return false;
             }
 
-            if (margin.Buy.Price > profitRequest.MaxBuyPriceChaos)
+            if (profitRequest.MaxBuyPriceChaos is { } max && margin.Buy.Price > max)
             {
                 return false;
             }
 
-            if (margin.Sell.Price < profitRequest.MinSellPriceChaos)
+            if (profitRequest.MinSellPriceChaos is { } min && margin.Sell.Price < min)
             {
                 return false;
             }
