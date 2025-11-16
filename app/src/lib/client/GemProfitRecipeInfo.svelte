@@ -9,7 +9,7 @@
 
 	export let gem: GemProfitResponseItem | undefined | null;
 	export let close: MouseEventHandler<HTMLButtonElement> | undefined | null = undefined;
-	const { description, title } = !!gem ? getRecipeInfo(gem.preferred_recipe) : {};
+	$: info = getRecipeInfo(gem?.preferred_recipe);
 	$: preferredRecipie = gem?.recipes[gem.preferred_recipe];
 </script>
 
@@ -29,8 +29,8 @@
 	</div>
 	<div class="space-y-4">
 		<p>{preferredRecipie?.buy.listing_count ?? 0} available</p>
-		<h5 class="h5">Best Recipe: {title}</h5>
-		<p>{@html description?.replaceAll('\n', '<br/>') ?? ''}</p>
+		<h5 class="h5">Best Recipe: {info.title}</h5>
+		<p>{@html info.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 		<h5 class="h5">All Recipes</h5>
 		<ul>
 			{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain], idx}
