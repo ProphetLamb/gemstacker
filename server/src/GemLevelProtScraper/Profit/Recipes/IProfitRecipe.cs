@@ -149,6 +149,7 @@ public static class ProfitRecipeExtension
         AddRecipe(typeof(LevelVendorQualityLevelSell));
         AddRecipe(typeof(LevelVendorQualitySell));
         AddRecipe(typeof(QualityLevelSell));
+        AddRecipe(typeof(VendorBuyCorruptLevelSellVaal));
         AddRecipe(typeof(VendorBuyLevelSell));
         AddRecipe(typeof(VendorBuyLevelVendorQualityLevelSell));
         AddRecipe(typeof(VendorBuyLevelVendorQualitySell));
