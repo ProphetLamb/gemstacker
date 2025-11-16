@@ -3,8 +3,12 @@
 	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
 	import { inspectProfit } from '$lib/client/gemProfitRecipeInfo';
+	import { onDestroy } from 'svelte';
 
 	export let data: GemProfitResponseItem[];
+	onDestroy(() => {
+		$inspectProfit.gem = undefined;
+	});
 </script>
 
 <table class="list w-full border-separate border-spacing-y-2">

@@ -4,9 +4,14 @@
 	import type { LoadoutResponseItem } from '$lib/loadout';
 	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
 	import { inspectProfit } from './gemProfitRecipeInfo';
+	import { onDestroy } from 'svelte';
 
 	export let data: LoadoutResponseItem[];
 	$: data;
+
+	onDestroy(() => {
+		$inspectProfit.gem = undefined;
+	});
 </script>
 
 <table class="list w-full border-separate border-spacing-y-2">
