@@ -13,6 +13,7 @@ public record SkillGem
     string BaseType,
     string? Discriminator,
     double SumExperience,
+    double LastLevelExperience,
     long MaxLevel,
     long? DropLevel
 );
