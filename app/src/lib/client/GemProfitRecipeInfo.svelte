@@ -19,10 +19,8 @@
 
 		{#if !!close}
 			<div>
-				<button
-					type="button"
-					class="btn align-middle variant-ghost p-0 w-8 h-8"
-					on:click={close}><Icon src={hi.XMark} size="18" /></button
+				<button type="button" class="btn-icon variant-ghost w-8 h-8" on:click={close}
+					><Icon src={hi.XMark} size="18" /></button
 				>
 			</div>
 		{/if}

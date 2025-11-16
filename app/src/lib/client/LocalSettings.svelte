@@ -43,7 +43,7 @@
 		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
 			<div class="flex flex-row justify-between items-center">
 				<h2 class="h2">Settings</h2>
-				<button class="btn align-middle variant-ghost p-0 w-8 h-8"
+				<button class="btn-icon variant-ghost w-8 h-8"
 					><Icon src={hi.XMark} size="16" />
 				</button>
 			</div>

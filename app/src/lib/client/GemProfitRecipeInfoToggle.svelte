@@ -14,7 +14,7 @@
 	<span>Recipie Info</span>
     <button
         type="button"
-        class="btn align-middle variant-filled-success p-0 w-8 h-8"
+        class="btn-icon variant-filled-success w-8 h-8"
         ><Icon src={hi.ChevronLeft} size="18" /></button
     >
 </button>
