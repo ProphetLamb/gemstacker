@@ -90,12 +90,9 @@ internal readonly struct ProfitMarginCalculator(
         var pricesOrdered = prices
             .Where(p => (profitRequest.MaxBuyPriceChaos is not { } maxBuy || p.ChaosValue <= maxBuy)
                         && (profitRequest.MinSellPriceChaos is not { } minSell || p.ChaosValue >= minSell)
+                        && p.ListingCount >= profitRequest.MinimumListingCount
             )
             .ToArray();
-        if (pricesOrdered.Sum(p => p.ListingCount) < request.MinimumListingCount)
-        {
-            return null;
-        }
 
         // order by ChaosValue descending
         pricesOrdered.AsSpan().Sort((lhs, rhs) => rhs.ChaosValue.CompareTo(lhs.ChaosValue));
