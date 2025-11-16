@@ -13,6 +13,11 @@ public class LevelVendorQualitySell : IProfitRecipe
             return null;
         }
 
+        if (ctx.Skill.CanBuyFromVendor())
+        {
+            return null;
+        }
+
         if (max.GemQuality <= min.GemQuality)
         {
             return null;

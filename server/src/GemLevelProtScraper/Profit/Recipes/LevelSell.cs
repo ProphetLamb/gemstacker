@@ -13,6 +13,11 @@ public class LevelSell : IProfitRecipe
             return null;
         }
 
+        if (ctx.Skill.CanBuyFromVendor())
+        {
+            return null;
+        }
+
         return ProfitMarginUnchecked(ctx, max, min);
     }
 

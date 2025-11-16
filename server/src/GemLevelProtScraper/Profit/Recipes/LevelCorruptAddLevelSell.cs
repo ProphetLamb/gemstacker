@@ -1,4 +1,6 @@
-﻿namespace GemLevelProtScraper.Profit.Recipes;
+﻿using GemLevelProtScraper.Skills;
+
+namespace GemLevelProtScraper.Profit.Recipes;
 
 public class LevelCorruptAddLevelSell : IProfitRecipe
 {
@@ -9,6 +11,11 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         if (ctx.MinLevel is not { } min
             || ctx.CorruptedAddLevel is not { } max
             || ctx.CorruptedMaxLevel is not { } corruptFailure)
+        {
+            return null;
+        }
+
+        if (ctx.Skill.CanBuyFromVendor())
         {
             return null;
         }

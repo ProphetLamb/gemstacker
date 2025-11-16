@@ -13,12 +13,17 @@ public class LevelVendorQualityLevelSell : IProfitRecipe
             return null;
         }
 
+        if (ctx.Skill.CanBuyFromVendor())
+        {
+            return null;
+        }
+
         if (max.GemQuality <= min.GemQuality)
         {
             return null;
         }
 
-        if (!ctx.Skill.Name.EndsWith(" support", StringComparison.OrdinalIgnoreCase))
+        if (!ctx.Skill.IsSupportGem())
         {
             return null;
         }
