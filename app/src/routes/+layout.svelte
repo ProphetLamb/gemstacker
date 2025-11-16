@@ -12,6 +12,8 @@
 	import { page } from '$app/stores';
 	import { showFlash } from '$lib/client/toast';
 	import Toast from '$lib/client/Toast.svelte';
+	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
+	import GemProfitRecipeInfoToggle from '$lib/client/GemProfitRecipeInfoToggle.svelte';
 
 	export let data;
 
@@ -37,8 +39,13 @@
 			<RootHeader />
 		</svelte:fragment>
 		<!-- Page Route Content -->
+		 <GemProfitRecipeInfoToggle class="absolute right-4 top-14" />
 		<slot />
 		<RootFooter />
+
+		<svelt:fragment slot="sidebarRight">
+			<GemProfitRecipeInfoSidebar />
+		</svelt:fragment>
 	</AppShell>
 </div>
 

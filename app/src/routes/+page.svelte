@@ -119,37 +119,35 @@
 			>
 		</h1>
 	</div>
-	<GemProfitRecipeInfoSidebar contentWidth='82rem'>
-		<div class="flex flex-col items-center">
-			{#await profitPreview}
-				<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
-					<LoadingPlaceholder
-						class="w-[51rem] max-w-[calc(100vw-4rem)]"
-						front="bg-surface-backdrop-token"
-						placeholder="animate-pulse"
-						rows={10}
-					>
-						<ProgressRadial
-							stroke={100}
-							value={undefined}
-							meter="stroke-tertiary-500"
-							track="stroke-tertiary-500/30"
-						/>
-						<p class="text-xl">Loading...</p></LoadingPlaceholder
-					>
+	<div class="flex flex-col items-center">
+		{#await profitPreview}
+			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
+				<LoadingPlaceholder
+					class="w-[51rem] max-w-[calc(100vw-4rem)]"
+					front="bg-surface-backdrop-token"
+					placeholder="animate-pulse"
+					rows={10}
+				>
+					<ProgressRadial
+						stroke={100}
+						value={undefined}
+						meter="stroke-tertiary-500"
+						track="stroke-tertiary-500/30"
+					/>
+					<p class="text-xl">Loading...</p></LoadingPlaceholder
+				>
+			</div>
+		{:then profitPreview}
+			{#if profitPreview}
+				<div
+					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2"
+				>
+					<GemProfitTable data={profitPreview.gem_profit} />
+					<BetterTrading data={profitPreview.gem_profit} />
 				</div>
-			{:then profitPreview}
-				{#if profitPreview}
-					<div
-						class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2"
-					>
-						<GemProfitTable data={profitPreview.gem_profit} />
-						<BetterTrading data={profitPreview.gem_profit} />
-					</div>
-				{/if}
-			{/await}
-		</div>
-	</GemProfitRecipeInfoSidebar>
+			{/if}
+		{/await}
+	</div>
 </div>
 <Wrapper>
 	<WrapperItem>

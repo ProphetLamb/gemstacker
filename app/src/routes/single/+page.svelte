@@ -19,8 +19,6 @@
 	import { availableGems } from '$lib/client/availableGems';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 	import { exchangeRates } from '$lib/client/exchangeRates';
-	import GemProfitRecipeInfoAccordionInspect from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
-	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -233,51 +231,49 @@
 			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 			<span>The best gems for you.</span>
 		</h1>
-		<GemProfitRecipeInfoSidebar contentWidth='90rem' showAside='2xl'>
-			<div class="flex flex-col items-center">
-				<div class="text-token card p-4 space-y-2">
-					{#if $delayed}
-						<LoadingPlaceholder
-							class="w-[51rem] max-w-[calc(100vw-4rem)]"
-							front="bg-surface-backdrop-token"
-							placeholder="animate-pulse"
-							rows={10}
-						>
-							<ProgressRadial
-								stroke={100}
-								value={undefined}
-								meter="stroke-tertiary-500"
-								track="stroke-tertiary-500/30"
-							/>
-							<p class="text-xl">Loading...</p></LoadingPlaceholder
-						>
-					{:else if gemProfit && gemProfit.length > 0}
-						<GemProfitTableHeader>
-							<GemFilter slot="buttons" />
-						</GemProfitTableHeader>
-						<GemProfitTable data={gemProfit} />
-						<BetterTrading data={gemProfit} />
-					{:else}
-						<GemProfitTableHeader>
-							<svelte:fragment slot="buttons">
-								{#if $availableGems && $availableGems.length > 0}
-									<GemFilter />
-								{/if}
-							</svelte:fragment>
-						</GemProfitTableHeader>
-						<LoadingPlaceholder
-							class="w-[51rem] max-w-[calc(100vw-4rem)]"
-							front="bg-surface-backdrop-token"
-							rows={10}
-						>
-							<p class="text-xl">
-								Enter your criteria or just <span class="font-extrabold">search</span>
-							</p>
-						</LoadingPlaceholder>
-					{/if}
-				</div>
+		<div class="flex flex-col items-center">
+			<div class="text-token card p-4 space-y-2">
+				{#if $delayed}
+					<LoadingPlaceholder
+						class="w-[51rem] max-w-[calc(100vw-4rem)]"
+						front="bg-surface-backdrop-token"
+						placeholder="animate-pulse"
+						rows={10}
+					>
+						<ProgressRadial
+							stroke={100}
+							value={undefined}
+							meter="stroke-tertiary-500"
+							track="stroke-tertiary-500/30"
+						/>
+						<p class="text-xl">Loading...</p></LoadingPlaceholder
+					>
+				{:else if gemProfit && gemProfit.length > 0}
+					<GemProfitTableHeader>
+						<GemFilter slot="buttons" />
+					</GemProfitTableHeader>
+					<GemProfitTable data={gemProfit} />
+					<BetterTrading data={gemProfit} />
+				{:else}
+					<GemProfitTableHeader>
+						<svelte:fragment slot="buttons">
+							{#if $availableGems && $availableGems.length > 0}
+								<GemFilter />
+							{/if}
+						</svelte:fragment>
+					</GemProfitTableHeader>
+					<LoadingPlaceholder
+						class="w-[51rem] max-w-[calc(100vw-4rem)]"
+						front="bg-surface-backdrop-token"
+						rows={10}
+					>
+						<p class="text-xl">
+							Enter your criteria or just <span class="font-extrabold">search</span>
+						</p>
+					</LoadingPlaceholder>
+				{/if}
 			</div>
-		</GemProfitRecipeInfoSidebar>
+		</div>
 	</WrapperItem>
 </Wrapper>
 

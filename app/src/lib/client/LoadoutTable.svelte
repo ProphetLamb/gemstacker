@@ -3,6 +3,7 @@
 	import GemTradeQueryButton from '$lib/client/GemTradeQueryButton.svelte';
 	import type { LoadoutResponseItem } from '$lib/loadout';
 	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
+	import { inspectProfit } from './gemProfitRecipeInfo';
 
 	export let data: LoadoutResponseItem[];
 	$: data;
@@ -11,7 +12,11 @@
 <table class="list w-full border-separate border-spacing-y-2">
 	<tbody>
 		{#each data as { gem, socket }, idx}
-			<tr class="h-12">
+			<tr
+				class="h-12"
+				on:mouseover={() => ($inspectProfit.gem = gem)}
+				on:focus={() => ($inspectProfit.gem = gem)}
+			>
 				<GemTableIdentifier {gem} {idx} />
 				<td> <span class="font-semibold text-surface-600-300-token">&#215;</span></td>
 				<td class="pl-2">
