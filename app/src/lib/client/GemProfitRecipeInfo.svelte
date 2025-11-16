@@ -21,7 +21,7 @@
 			<div>
 				<button
 					type="button"
-					class="button variant-ghost rounded-full w-6 h-6 flex justify-center items-center"
+					class="btn align-middle variant-ghost p-0 w-8 h-8"
 					on:click={close}><Icon src={hi.XMark} size="18" /></button
 				>
 			</div>

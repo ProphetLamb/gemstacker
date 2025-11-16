@@ -12,7 +12,9 @@
 	on:click={() => ($inspectProfit.visible = !$inspectProfit.visible)}
 >
 	<span>Recipie Info</span>
-	<div class="button variant-filled-success rounded-full w-6 h-6 flex justify-center items-center">
-		<Icon src={hi.ChevronLeft} size="18" />
-	</div>
+    <button
+        type="button"
+        class="btn align-middle variant-filled-success p-0 w-8 h-8"
+        ><Icon src={hi.ChevronLeft} size="18" /></button
+    >
 </button>
