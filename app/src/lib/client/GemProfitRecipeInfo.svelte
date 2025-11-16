@@ -13,7 +13,7 @@
 	$: preferredRecipie = gem?.recipes[gem.preferred_recipe];
 </script>
 
-<div class="card p-2 flex flex-col variant-soft-surface {$$props.class ?? ''}">
+<div class="card p-2 flex flex-col {$$props.class ?? ''}">
 	<div class="flex flex-row justify-between">
 		<h4 class="h4 font-bold">{gem?.name ?? ''}</h4>
 
