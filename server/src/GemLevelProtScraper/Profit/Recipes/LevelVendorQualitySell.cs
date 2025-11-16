@@ -16,6 +16,11 @@ public class LevelVendorQualitySell : IProfitRecipe
             return null;
         }
 
+        if (!ctx.Skill.Name.EndsWith(" support", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
         // level the gem, vendor it with 1x Gem Cutter, sell the gem
         var levelEarning = max.ChaosValue - min.ChaosValue;
         var qualityCost = ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1;
