@@ -16,9 +16,8 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
         // buy gem from vendor, corrupt it
         // if is not vaal gem, repeat
         // otherwise, level, then sell gem
-        var attempts = GemCorruptionHelper.AttemptsForOneInFour;
         var vaalOrb = ctx.ExchangeRate(CurrencyTypeName.VaalOrb) ?? 1;
-        var costChaos = attempts * vaalOrb;
+        var costChaos = 2 * vaalOrb;
 
         var levelEarning = max.ChaosValue - costChaos;
         var min = max.ToVendorFreePrice() with { Corrupted = false };

@@ -61,39 +61,61 @@ public sealed class SkillProfitCalculationContext(
     public IReadOnlyList<SkillGemPrice> PricesAscending => pricesAscending;
 
     public SkillGemPrice? MinLevel =>
-        field ??= PricesAscending.Where(x => x is { Corrupted: false, GemLevel: 1 }).MaxBy(x => x, LevelDescComparer);
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: false, GemQuality: 0, GemLevel: 1 })
+            .MaxBy(x => x, LevelDescComparer);
 
     public SkillGemPrice? CorruptedMinLevel =>
-        field ??= PricesAscending.Where(x => x is { Corrupted: true, GemLevel: 1 }).MaxBy(x => x, LevelDescComparer);
-
-    public SkillGemPrice? MaxLevel =>
-        field ??= PricesAscending.Where(x => !x.Corrupted && x.GemLevel == Skill.MaxLevel).MaxBy(x => x, LevelComparer);
-
-    public SkillGemPrice? CorruptedMaxLevel =>
-        field ??= PricesAscending.Where(x => x.Corrupted && x.GemLevel == Skill.MaxLevel).MaxBy(x => x, LevelComparer);
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 0, GemLevel: 1 })
+            .MaxBy(x => x, LevelDescComparer);
 
     public SkillGemPrice? MinLevel20Quality =>
         field ??= PricesAscending
             .Where(x => x is { Corrupted: false, GemQuality: 20, GemLevel: 1 })
             .MaxBy(x => x, LevelDescComparer);
 
+    public SkillGemPrice? CorruptedMinLevel20Quality =>
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 20, GemLevel: 1 })
+            .MaxBy(x => x, LevelDescComparer);
+
+    public SkillGemPrice? MaxLevel =>
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 0 } && x.GemLevel == Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
+
+    public SkillGemPrice? CorruptedMaxLevel =>
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 0 } && x.GemLevel == Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
+
     public SkillGemPrice? MaxLevel20Quality =>
         field ??= PricesAscending
             .Where(x => x is { Corrupted: false, GemQuality: 20 } && x.GemLevel == Skill.MaxLevel)
             .MaxBy(x => x, LevelComparer);
 
+    public SkillGemPrice? CorruptedMaxLevel20Quality =>
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 20 } && x.GemLevel == Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
+
+    public SkillGemPrice? CorruptedMaxLevel23Quality =>
+        field ??= PricesAscending
+                .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel == Skill.MaxLevel)
+                .MaxBy(x => x, LevelComparer);
+
     public SkillGemPrice? CorruptedAddLevel =>
-        field ??= PricesAscending.Where(x => x.Corrupted && x.GemLevel > Skill.MaxLevel).MaxBy(x => x, LevelComparer);
+        field ??= PricesAscending.Where(x => x is { Corrupted: true, GemQuality: 0 } && x.GemLevel > Skill.MaxLevel).MaxBy(x => x, LevelComparer);
+
+    public SkillGemPrice? CorruptedAddLevel20Quality =>
+        field ??= PricesAscending.Where(x => x is { Corrupted: true, GemQuality: 20 } && x.GemLevel > Skill.MaxLevel).MaxBy(x => x, LevelComparer);
 
     public SkillGemPrice? CorruptedAddLevel23Quality =>
         field ??= PricesAscending
-                .Where(x => x.Corrupted && x.GemLevel > Skill.MaxLevel && x.GemQuality == 23)
+                .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel > Skill.MaxLevel)
                 .MaxBy(x => x, LevelComparer);
 
-    public SkillGemPrice? Corrupted23QualityMaxLevel =>
-        field ??= PricesAscending
-                .Where(x => x.Corrupted && x.GemLevel == Skill.MaxLevel && x.GemQuality == 23)
-                .MaxBy(x => x, LevelComparer);
     public (SkillGemPrice Min, SkillGemPrice Max)? MinAndMaxMaybeCorrupted()
     {
         return (MaxLevel ?? CorruptedMaxLevel) is { } max
@@ -143,17 +165,6 @@ public sealed class SkillProfitCalculationContext(
             ListingCount = price.ListingCount
         };
     }
-}
-
-public static class GemCorruptionHelper
-{
-    public static double Attempts(int successfulOutcomes)
-    {
-        return Math.Log(successfulOutcomes / 4.0) / Math.Log(.6); // 60% success needed
-    }
-
-    public static double AttemptsForOneInFour => Attempts(1);
-    public static double AttemptsForThreeInFour => Attempts(3);
 }
 
 public static class ProfitRecipeExtension

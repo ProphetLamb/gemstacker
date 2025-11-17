@@ -10,7 +10,9 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     {
         if (ctx.MinLevel is not { } min
             || ctx.CorruptedAddLevel is not { } max
-            || ctx.CorruptedMaxLevel is not { } corruptFailure)
+            || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
+            || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptQuality
+        )
         {
             return null;
         }
@@ -21,17 +23,20 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         }
 
         // buy gem, level, corrupt for level, sell
-        // P(success) => max - min
-        // P(1-success) => corruptFailure - min
-        var profitSuccess = (max.ChaosValue - min.ChaosValue) / GemCorruptionHelper.AttemptsForOneInFour;
-        var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) / GemCorruptionHelper.AttemptsForThreeInFour;
-        var levelEarning = profitSuccess + profitFailure;
+        // 25% unchanged -> failure
+        // 25% remove level -> failure, more exp required
+        // 25% add level -> success
+        // 25% add quality -> failure
+        var profitSuccess = (max.ChaosValue - min.ChaosValue) * 0.25;
+        var profitQuality = (corruptQuality.ChaosValue - min.ChaosValue) * 0.25;
+        var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) * 0.5;
+        var levelEarning = profitSuccess + profitFailure + profitQuality;
 
-        var failureExperience = ctx.Skill.LastLevelExperience
-                                / GemCorruptionHelper.AttemptsForThreeInFour
+        var failureAddExperience = ctx.Skill.LastLevelExperience
+                                * 0.25
                                 * ctx.ExperienceFactor(ctx.GemQuality(min));
         var successExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
-        var deltaExperience = successExperience + failureExperience;
+        var deltaExperience = successExperience + failureAddExperience;
         return new()
         {
             GainMargin = ctx.GainMargin(levelEarning, deltaExperience),
