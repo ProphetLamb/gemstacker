@@ -50,16 +50,17 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         // 25% unchanged or vaal -> failure
         // 25% add or remove level -> failure, more exp required
         // 25% add quality -> failure
+        var p = 1 / 8.0;
         List<ProbabilisticProfitMargin> probabilistic = [
-            new() { Chance = 0.125, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
-            new() { Chance = 0.125, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
-            new() { Chance = 0.125, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_remove_level" },
-            new() { Chance = 0.125, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "corrupt_remove_quality" },
-            new() { Chance = 0.5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
+            new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
+            new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
+            new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_remove_quality" },
+            new() { Chance = p, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "corrupt_remove_level" },
+            new() { Chance = p * 4, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
         ];
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
-                                           * 0.125
+                                           * p
                                            * ctx.ExperienceFactor(ctx.GemQuality(min));
         var levelExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
         var deltaExperience = levelExperience + corruptExperienceRemoveLevel;
