@@ -155,7 +155,7 @@ public sealed class SkillProfitCalculationContext(
         var lossProb = loss.Sum(x => x.Chance);
         if (gainProb == 0)
         {
-            return double.PositiveInfinity;
+            return 0;
         }
 
         if (lossProb == 0)
