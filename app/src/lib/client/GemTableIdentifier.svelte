@@ -1,21 +1,23 @@
 <script lang="ts">
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
-	import type { GemProfitResponseItem } from '$lib/gemLevelProfitApi';
-	import { currencyGemQuality } from '$lib/knownImages';
+	import { wellKnownExchangeRateDisplay, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { intlCompactNumber } from '$lib/intl';
 	import Chaos from './Chaos.svelte';
 	import Currency from './Currency.svelte';
-	import { getRecipeInfo } from '$lib/recipe';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
-	const { adjusted_earnings, experience_delta } = gem.recipes[gem.preferred_recipe];
-	const { gem_cuttters } = getRecipeInfo(gem.preferred_recipe)
+	const { adjusted_earnings, experience_delta, recipe_cost } =
+		gem.recipes[gem.preferred_recipe] ?? { adjusted_earnings: 0, experience_delta: 0};
 </script>
 
 <td class="pr-2">
-	<a href={gem.foreign_info_url} target="_blank" class="badge-icon h-11 w-11 {gem.max.corrupted ? 'variant-soft-error' : 'variant-soft-primary'}">
+	<a
+		href={gem.foreign_info_url}
+		target="_blank"
+		class="badge-icon h-11 w-11 {gem.max.corrupted ? 'variant-soft-error' : 'variant-soft-primary'}"
+	>
 		<img src={gem.icon} alt={`${idx + 1}`} />
 	</a>
 </td>
@@ -25,7 +27,8 @@
 		<div class=" text-xs text-surface-600-300-token">
 			lvl
 			{gem.min.level} → {gem.max.level} =
-			<span class="text-secondary-300-600-token">+{intlCompactNumber.format(experience_delta)}</span
+			<span class="text-secondary-300-600-token"
+				>+{intlCompactNumber.format(experience_delta ?? 0)}</span
 			>exp
 		</div></a
 	>
@@ -44,14 +47,17 @@
 	</div>
 </td>
 <td>
-	{#if gem_cuttters}
+	{#each Object.values(wellKnownExchangeRateDisplay) as display}
+	{@const quantity = (recipe_cost ?? {})[display.name]}
+	{#if !!quantity}
 		<Currency
-			value={-gem_cuttters}
+			value={-quantity}
 			value_class="text-error-200-700-token"
-			src={currencyGemQuality}
-			alt="gcp"
+			src={display.img}
+			alt={display.alt}
 		/>
 	{/if}
+	{/each}
 </td>
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 <td>

@@ -11,7 +11,14 @@ export interface GemProfitRequestParameter {
 	items_count?: number | null;
 }
 
-export const gemProfitRequestParameterMinListingCountSchema = z.number().min(0).max(100).step(10).default(20).nullable().optional()
+export const gemProfitRequestParameterMinListingCountSchema = z
+	.number()
+	.min(0)
+	.max(100)
+	.step(10)
+	.default(20)
+	.nullable()
+	.optional();
 
 export const gemProfitRequestParameterSchema = z.object({
 	league: z.string(),
@@ -85,12 +92,26 @@ export const gemProfitResponseItemPriceSchema = z.object({
 export type GemColor = 'white' | 'blue' | 'green' | 'red';
 export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
+export interface GemProfitProbabilisticProfitMargin {
+	chance: number;
+	earnings: number;
+	label?: string | null;
+}
+
+export const gemProfitProbabilisticProfitMarginSchema = z.object({
+	chance: z.number(),
+	earnings: z.number(),
+	label: z.string().optional().nullable()
+});
+
 export interface GemProfitResponeItemMargin {
 	buy: GemProfitResponseItemPrice;
 	sell: GemProfitResponseItemPrice;
 	adjusted_earnings: number;
 	experience_delta: number;
 	gain_margin: number;
+	recipe_cost?: Partial<Record<CurrencyTypeName, number>> | null;
+	probabilistic?: GemProfitProbabilisticProfitMargin[] | null;
 }
 
 export const gemProfitResponseItemMarginSchema = z.object({
@@ -99,13 +120,33 @@ export const gemProfitResponseItemMarginSchema = z.object({
 	adjusted_earnings: z.number(),
 	experience_delta: z.number(),
 	gain_margin: z.number(),
+	recipe_cost: z.record(z.string(), z.number()).optional().nullable(),
+	probabilistic: z.array(gemProfitProbabilisticProfitMarginSchema).optional().nullable()
 });
 
-export type GemProfitResponseItemRecipeName = 'level_corrupt_add_level_sell' | 'level_corrupt_add_level_and_quality_sell' | 'level_sell' | 'level_vendor_quality_sell' | 'level_vendor_quality_level_sell' | 'quality_level_sell' | 'vendor_buy_corrupt_level_sell_vaal' | 'vendor_buy_level_corrupt_add_level_and_quality_sell' | 'vendor_buy_level_corrupt_add_level_sell' |  'vendor_buy_level_sell' | 'vendor_buy_level_vendor_quality_level_sell' | 'vendor_buy_level_vendor_quality_sell' | 'vendor_buy_quality_level_sell';
+export type GemProfitResponseItemRecipeName =
+	| 'level_corrupt_add_level_sell'
+	| 'level_corrupt_add_level_and_quality_sell'
+	| 'level_sell'
+	| 'level_vendor_quality_sell'
+	| 'level_vendor_quality_level_sell'
+	| 'quality_level_sell'
+	| 'vendor_buy_corrupt_level_sell_vaal'
+	| 'vendor_buy_level_corrupt_add_level_and_quality_sell'
+	| 'vendor_buy_level_corrupt_add_level_sell'
+	| 'vendor_buy_level_sell'
+	| 'vendor_buy_level_vendor_quality_level_sell'
+	| 'vendor_buy_level_vendor_quality_sell'
+	| 'vendor_buy_quality_level_sell';
 
-export type GemProfitResponseItemRecipes = Record<GemProfitResponseItemRecipeName, GemProfitResponeItemMargin>
+export type GemProfitResponseItemRecipes = Partial<
+	Record<GemProfitResponseItemRecipeName, GemProfitResponeItemMargin>
+>;
 
-export const gemProfitResponseItemRecipesSchema = z.record(z.string(), gemProfitResponseItemMarginSchema);
+export const gemProfitResponseItemRecipesSchema = z.record(
+	z.string(),
+	gemProfitResponseItemMarginSchema
+);
 
 export interface GemProfitResponseItem {
 	name: string;
@@ -153,8 +194,30 @@ export type ExchangeRateToChaosResponse = Record<CurrencyTypeName, number>;
 
 export const exchangeRateToChaosResponseSchema = z.record(z.string(), z.number());
 
-export type CurrencyTypeName = 'Divine Orb' | "Gemcutter's Prism" | "Cartographer's Chisel" | 'Chaos Orb' | 'Vaal Orb';
+export type CurrencyTypeName =
+	| 'Divine Orb'
+	| "Gemcutter's Prism"
+	| "Cartographer's Chisel"
+	| 'Chaos Orb'
+	| 'Vaal Orb';
 
-export interface WellKnownExchangeRateToChaosResponse { divine_orb: number, cartographers_chisel: number, gemcutters_prism: number, vaal_orb: number }
+export interface WellKnownExchangeRateToChaosResponse {
+	divine_orb: number;
+	cartographers_chisel: number;
+	gemcutters_prism: number;
+	vaal_orb: number;
+}
 
-export const wellKnownExchangeRateDisplay = { divine_orb: 'Divine Orb', cartographers_chisel: 'Cartographer\'s Chisel', gemcutters_prism: 'Gemcutter\'s Prism', vaal_orb: 'Vaal Orb', chaos_orb: 'Chaos Orb' } satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb', CurrencyTypeName>
+export interface CurrencyTypeDisplay {
+	name: CurrencyTypeName;
+	alt: string;
+	img: string;
+}
+
+export const wellKnownExchangeRateDisplay = {
+	divine_orb: { name: 'Divine Orb', alt: 'd', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyModValues.png' },
+	cartographers_chisel: { name: "Cartographer's Chisel", alt: 'cc', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyMapQuality.png' },
+	gemcutters_prism: { name: "Gemcutter's Prism", alt: 'gcp', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png' },
+	vaal_orb: { name: 'Vaal Orb', alt: 'v', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyVaal.png' },
+	chaos_orb: { name: 'Chaos Orb', alt: 'c', img:  'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png' }
+} satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb', CurrencyTypeDisplay>;

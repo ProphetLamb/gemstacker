@@ -1,8 +1,6 @@
 import type { GemProfitResponseItemRecipeName } from './gemLevelProfitApi';
 
 type GemProfitRecipeInfo = {
-	gem_cuttters?: number;
-	vaal_orb?: number;
 	description: string;
 	title: string;
 };
@@ -118,23 +116,15 @@ const title = {
 	vendor_buy_quality_level_sell: 'Vendor > Quality > Level > Sell'
 } satisfies Record<GemProfitResponseItemRecipeName, string>;
 
-export function getRecipeInfo(recipe?: GemProfitResponseItemRecipeName): GemProfitRecipeInfo {
+export function getRecipeInfo(recipe?: GemProfitResponseItemRecipeName | string): GemProfitRecipeInfo {
 	if (!recipe) {
 		return { description: '', title: '' };
 	}
+	const key = recipe as GemProfitResponseItemRecipeName
 	const info = {
-		description: description[recipe] ?? '',
-		title: title[recipe] ?? ''
+		description: description[key] ?? '',
+		title: title[key] ?? ''
 	} satisfies GemProfitRecipeInfo;
-	if (recipe === 'level_vendor_quality_level_sell') {
-		return { ...info, gem_cuttters: 1 };
-	}
-	if (recipe === 'quality_level_sell') {
-		return { ...info, gem_cuttters: 20 };
-	}
-	if (recipe === 'level_vendor_quality_sell') {
-		return { ...info, gem_cuttters: 1 };
-	}
 
 	return info;
 }

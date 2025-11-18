@@ -31,7 +31,7 @@
 		<p>{@html info.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 		<h5 class="h5">All Recipes</h5>
 		<ul>
-			{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain], idx}
+			{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain]}
 				{@const recipieInfo = getRecipeInfo(recipe)}
 				<li class="flex flex-col items-start align-middle">
 					<span class="mr-1">{recipieInfo.title} - {gain.sell.listing_count} selling</span>

@@ -2,11 +2,11 @@ import { API_ENDPOINT, API_KEY } from '$env/static/private';
 import type { Fetch } from '$lib/fetch';
 import {
 	gemProfitRequestParameterConstraints,
+	wellKnownExchangeRateDisplay,
 	type GemProfitResponse
 } from '$lib/gemLevelProfitApi';
 import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
 import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
-import { currencyGemQuality, currencyRerollRare } from '$lib/knownImages';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { createPathOfExileApi } from '$lib/server/pathOfExileApi';
 import { Resvg } from '@resvg/resvg-js';
@@ -25,6 +25,9 @@ const svgArrowRight = `
 	<path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
 </svg>
 `;
+
+const currencyRerollRare = wellKnownExchangeRateDisplay.chaos_orb.img;
+const currencyGemQuality = wellKnownExchangeRateDisplay.gemcutters_prism.img;
 
 const template = (gemProfit: GemProfitResponse) => {
 	let html = `

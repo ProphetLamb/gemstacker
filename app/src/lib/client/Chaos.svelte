@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { currencyModValues, currencyRerollRare } from '$lib/knownImages';
 	import type { CurrencyDisplay } from '$lib/currency';
 	import { localSettings } from '$lib/client/localSettings';
 	import { exchangeRates } from '$lib/client/exchangeRates';
 	import { intlWholeNumber } from '$lib/intl';
 	import type { CssClasses } from '@skeletonlabs/skeleton';
 	import Currency from './Currency.svelte';
+	import { wellKnownExchangeRateDisplay } from '$lib/gemLevelProfitApi';
 
 	export let value;
-    export let value_class: CssClasses | undefined | null = undefined;
+	export let value_class: CssClasses | undefined | null = undefined;
 	export let currency_display: CurrencyDisplay | undefined | null = undefined;
 	export let img_class: CssClasses | undefined | null = undefined;
 
@@ -17,45 +17,49 @@
 </script>
 
 {#if browser}
-    {#if actualCurrencyDisplay === 'ChaosFaction' || !$exchangeRates}
-        <Currency
-            {value}
-            {value_class}
-            number_format={intlWholeNumber}
-            alt="c"
-            src={currencyRerollRare}
-            {img_class}
-        />
-    {:else if actualCurrencyDisplay === 'DivineFraction'}
-        <Currency value={value / $exchangeRates.divine_orb} alt="d" src={currencyModValues} />
-    {:else}
-    {@const divineOrb = Math.floor($exchangeRates.divine_orb)}
-        {#if value / divineOrb >= 1}
-            <Currency
-                value={value / divineOrb}
-                {value_class}
-                number_format={intlWholeNumber}
-                alt="d"
-                src={currencyModValues}
-                {img_class}
-            />
-        {/if}
-        <Currency
-            value={Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / divineOrb) * divineOrb)}
-            {value_class}
-            number_format={intlWholeNumber}
-            alt="c"
-            src={currencyRerollRare}
-            {img_class}
-        />
-    {/if}
+	{#if actualCurrencyDisplay === 'ChaosFaction' || !$exchangeRates}
+		<Currency
+			{value}
+			{value_class}
+			number_format={intlWholeNumber}
+			alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
+			src={wellKnownExchangeRateDisplay.chaos_orb.img}
+			{img_class}
+		/>
+	{:else if actualCurrencyDisplay === 'DivineFraction'}
+		<Currency value={value / $exchangeRates.divine_orb} alt={wellKnownExchangeRateDisplay.divine_orb.alt} src={wellKnownExchangeRateDisplay.divine_orb.img} />
+	{:else}
+		{@const divineOrb = Math.floor($exchangeRates.divine_orb)}
+		{@const chaosOrb =
+			Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / divineOrb) * divineOrb)}
+		{#if value / divineOrb >= 1}
+			<Currency
+				value={value / divineOrb}
+				{value_class}
+				number_format={intlWholeNumber}
+			alt={wellKnownExchangeRateDisplay.divine_orb.alt}
+			src={wellKnownExchangeRateDisplay.divine_orb.img}
+				{img_class}
+			/>
+		{/if}
+		{#if chaosOrb}
+			<Currency
+				value={chaosOrb}
+				{value_class}
+				number_format={intlWholeNumber}
+				alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
+				src={wellKnownExchangeRateDisplay.chaos_orb.img}
+				{img_class}
+			/>
+		{/if}
+	{/if}
 {:else}
-    <Currency
-        {value}
-        {value_class}
-        number_format={intlWholeNumber}
-        alt="c"
-        src={currencyRerollRare}
-        {img_class}
-    />
+	<Currency
+		{value}
+		{value_class}
+		number_format={intlWholeNumber}
+		alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
+		src={wellKnownExchangeRateDisplay.chaos_orb.img}
+		{img_class}
+	/>
 {/if}
