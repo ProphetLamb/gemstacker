@@ -9,8 +9,8 @@ public class LevelSell : IProfitRecipe
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
         if ((ctx.MaxLevel ?? ctx.CorruptedMaxLevel) is not { } max
-               || (ctx.MinLevel ?? ctx.CorruptedMinLevel) is not { } min
-               || min.Corrupted != max.Corrupted)
+            || (ctx.MinLevel ?? ctx.CorruptedMinLevel) is not { } min
+            || (min.Corrupted && !max.Corrupted))
         {
             return null;
         }
@@ -23,7 +23,11 @@ public class LevelSell : IProfitRecipe
         return ProfitMarginUnchecked(ctx, max, min);
     }
 
-    public static ProfitMargin ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice max, SkillGemPrice min)
+    public static ProfitMargin ProfitMarginUnchecked(
+        SkillProfitCalculationContext ctx,
+        SkillGemPrice max,
+        SkillGemPrice min
+    )
     {
         // level the gem, sell it
         var levelEarning = max.ChaosValue - min.ChaosValue;

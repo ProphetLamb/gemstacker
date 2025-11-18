@@ -8,7 +8,7 @@ public class LevelVendorQualitySell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MinLevel20Quality is not { } max || ctx.MinLevel is not { } min)
+        if ((ctx.MinLevel20Quality ?? ctx.CorruptedMinLevel20Quality) is not { } max || ctx.MinLevel is not { } min)
         {
             return null;
         }

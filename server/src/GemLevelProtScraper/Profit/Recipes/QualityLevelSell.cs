@@ -8,7 +8,7 @@ public class QualityLevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MaxLevel20Quality is not { } max || ctx.MinLevel is not { } min)
+        if ((ctx.MaxLevel20Quality ?? ctx.CorruptedMaxLevel20Quality) is not { } max || ctx.MinLevel is not { } min)
         {
             return null;
         }
