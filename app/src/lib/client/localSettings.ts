@@ -71,7 +71,7 @@ function localSettingsStore(): Writable<LocalSettings> {
 
 	function normalizeMinListingsCount(min_listing_count?: number) {
 		const constraints = gemProfitRequestParameterConstraints.min_listing_count;
-		if (!min_listing_count) {
+		if (min_listing_count === undefined || min_listing_count === null) {
 			return constraints.defaultValue;
 		}
 		const steppedDelta = Math.floor(min_listing_count / constraints.step) * constraints.step;
