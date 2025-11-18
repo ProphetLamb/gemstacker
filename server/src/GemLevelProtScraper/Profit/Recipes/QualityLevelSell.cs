@@ -18,11 +18,6 @@ public class QualityLevelSell : IProfitRecipe
             return null;
         }
 
-        if (max.GemQuality <= min.GemQuality)
-        {
-            return null;
-        }
-
         return ProfitMarginUnchecked(ctx, max, min);
     }
 
@@ -31,20 +26,22 @@ public class QualityLevelSell : IProfitRecipe
     {
         // quality the gem, level the gem, sell the gem
         var levelEarning = max.ChaosValue - min.ChaosValue;
-        var qualityCost = 20 * (ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1);
-
-        var adjustedEarnings = levelEarning - qualityCost;
+        Dictionary<string, double> recipeCost = new()
+        {
+            [CurrencyTypeName.GemcuttersPrism] = max.GemQuality - min.GemQuality,
+        };
 
         var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(max));
-        var gainMargin = ctx.GainMargin(adjustedEarnings, deltaExperience);
 
+        var adjustedEarnings = levelEarning - ctx.RecipeCost(recipeCost);
         return new()
         {
-            GainMargin = gainMargin,
+            GainMargin = ctx.GainMargin(adjustedEarnings, deltaExperience),
             ExperienceDelta = deltaExperience,
             AdjustedEarnings = adjustedEarnings,
             Buy = ctx.ToProfitLevelResponse(min, 0),
-            Sell = ctx.ToProfitLevelResponse(max, deltaExperience)
+            Sell = ctx.ToProfitLevelResponse(max, deltaExperience),
+            RecipeCost = recipeCost,
         };
     }
 }

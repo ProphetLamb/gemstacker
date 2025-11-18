@@ -8,9 +8,10 @@ public class LevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if ((ctx.MaxLevel ?? ctx.CorruptedMaxLevel) is not { } max
-            || (ctx.MinLevel ?? ctx.CorruptedMinLevel) is not { } min
-            || (min.Corrupted && !max.Corrupted))
+        if ((ctx.MaxLevel ?? ctx.CorruptedMaxLevel ?? ctx.CorruptedMinLevel20Quality) is not { } max
+            || (ctx.MinLevel ?? ctx.CorruptedMinLevel ?? ctx.CorruptedMinLevel20Quality) is not { } min
+            || (min.Corrupted && !max.Corrupted)
+            || (min.GemQuality < max.GemQuality))
         {
             return null;
         }

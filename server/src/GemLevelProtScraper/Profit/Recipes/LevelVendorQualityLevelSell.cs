@@ -39,21 +39,20 @@ public class LevelVendorQualityLevelSell : IProfitRecipe
     {
         // level the gem, vendor it with 1x Gem Cutter, level it again, sell it
         var levelEarning = max.ChaosValue - min.ChaosValue;
-        var qualityCost = ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1;
+        Dictionary<string, double> recipeCost = new() { [CurrencyTypeName.GemcuttersPrism] = 1 };
 
-        var adjustedEarnings = levelEarning - qualityCost;
+        var deltaExperience = ctx.Skill.SumExperience
+                              * (ctx.ExperienceFactor(ctx.GemQuality(min)) * ctx.ExperienceFactor(ctx.GemQuality(max)));
 
-        var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min))
-                              + ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(max));
-        var gainMargin = ctx.GainMargin(adjustedEarnings, deltaExperience);
-
+        var adjustedEarnings = levelEarning - ctx.RecipeCost(recipeCost);
         return new()
         {
-            GainMargin = gainMargin,
+            GainMargin = ctx.GainMargin(adjustedEarnings, deltaExperience),
             ExperienceDelta = deltaExperience,
             AdjustedEarnings = adjustedEarnings,
             Buy = ctx.ToProfitLevelResponse(min, 0),
-            Sell = ctx.ToProfitLevelResponse(max, deltaExperience)
+            Sell = ctx.ToProfitLevelResponse(max, deltaExperience),
+            RecipeCost = recipeCost,
         };
     }
 }

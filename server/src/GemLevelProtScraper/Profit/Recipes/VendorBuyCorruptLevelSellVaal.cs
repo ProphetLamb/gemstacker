@@ -13,15 +13,20 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
             return null;
         }
 
+        Dictionary<string, double> recipeCost = new() { [CurrencyTypeName.VaalOrb] = 2, };
+
         // buy gem from vendor, corrupt it
         // if is not vaal gem, repeat
         // otherwise, level, then sell gem
-        var vaalOrb = ctx.ExchangeRate(CurrencyTypeName.VaalOrb) ?? 1;
-        var costChaos = 2 * vaalOrb;
-
-        var levelEarning = max.ChaosValue - costChaos;
+        List<ProbabilisticProfitMargin> probabilistic =
+        [
+            new() { Chance = 0.25, Earnings = max.ChaosValue, Label = "corrupt_vaal_version" },
+            new() { Chance = 0.75, Earnings = 0 }
+        ];
         var min = max.ToVendorFreePrice() with { Corrupted = false };
         var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
+
+        var levelEarning = ctx.ProbabilisticEarnings(probabilistic) + ctx.RecipeCost(recipeCost);
         return new()
         {
             GainMargin = ctx.GainMargin(levelEarning, deltaExperience),
@@ -29,7 +34,8 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(max, deltaExperience),
-            Probabilistic = [new() { Chance = 0.25, Earnings = max.ChaosValue, Label = "corrupt_vaal_version"}, new() { Chance = 0.75, Earnings = 0 }]
+            Probabilistic = probabilistic,
+            RecipeCost = recipeCost
         };
     }
 }

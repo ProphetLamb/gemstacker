@@ -31,8 +31,11 @@ public class LevelVendorQualitySell : IProfitRecipe
         return ProfitMarginUnchecked(ctx, max, min);
     }
 
-    public static ProfitMargin ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice max,
-        SkillGemPrice min)
+    public static ProfitMargin ProfitMarginUnchecked(
+        SkillProfitCalculationContext ctx,
+        SkillGemPrice max,
+        SkillGemPrice min
+    )
     {
         // level the gem, vendor it with 1x Gem Cutter, sell the gem
         var levelEarning = max.ChaosValue - min.ChaosValue;

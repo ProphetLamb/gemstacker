@@ -48,6 +48,7 @@ public sealed record ProfitMargin
     public required double AdjustedEarnings { get; init; }
     public required double ExperienceDelta { get; init; }
     public required double GainMargin { get; init; }
+    public IReadOnlyDictionary<string, double> RecipeCost { get; init; }
     public IReadOnlyList<ProbabilisticProfitMargin>? Probabilistic { get; init; }
 }
 

@@ -8,7 +8,7 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MinLevel is not { } min
+        if ((ctx.MinLevel ?? ctx.MinLevel20Quality) is not { } min
             || ctx.CorruptedAddLevel is not { } corruptAddLevel
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
@@ -22,29 +22,49 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
             return null;
         }
 
-        return ProfitMarginUnchecked(ctx, corruptAddLevel, corruptAddQuality, corruptRemQuality, corruptFailure, min);
+        return ProfitMarginUnchecked(
+            ctx,
+            corruptAddLevel,
+            corruptAddQuality,
+            corruptRemQuality,
+            corruptFailure,
+            min
+        );
     }
 
-    public static ProfitMargin? ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice corruptAddLevel,
-        SkillGemPrice corruptAddQuality, SkillGemPrice corruptRemQuality, SkillGemPrice corruptFailure, SkillGemPrice min)
+    public static ProfitMargin? ProfitMarginUnchecked(
+        SkillProfitCalculationContext ctx,
+        SkillGemPrice corruptAddLevel,
+        SkillGemPrice corruptAddQuality,
+        SkillGemPrice corruptRemQuality,
+        SkillGemPrice corruptFailure,
+        SkillGemPrice min
+    )
     {
-        var vaalOrb = ctx.ExchangeRate(CurrencyTypeName.VaalOrb) ?? 1;
-        var costVaal = vaalOrb * 4; // 12.5% to 50% chance = 4 attempts
+        Dictionary<string, double> recipeCost = new()
+        {
+            [CurrencyTypeName.GemcuttersPrism] = corruptAddLevel.GemQuality - min.GemQuality, // 20 quality
+            [CurrencyTypeName.VaalOrb] = 4, // 12.5% to 50% chance = 4 attempts
+        };
         // buy gem, level, corrupt for level, sell
         // 25% unchanged or vaal -> failure
         // 25% add or remove level -> failure, more exp required
         // 25% add quality -> failure
-        var profitAddLevel = (corruptAddLevel.ChaosValue - min.ChaosValue) * 0.125;
-        var profitAddQuality = (corruptAddQuality.ChaosValue - min.ChaosValue) * 0.125;
-        var profitRemQuality = (corruptRemQuality.ChaosValue - min.ChaosValue) * 0.125;
-        var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) * 0.625;
-        var levelEarning = profitAddLevel + profitAddQuality + profitRemQuality + profitFailure - costVaal;
+        List<ProbabilisticProfitMargin> probabilistic = [
+            new() { Chance = 0.125, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
+            new() { Chance = 0.125, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
+            new() { Chance = 0.125, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_remove_level" },
+            new() { Chance = 0.125, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "corrupt_remove_quality" },
+            new() { Chance = 0.5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
+        ];
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
                                            * 0.125
                                            * ctx.ExperienceFactor(ctx.GemQuality(min));
         var levelExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
         var deltaExperience = levelExperience + corruptExperienceRemoveLevel;
+
+        var levelEarning = ctx.ProbabilisticEarnings(probabilistic) - ctx.RecipeCost(recipeCost);
         return new()
         {
             GainMargin = ctx.GainMargin(levelEarning, deltaExperience),
@@ -52,14 +72,8 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(corruptAddLevel, levelExperience),
-            Probabilistic =
-            [
-                new() { Chance = 0.125, Earnings = profitAddLevel, Label = "corrupt_add_level" },
-                new() { Chance = 0.125, Earnings = profitAddQuality, Label = "corrupt_add_quality" },
-                new() { Chance = 0.125, Earnings = profitFailure, Label = "corrupt_remove_level" },
-                new() { Chance = 0.125, Earnings = profitAddQuality, Label = "corrupt_remove_quality" },
-                new() { Chance = 0.5, Earnings = profitFailure, Label = "no_change" },
-            ]
+            RecipeCost = recipeCost,
+            Probabilistic = probabilistic
         };
     }
 }

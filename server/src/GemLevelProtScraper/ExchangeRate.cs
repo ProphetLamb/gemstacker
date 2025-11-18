@@ -274,4 +274,6 @@ public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeN
         result = default;
         return false;
     }
+
+    public static implicit operator string(CurrencyTypeName t) => t.Value;
 }

@@ -143,6 +143,16 @@ public sealed class SkillProfitCalculationContext(
         return 1.0;
     }
 
+    public double RecipeCost(IReadOnlyDictionary<string, double> recipeCost)
+    {
+        return recipeCost.Sum(x => (ExchangeRate(new(x.Key)) ?? 0) * x.Value);
+    }
+
+    public double ProbabilisticEarnings(IReadOnlyList<ProbabilisticProfitMargin> probabilistic)
+    {
+        return probabilistic.Sum(x => x.Earnings * x.Chance);
+    }
+
     public ProfitLevelResponse ToProfitLevelResponse(SkillGemPrice price, double experience)
     {
         return new()
