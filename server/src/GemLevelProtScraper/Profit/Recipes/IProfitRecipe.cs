@@ -150,7 +150,7 @@ public sealed class SkillProfitCalculationContext(
 
     public double ProbabilisticEarnings(IReadOnlyList<ProbabilisticProfitMargin> probabilistic)
     {
-        return probabilistic.Sum(x => x.Earnings * x.Chance) / probabilistic.Sum(x => x.Chance);
+        return probabilistic.Sum(x => x.Earnings * x.Chance);
     }
 
     public ProfitLevelResponse ToProfitLevelResponse(SkillGemPrice price, double experience)
