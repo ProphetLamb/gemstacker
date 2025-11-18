@@ -52,7 +52,7 @@ export class RawGemProfitApi {
 			throw new Error(`Request failed with status ${response.status}: ${await response.text()}`);
 		}
 		const rawResult = await response.json();
-		const result = gemProfitResponseSchema.parse(rawResult);
+		const result = gemProfitResponseSchema.parse(rawResult) as GemProfitResponse;
 		return result;
 	};
 

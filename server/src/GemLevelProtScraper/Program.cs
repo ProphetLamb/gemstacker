@@ -167,7 +167,7 @@ app
             };
             var result = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
 
-            return Results.Ok(itemsCount is <= 0 or >= 20000 ? result : result.Take(itemsCount));
+            return Results.Ok(itemsCount is <= 0 or >= 20000 ? result.ToAsyncEnumerable() : result.Take(itemsCount).ToAsyncEnumerable());
         }
     )
     .CacheOutput(b => b
