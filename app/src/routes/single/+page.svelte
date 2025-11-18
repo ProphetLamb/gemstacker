@@ -11,7 +11,7 @@
 	import { Wrapper, WrapperItem } from '$lib/client/wrapper';
 	import LoadingPlaceholder from '$lib/client/LoadingPlaceholder.svelte';
 	import { intlCompactNumber } from '$lib/intl';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import { getStateFromQuery, replaceStateWithQuery } from '$lib/client/navigation';
 	import { browser } from '$app/environment';
@@ -19,6 +19,7 @@
 	import { availableGems } from '$lib/client/availableGems';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 	import { exchangeRates } from '$lib/client/exchangeRates';
+	import { firstN } from '$lib/obj';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -44,6 +45,33 @@
 			: !excludedGems
 			? $availableGems
 			: $availableGems.filter((x) => !excludedGems.has(x.name.toLowerCase()));
+
+	const lazyLoadIncrement = 50;
+	let maxDataCount = 0;
+	$: items = firstN(gemProfit ?? [], maxDataCount);
+	const loadMoreTriggerObserver = browser ? new IntersectionObserver((entries) => {
+		if (entries.length === 0 || !entries[0].isIntersecting) {
+			return;
+		}
+		maxDataCount += lazyLoadIncrement;
+	}) : undefined;
+	function loadMoreTrigger(e: HTMLDivElement) {
+		Promise.resolve().then(async () => {
+			while (maxDataCount < lazyLoadIncrement * 2) {
+				await tick();
+				await new Promise((resolve) => setTimeout(resolve, 100));
+				if (!(e.offsetWidth || e.offsetHeight || e.getClientRects().length)) {
+					break;
+				}
+				maxDataCount += lazyLoadIncrement;
+				await tick();
+			}
+			loadMoreTriggerObserver?.observe(e);
+		});
+	}
+	onDestroy(() => {
+		loadMoreTriggerObserver?.disconnect();
+	});
 
 	export const snapshot = { capture, restore };
 
@@ -252,8 +280,13 @@
 					<GemProfitTableHeader>
 						<GemFilter slot="buttons" />
 					</GemProfitTableHeader>
-					<GemProfitTable data={gemProfit} />
-					<BetterTrading data={gemProfit} />
+					<GemProfitTable data={items} />
+					<BetterTrading data={items} />
+					{#if items.length === maxDataCount}
+						<div class="align-middle w-full text-center pb-[8rem]" use:loadMoreTrigger>
+							Search a gem name for more...
+						</div>
+					{/if}
 				{:else}
 					<GemProfitTableHeader>
 						<svelte:fragment slot="buttons">

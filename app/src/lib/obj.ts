@@ -8,9 +8,13 @@ export function isNullOrEmpty(obj: object | string | null | undefined) {
 				return false;
 			}
 		}
-	} else if (typeof obj === "string") {
-    return (obj as string).trim().length === 0
-  }
+	} else if (typeof obj === 'string') {
+		return (obj as string).trim().length === 0;
+	}
 
 	return true;
+}
+
+export function firstN<T>(arr: T[], items: number): T[] {
+	return arr.slice(0, Math.min(arr.length, items));
 }

@@ -6,8 +6,9 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import { onDestroy, tick } from 'svelte';
 	import { localSettings } from './localSettings';
+	import { firstN } from '$lib/obj';
 
-	const lazyLoadIncrement = 10;
+	const lazyLoadIncrement = 50;
 
 	let filter = '';
 	const modalStore = getModalStore();
@@ -17,10 +18,6 @@
 			? $availableGems ?? []
 			: $availableGems?.filter((x) => x.name.toLowerCase().includes(filter.toLowerCase()));
 	$: data = firstN(selectedGems, maxDataCount);
-
-	function firstN<T>(arr: T[], items: number): T[] {
-		return arr.slice(0, Math.min(arr.length, items));
-	}
 
 	const loadMoreTriggerObserver = new IntersectionObserver((entries) => {
 		if (entries.length === 0 || !entries[0].isIntersecting) {

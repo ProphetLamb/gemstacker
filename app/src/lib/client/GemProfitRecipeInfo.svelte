@@ -52,7 +52,7 @@
 					{preferredRecipie?.min_attempts_to_profit} attempts for 66% expectation of profit
 				</p>
 			{/if}
-			
+
 			{#if preferredRecipie?.min_attempts_to_profit === 0}
 				<p class="text-error-400-500-token font-semibold">
 					Infinite attempts for 66% expectation of profit
