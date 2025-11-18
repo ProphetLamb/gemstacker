@@ -1,4 +1,4 @@
-import type { GemProfitResponseItemRecipeName } from './gemLevelProfitApi';
+import type { GemProfitProbabilisticLabel, GemProfitResponseItemRecipeName } from './gemLevelProfitApi';
 
 type GemProfitRecipeInfo = {
 	description: string;
@@ -128,3 +128,13 @@ export function getRecipeInfo(recipe?: GemProfitResponseItemRecipeName | string)
 
 	return info;
 }
+
+export const wellKnownProbabilisticLabelDisplay = {
+	corrupt_add_level: 'Corrupt +1 Level',
+	corrupt_add_level_add_quality: 'Double corrupt +1 Level & +3 Quality',
+	corrupt_add_level_rem_quality: 'Double corrupt +1 Level & -10 Quality',
+	corrupt_add_quality: 'Corrupt +3 Quality',
+	corrupt_rem_quality: 'Corrupt -10 Quality',
+	no_change: 'Unchanged or corrupt -1 Level',
+	misc: 'Miscellaneous'
+} satisfies Record<GemProfitProbabilisticLabel | 'misc', string>

@@ -13,7 +13,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
             return null;
         }
 
-        Dictionary<string, double> recipeCost = new() { [CurrencyTypeName.VaalOrb] = 2, };
+        Dictionary<string, double> recipeCost = new() { [CurrencyTypeName.VaalOrb] = 1, };
 
         // buy gem from vendor, corrupt it
         // if is not vaal gem, repeat

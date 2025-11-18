@@ -8,6 +8,12 @@ export const intlFractionNumber = Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   useGrouping: false
 });
+export const intlFixed2Number = Intl.NumberFormat('en-US', {
+  notation: 'standard',
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 2,
+  useGrouping: false
+});
 export const intlFixed4Number = Intl.NumberFormat('en-US', {
   notation: 'standard',
   maximumFractionDigits: 4,

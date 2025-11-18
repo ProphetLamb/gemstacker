@@ -92,10 +92,12 @@ export const gemProfitResponseItemPriceSchema = z.object({
 export type GemColor = 'white' | 'blue' | 'green' | 'red';
 export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
+export type GemProfitProbabilisticLabel = 'corrupt_add_level_add_quality' | 'corrupt_add_level_rem_quality' |  'corrupt_add_level' | 'corrupt_add_quality' |  'corrupt_rem_quality' | 'no_change';
+
 export interface GemProfitProbabilisticProfitMargin {
 	chance: number;
 	earnings: number;
-	label?: string | null;
+	label?: GemProfitProbabilisticLabel | null;
 }
 
 export const gemProfitProbabilisticProfitMarginSchema = z.object({
@@ -221,3 +223,10 @@ export const wellKnownExchangeRateDisplay = {
 	vaal_orb: { name: 'Vaal Orb', alt: 'v', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyVaal.png' },
 	chaos_orb: { name: 'Chaos Orb', alt: 'c', img:  'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png' }
 } satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb', CurrencyTypeDisplay>;
+
+export function currencyTypeDisplay(name?: CurrencyTypeDisplay | string | undefined) {
+	if (!name) {
+		return { name: '', alt: '', img: ''};
+	}
+	return Object.values(wellKnownExchangeRateDisplay).find(x => x.name === name) ?? { name: '', alt: '', img: ''};
+}

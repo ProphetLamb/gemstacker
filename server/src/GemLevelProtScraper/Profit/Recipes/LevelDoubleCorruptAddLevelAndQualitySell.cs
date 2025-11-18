@@ -74,7 +74,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             {
                 Chance = pTwo,
                 Earnings = corruptAddLevelRemQuality.ChaosValue - min.ChaosValue,
-                Label = "corrupt_add_level_remove_quality"
+                Label = "corrupt_add_level_rem_quality"
             },
             new()
             {

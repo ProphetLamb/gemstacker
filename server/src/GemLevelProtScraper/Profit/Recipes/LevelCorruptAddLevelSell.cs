@@ -46,8 +46,8 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     {
         Dictionary<string, double> recipeCost = new()
         {
+            [CurrencyTypeName.VaalOrb] = 1, // 12.5% to 50% chance = 4 attempts
             [CurrencyTypeName.GemcuttersPrism] = corruptAddLevel.GemQuality - min.GemQuality, // 20 quality
-            [CurrencyTypeName.VaalOrb] = 4, // 12.5% to 50% chance = 4 attempts
         };
         // buy gem, level, corrupt for level, sell
         // 25% unchanged or vaal -> failure
@@ -56,9 +56,9 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         var p = 1 / 8.0;
         List<ProbabilisticProfitMargin> probabilistic = [
             new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
-            new() { Chance = p, Earnings =  corruptAddLevelRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_level_remove_quality" },
+            new() { Chance = p, Earnings =  corruptAddLevelRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_level_rem_quality" },
             new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
-            new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_remove_quality" },
+            new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_rem_quality" },
             new() { Chance = p * 4, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
         ];
 
