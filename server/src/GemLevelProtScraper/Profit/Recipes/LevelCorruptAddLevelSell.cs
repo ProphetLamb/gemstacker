@@ -22,6 +22,12 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
             return null;
         }
 
+        return ProfitMarginUnchecked(ctx, corruptAddLevel, corruptAddQuality, corruptRemQuality, corruptFailure, min);
+    }
+
+    public static ProfitMargin? ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice corruptAddLevel,
+        SkillGemPrice corruptAddQuality, SkillGemPrice corruptRemQuality, SkillGemPrice corruptFailure, SkillGemPrice min)
+    {
         // buy gem, level, corrupt for level, sell
         // 25% unchanged or vaal -> failure
         // 25% add or remove level -> failure, more exp required
