@@ -10,7 +10,6 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     {
         if ((ctx.MinLevel ?? ctx.MinLevel20Quality) is not { } min
             || (ctx.CorruptedAddLevel20Quality ?? ctx.CorruptedAddLevel) is not { } corruptAddLevel
-            || (ctx.CorruptedAddLevel ?? corruptAddLevel) is not { } corruptAddLevelRemQuality
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
             || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality)
@@ -26,7 +25,6 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         return ProfitMarginUnchecked(
             ctx,
             corruptAddLevel,
-            corruptAddLevelRemQuality,
             corruptAddQuality,
             corruptRemQuality,
             corruptFailure,
@@ -37,7 +35,6 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     public static ProfitMargin ProfitMarginUnchecked(
         SkillProfitCalculationContext ctx,
         SkillGemPrice corruptAddLevel,
-        SkillGemPrice corruptAddLevelRemQuality,
         SkillGemPrice corruptAddQuality,
         SkillGemPrice corruptRemQuality,
         SkillGemPrice corruptFailure,
@@ -56,10 +53,9 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         var p = 1 / 8.0;
         List<ProbabilisticProfitMargin> probabilistic = [
             new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
-            new() { Chance = p, Earnings =  corruptAddLevelRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_level_rem_quality" },
             new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
             new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_rem_quality" },
-            new() { Chance = p * 4, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
+            new() { Chance = p * 5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
         ];
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
