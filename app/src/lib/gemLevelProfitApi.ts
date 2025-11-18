@@ -112,6 +112,7 @@ export interface GemProfitResponeItemMargin {
 	adjusted_earnings: number;
 	experience_delta: number;
 	gain_margin: number;
+	min_attempts_to_profit: number;
 	recipe_cost?: Partial<Record<CurrencyTypeName, number>> | null;
 	probabilistic?: GemProfitProbabilisticProfitMargin[] | null;
 }
@@ -122,6 +123,7 @@ export const gemProfitResponseItemMarginSchema = z.object({
 	adjusted_earnings: z.number(),
 	experience_delta: z.number(),
 	gain_margin: z.number(),
+	min_attempts_to_profit: z.number(),
 	recipe_cost: z.record(z.string(), z.number()).optional().nullable(),
 	probabilistic: z.array(gemProfitProbabilisticProfitMarginSchema).optional().nullable()
 });

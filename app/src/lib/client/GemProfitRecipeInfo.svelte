@@ -1,10 +1,6 @@
 <script lang="ts">
 	import Chaos from './Chaos.svelte';
-	import {
-		intlCompactNumber,
-		intlFixed2Number,
-		intlFixed4Number
-	} from '$lib/intl';
+	import { intlCompactNumber, intlFixed2Number, intlFixed4Number } from '$lib/intl';
 	import { currencyTypeDisplay, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { getRecipeInfo, wellKnownProbabilisticLabelDisplay } from '$lib/recipe';
 	import { Icon } from '@steeze-ui/svelte-icon';
@@ -43,7 +39,7 @@
 			<h5 class="h5">Recipe Cost</h5>
 			<ul>
 				{#each Object.entries(preferredRecipie.recipe_cost) as [key, cost]}
-				{@const currency = currencyTypeDisplay(key)}
+					{@const currency = currencyTypeDisplay(key)}
 					<li class="flex flex-row justify-between">
 						<span>{currency.name}</span>
 						<Currency value={cost} alt={currency.alt} src={currency.img} />
@@ -51,6 +47,11 @@
 					<hr />
 				{/each}
 			</ul>
+			{#if preferredRecipie?.min_attempts_to_profit}
+				<p class="text-warning-400-500-token font-semibold">
+					{preferredRecipie?.min_attempts_to_profit} attempts for 66% expectation of profit
+				</p>
+			{/if}
 		{/if}
 		{#if preferredRecipie?.probabilistic}
 			<h5 class="h5">Probabilities</h5>

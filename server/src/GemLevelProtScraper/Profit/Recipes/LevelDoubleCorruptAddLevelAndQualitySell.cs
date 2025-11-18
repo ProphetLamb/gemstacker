@@ -121,6 +121,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(corruptAddLevel, levelExperience),
+            MinAttemptsToProfit = ctx.AttemptsToProfit(probabilistic),
             RecipeCost = recipeCost,
             Probabilistic = probabilistic
         };

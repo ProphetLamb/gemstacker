@@ -34,6 +34,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(max, deltaExperience),
+            MinAttemptsToProfit = ctx.AttemptsToProfit(probabilistic),
             Probabilistic = probabilistic,
             RecipeCost = recipeCost
         };

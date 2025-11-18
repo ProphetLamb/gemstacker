@@ -146,6 +146,29 @@ public sealed class SkillProfitCalculationContext(
         return probabilistic.Sum(x => x.Earnings * x.Chance);
     }
 
+    public double AttemptsToProfit(IReadOnlyList<ProbabilisticProfitMargin> probabilistic)
+    {
+        var (gain, loss) = probabilistic.BiPartition((ProbabilisticProfitMargin?, ProbabilisticProfitMargin?) (p) =>
+            p.Earnings > 10 ? (p, null) : (null, p)
+        );
+        var gainProb = gain.Sum(x => x.Chance);
+        var lossProb = loss.Sum(x => x.Chance);
+        if (gainProb == 0)
+        {
+            return double.PositiveInfinity;
+        }
+
+        if (lossProb == 0)
+        {
+            return 1;
+        }
+
+        // number of attempts until we have a 66% expectation of profit
+        var attempts = Math.Log(gainProb / lossProb) / Math.Log(2.0 / 3);
+        // if every attempt is profitable we get a negative number of attempts
+        return Math.Ceiling(Math.Max(1, attempts));
+    }
+
     public ProfitLevelResponse ToProfitLevelResponse(SkillGemPrice price, double experience)
     {
         return new()

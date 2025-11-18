@@ -34,7 +34,7 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         );
     }
 
-    public static ProfitMargin? ProfitMarginUnchecked(
+    public static ProfitMargin ProfitMarginUnchecked(
         SkillProfitCalculationContext ctx,
         SkillGemPrice corruptAddLevel,
         SkillGemPrice corruptAddLevelRemQuality,
@@ -76,6 +76,7 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(corruptAddLevel, levelExperience),
+            MinAttemptsToProfit = ctx.AttemptsToProfit(probabilistic),
             RecipeCost = recipeCost,
             Probabilistic = probabilistic
         };
