@@ -5,37 +5,26 @@
 
 	export let gemPrice: GemProfitResponseItem;
 
-	let buyTradeUrl = getTradeQueryUrl(
-		gemPrice.type,
-		gemPrice.discriminator,
-		gemPrice.min.level,
-		gemPrice.max.level,
-		gemPrice.min.quality
-	);
-	let sellTradeUrl = getTradeQueryUrl(
-		gemPrice.type,
-		gemPrice.discriminator,
-		gemPrice.max.level,
-		undefined,
-		gemPrice.max.quality
+	let buyTradeUrl = getTradeQueryUrl({
+		name: gemPrice.type,
+		discriminator: gemPrice.discriminator,
+		corrupted: gemPrice.min.corrupted,
+		min_level: gemPrice.min.level,
+		max_level: gemPrice.max.level,
+		min_quality: gemPrice.min.quality,
+	});
+	let sellTradeUrl = getTradeQueryUrl({
+		name: gemPrice.type,
+		discriminator: gemPrice.discriminator,
+		corrupted: gemPrice.max.corrupted,
+		min_level: gemPrice.max.level,
+		min_quality: gemPrice.max.quality,
+	}
 	);
 
-	function getTradeQueryUrl(
-		name: string,
-		discriminator?: string | null,
-		min_level?: number,
-		max_level?: number,
-		min_quality?: number
-	) {
+	function getTradeQueryUrl(query: PoeTradeGemRequest) {
 		let body = JSON.stringify(
-			createGemTradeQueryBody({
-				name,
-				discriminator,
-				corrupted: false,
-				max_level,
-				min_level,
-				min_quality
-			})
+			createGemTradeQueryBody(query)
 		);
 		let url = `https://www.pathofexile.com/trade/search/${$localSettings.league}?q=${body}`;
 		return url;
