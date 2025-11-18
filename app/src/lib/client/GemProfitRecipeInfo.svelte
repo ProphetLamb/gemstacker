@@ -47,8 +47,12 @@
 					<hr />
 				{/each}
 			</ul>
-			{#if preferredRecipie?.min_attempts_to_profit}
-				<p class="text-warning-400-500-token font-semibold">
+			{#if preferredRecipie?.min_attempts_to_profit && preferredRecipie?.min_attempts_to_profit != 1}
+				<p
+					class="{preferredRecipie.min_attempts_to_profit <= 3
+						? 'text-success-400-500-token'
+						: 'text-warning-400-500-token'}  font-semibold"
+				>
 					{preferredRecipie?.min_attempts_to_profit} attempts for 66% expectation of profit
 				</p>
 			{/if}
