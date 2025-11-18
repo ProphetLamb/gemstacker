@@ -101,7 +101,7 @@ export const gemProfitResponseItemMarginSchema = z.object({
 	gain_margin: z.number(),
 });
 
-export type GemProfitResponseItemRecipeName = 'level_corrupt_add_level_sell' | 'level_sell' | 'level_vendor_quality_sell' | 'level_vendor_quality_level_sell' | 'quality_level_sell' | 'vendor_buy_corrupt_level_sell_vaal' | 'vendor_buy_level_corrupt_add_level_sell' |  'vendor_buy_level_sell' | 'vendor_buy_level_vendor_quality_level_sell' | 'vendor_buy_level_vendor_quality_sell' | 'vendor_buy_quality_level_sell';
+export type GemProfitResponseItemRecipeName = 'level_corrupt_add_level_sell' | 'level_corrupt_add_level_and_quality_sell' | 'level_sell' | 'level_vendor_quality_sell' | 'level_vendor_quality_level_sell' | 'quality_level_sell' | 'vendor_buy_corrupt_level_sell_vaal' | 'vendor_buy_level_corrupt_add_level_and_quality_sell' | 'vendor_buy_level_corrupt_add_level_sell' |  'vendor_buy_level_sell' | 'vendor_buy_level_vendor_quality_level_sell' | 'vendor_buy_level_vendor_quality_sell' | 'vendor_buy_quality_level_sell';
 
 export type GemProfitResponseItemRecipes = Record<GemProfitResponseItemRecipeName, GemProfitResponeItemMargin>
 
