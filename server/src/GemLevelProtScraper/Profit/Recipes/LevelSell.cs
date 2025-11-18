@@ -8,7 +8,9 @@ public class LevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.MinAndMaxMaybeCorrupted() is not { } prices)
+        if ((ctx.MaxLevel ?? ctx.CorruptedMaxLevel) is not { } max
+               || (ctx.MinLevel ?? ctx.CorruptedMinLevel) is not { } min
+               || min.Corrupted != max.Corrupted)
         {
             return null;
         }
@@ -18,7 +20,7 @@ public class LevelSell : IProfitRecipe
             return null;
         }
 
-        return ProfitMarginUnchecked(ctx, prices.Max, prices.Min);
+        return ProfitMarginUnchecked(ctx, max, min);
     }
 
     public static ProfitMargin ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice max, SkillGemPrice min)

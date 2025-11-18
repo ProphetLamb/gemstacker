@@ -116,16 +116,6 @@ public sealed class SkillProfitCalculationContext(
                 .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel > Skill.MaxLevel)
                 .MaxBy(x => x, LevelComparer);
 
-    public (SkillGemPrice Min, SkillGemPrice Max)? MinAndMaxMaybeCorrupted()
-    {
-        return (MaxLevel ?? CorruptedMaxLevel) is { } max
-               && (MinLevel ?? CorruptedMinLevel) is { } min
-               && min.GemLevel < max.GemLevel
-               && min.Corrupted == max.Corrupted
-            ? (min, max)
-            : null;
-    }
-
     public ProfitRequest Request => request;
 
     public double? ExchangeRate(CurrencyTypeName name)

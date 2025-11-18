@@ -9,9 +9,9 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
         if (ctx.MinLevel is not { } min
-            || ctx.CorruptedAddLevel is not { } max
+            || ctx.CorruptedAddLevel is not { } corruptAddLevel
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
-            || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptQuality
+            || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
         )
         {
             return null;
@@ -23,27 +23,26 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         }
 
         // buy gem, level, corrupt for level, sell
-        // 25% unchanged -> failure
-        // 25% remove level -> failure, more exp required
-        // 25% add level -> success
+        // 25% unchanged or vaal -> failure
+        // 25% add or remove level -> failure, more exp required
         // 25% add quality -> failure
-        var profitSuccess = (max.ChaosValue - min.ChaosValue) * 0.25;
-        var profitQuality = (corruptQuality.ChaosValue - min.ChaosValue) * 0.25;
-        var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) * 0.5;
-        var levelEarning = profitSuccess + profitFailure + profitQuality;
+        var profitAddLevel = (corruptAddLevel.ChaosValue - min.ChaosValue) * 0.125;
+        var profitQuality = (corruptAddQuality.ChaosValue - min.ChaosValue) * 0.125;
+        var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) * 0.75;
+        var levelEarning = profitAddLevel + profitFailure + profitQuality;
 
-        var failureAddExperience = ctx.Skill.LastLevelExperience
-                                * 0.25
+        var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
+                                * 0.125
                                 * ctx.ExperienceFactor(ctx.GemQuality(min));
-        var successExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
-        var deltaExperience = successExperience + failureAddExperience;
+        var levelExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
+        var deltaExperience = levelExperience + corruptExperienceRemoveLevel;
         return new()
         {
             GainMargin = ctx.GainMargin(levelEarning, deltaExperience),
             ExperienceDelta = deltaExperience,
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
-            Sell = ctx.ToProfitLevelResponse(max, successExperience),
+            Sell = ctx.ToProfitLevelResponse(corruptAddLevel, levelExperience),
         };
     }
 }
