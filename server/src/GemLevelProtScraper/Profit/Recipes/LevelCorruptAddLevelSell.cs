@@ -28,6 +28,8 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
     public static ProfitMargin? ProfitMarginUnchecked(SkillProfitCalculationContext ctx, SkillGemPrice corruptAddLevel,
         SkillGemPrice corruptAddQuality, SkillGemPrice corruptRemQuality, SkillGemPrice corruptFailure, SkillGemPrice min)
     {
+        var vaalOrb = ctx.ExchangeRate(CurrencyTypeName.VaalOrb) ?? 1;
+        var costVaal = vaalOrb * 4; // 12.5% to 50% chance = 4 attempts
         // buy gem, level, corrupt for level, sell
         // 25% unchanged or vaal -> failure
         // 25% add or remove level -> failure, more exp required
@@ -36,7 +38,7 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         var profitAddQuality = (corruptAddQuality.ChaosValue - min.ChaosValue) * 0.125;
         var profitRemQuality = (corruptRemQuality.ChaosValue - min.ChaosValue) * 0.125;
         var profitFailure = (corruptFailure.ChaosValue - min.ChaosValue) * 0.625;
-        var levelEarning = profitAddLevel + profitAddQuality + profitRemQuality + profitFailure;
+        var levelEarning = profitAddLevel + profitAddQuality + profitRemQuality + profitFailure - costVaal;
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
                                            * 0.125
