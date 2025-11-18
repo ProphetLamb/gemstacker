@@ -8,7 +8,8 @@ public class VendorBuyLevelCorruptAddLevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (ctx.CorruptedAddLevel is not { } corruptAddLevel
+        if ((ctx.CorruptedAddLevel20Quality ?? ctx.CorruptedAddLevel) is not { } corruptAddLevel
+            || (ctx.CorruptedAddLevel ?? corruptAddLevel) is not { } corruptAddLevelRemQuality
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
             || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality)
@@ -24,6 +25,7 @@ public class VendorBuyLevelCorruptAddLevelSell : IProfitRecipe
         return LevelCorruptAddLevelSell.ProfitMarginUnchecked(
             ctx,
             corruptAddLevel,
+            corruptAddLevelRemQuality,
             corruptAddQuality,
             corruptRemQuality,
             corruptFailure,
