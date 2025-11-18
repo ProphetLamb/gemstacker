@@ -55,8 +55,7 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
             new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
             new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
             new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_remove_quality" },
-            new() { Chance = p, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "corrupt_remove_level" },
-            new() { Chance = p * 4, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
+            new() { Chance = p * 5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
         ];
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience
