@@ -17,8 +17,6 @@ const literals = {
 	qualityToMax: "Apply up to 20 Gemcutter's Prisms bringing the quality to maximum.",
 	corruptAddLevel: 'Corrupt the gem for +1 Level',
 	corruptForVaalSkill: "Corrupt the gem for it's Vaal version",
-	noteCorruption60PercentChances:
-		'60% success expectation is required for the corruption out come, instead of even odds'
 };
 
 function buildDescription(steps: string[], note?: string[]) {
@@ -33,7 +31,6 @@ function buildDescription(steps: string[], note?: string[]) {
 const description = {
 	level_corrupt_add_level_sell: buildDescription(
 		[literals.buyLevel1, literals.levelToMax, literals.corruptAddLevel, literals.sell],
-		[literals.noteCorruption60PercentChances]
 	),
 	level_sell: buildDescription([literals.buyLevel1, literals.levelToMax, literals.sell]),
 	level_vendor_quality_level_sell: buildDescription([
@@ -56,8 +53,10 @@ const description = {
 		literals.sell
 	]),
 	vendor_buy_corrupt_level_sell_vaal: buildDescription(
-		[literals.buyVendor, literals.corruptForVaalSkill, literals.levelToMax, literals.sell],
-		[literals.noteCorruption60PercentChances]
+		[literals.buyVendor, literals.corruptForVaalSkill, literals.levelToMax, literals.sell]
+	),
+	vendor_buy_level_corrupt_add_level_sell: buildDescription(
+		[literals.buyVendor, literals.levelToMax, literals.corruptAddLevel, literals.sell],
 	),
 	vendor_buy_level_sell: buildDescription([literals.buyVendor, literals.levelToMax, literals.sell]),
 	vendor_buy_level_vendor_quality_level_sell: buildDescription([
@@ -88,6 +87,7 @@ const title = {
 	level_vendor_quality_sell: 'Level > Vendor Quality > Sell',
 	quality_level_sell: 'Quality > Level > Sell',
 	vendor_buy_corrupt_level_sell_vaal: 'Vendor > Corrupt Vaal Skill > Level > Sell',
+	vendor_buy_level_corrupt_add_level_sell: 'Vendor > Level > Corrupt +1 Level > Sell',
 	vendor_buy_level_sell: 'Vendor > Level > Sell',
 	vendor_buy_level_vendor_quality_level_sell: 'Vendor > Level > Vendor Quality > Level > Sell',
 	vendor_buy_level_vendor_quality_sell: 'Vendor > Level > Vendor Quality > Sell',
