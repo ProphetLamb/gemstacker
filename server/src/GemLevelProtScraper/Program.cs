@@ -165,7 +165,7 @@ app
                 MinimumListingCount = minListingCount,
                 DisallowedRecipes = disallowedRecipes is { Length: > 0 } ? disallowedRecipes.ToHashSet(StringComparer.OrdinalIgnoreCase) : null,
             };
-            var result = profitService.GetProfitAsync(request, cancellationToken);
+            var result = await profitService.GetProfitAsync(request, cancellationToken).ConfigureAwait(false);
 
             return Results.Ok(itemsCount is <= 0 or >= 20000 ? result : result.Take(itemsCount));
         }

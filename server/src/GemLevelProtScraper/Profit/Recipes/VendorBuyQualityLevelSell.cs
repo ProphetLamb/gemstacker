@@ -8,7 +8,7 @@ public class VendorBuyQualityLevelSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if (!ctx.Skill.CanBuyFromVendor() || (ctx.MaxLevel20Quality ?? ctx.CorruptedMaxLevel20Quality) is not { } max)
+        if (!ctx.CanBuyFromVendor() || (ctx.MaxLevel20Quality ?? ctx.CorruptedMaxLevel20Quality) is not { } max)
         {
             return null;
         }

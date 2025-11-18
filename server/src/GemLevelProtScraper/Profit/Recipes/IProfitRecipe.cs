@@ -19,6 +19,7 @@ public sealed class SkillProfitCalculationContext(
     SkillGem skill,
     ExchangeRateCollection exchangeRates,
     IReadOnlyDictionary<string, double> experienceFactorAddQualityByName,
+    IReadOnlySet<string> vendorRestrictedGems,
     IReadOnlyList<SkillGemPrice> pricesAscending
 )
 {
@@ -30,13 +31,7 @@ public sealed class SkillProfitCalculationContext(
     } = Comparer<SkillGemPrice>.Create((x, y) =>
         {
             var gemLevel = x.GemLevel.CompareTo(y.GemLevel);
-            if (gemLevel != 0)
-            {
-                return gemLevel;
-            }
-
-            return x.ChaosValue.CompareTo(y.ChaosValue);
-            ;
+            return gemLevel != 0 ? gemLevel : x.ChaosValue.CompareTo(y.ChaosValue);
         }
     );
 
@@ -46,13 +41,7 @@ public sealed class SkillProfitCalculationContext(
     } = Comparer<SkillGemPrice>.Create((x, y) =>
         {
             var gemLevel = -x.GemLevel.CompareTo(y.GemLevel);
-            if (gemLevel != 0)
-            {
-                return gemLevel;
-            }
-
-            return x.ChaosValue.CompareTo(y.ChaosValue);
-            ;
+            return gemLevel != 0 ? gemLevel : x.ChaosValue.CompareTo(y.ChaosValue);
         }
     );
 
@@ -102,19 +91,23 @@ public sealed class SkillProfitCalculationContext(
 
     public SkillGemPrice? CorruptedMaxLevel23Quality =>
         field ??= PricesAscending
-                .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel == Skill.MaxLevel)
-                .MaxBy(x => x, LevelComparer);
+            .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel == Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
 
     public SkillGemPrice? CorruptedAddLevel =>
-        field ??= PricesAscending.Where(x => x is { Corrupted: true, GemQuality: 0 } && x.GemLevel > Skill.MaxLevel).MaxBy(x => x, LevelComparer);
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 0 } && x.GemLevel > Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
 
     public SkillGemPrice? CorruptedAddLevel20Quality =>
-        field ??= PricesAscending.Where(x => x is { Corrupted: true, GemQuality: 20 } && x.GemLevel > Skill.MaxLevel).MaxBy(x => x, LevelComparer);
+        field ??= PricesAscending
+            .Where(x => x is { Corrupted: true, GemQuality: 20 } && x.GemLevel > Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
 
     public SkillGemPrice? CorruptedAddLevel23Quality =>
         field ??= PricesAscending
-                .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel > Skill.MaxLevel)
-                .MaxBy(x => x, LevelComparer);
+            .Where(x => x is { Corrupted: true, GemQuality: 23 } && x.GemLevel > Skill.MaxLevel)
+            .MaxBy(x => x, LevelComparer);
 
     public ProfitRequest Request => request;
 
@@ -164,6 +157,15 @@ public sealed class SkillProfitCalculationContext(
             Experience = experience,
             ListingCount = price.ListingCount
         };
+    }
+
+    public bool CanBuyFromVendor()
+    {
+        return Skill.DropLevel is > 0
+               && string.IsNullOrEmpty(Skill.Discriminator)
+               && !vendorRestrictedGems.Contains(Skill.Name)
+               && !Skill.IsVaalSkillGem()
+               && !Skill.IsAwakenedGem();
     }
 }
 

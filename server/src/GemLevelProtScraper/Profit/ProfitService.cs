@@ -7,7 +7,13 @@ namespace GemLevelProtScraper.Profit;
 
 public sealed class ProfitServiceOptions : IOptions<ProfitServiceOptions>
 {
-    public required Dictionary<string, double> SpecialExperienceFactorPerQualityGams
+    public Dictionary<string, double>? SpecialExperienceFactorPerQualityGams
+    {
+        get;
+        init;
+    }
+
+    public List<string>? VendorRestrictedGems
     {
         get;
         init;
@@ -29,7 +35,7 @@ public sealed class ProfitService(
         get;
     } = profitRecipes.ToList();
 
-    public async IAsyncEnumerable<ProfitResponse> GetProfitAsync(
+    public async ValueTask<IReadOnlyList<ProfitResponse>> GetProfitAsync(
         ProfitRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default
     )
@@ -37,57 +43,54 @@ public sealed class ProfitService(
         var allowedRecipes = request.DisallowedRecipes is null
             ? ProfitRecipes
             : ProfitRecipes.Where(x => !request.DisallowedRecipes.Contains(x.Name)).ToList();
-        var valueSpecialExperienceFactorPerQualityGams = options.Value.SpecialExperienceFactorPerQualityGams;
         var exchangeRates = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
-        var pricedGems = repository.GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken);
-        var eligiblePricedGems = pricedGems
-            .SelectTruthy(g => new ProfitMarginCalculator(
-                    request,
-                    g.Skill,
-                    exchangeRates,
-                    valueSpecialExperienceFactorPerQualityGams,
-                    allowedRecipes,
-                    loggerFactory.CreateLogger<ProfitMarginCalculator>()
-                ).ComputeProfitMargin(g.Prices) is { } delta
-                    ? new { g.Skill, Delta = delta }
-                    : null
-            )
-            .OrderByDescending(g => g.Delta.MaxGainMargin);
-
-        var result = eligiblePricedGems.Select(g => new ProfitResponse
-            {
-                Name = g.Skill.Name,
-                Color = g.Skill.Color,
-                Discriminator = g.Skill.Discriminator,
-                Type = g.Skill.BaseType,
-                ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
-                PreferredRecipe = g.Delta.PreferredRecipe,
-                Recipes = g.Delta.ProfitMargins,
-                GainMargin = g.Delta.MaxGainMargin,
-                Icon = g.Skill.IconUrl,
-                Max = g.Delta.Max.Data,
-                Min = g.Delta.Min.Data,
-            }
+        var calc = new ProfitMarginCalculator(
+            request,
+            exchangeRates,
+            options.Value.SpecialExperienceFactorPerQualityGams ?? [],
+            options.Value.VendorRestrictedGems?.ToHashSet(StringComparer.OrdinalIgnoreCase) ?? [],
+            allowedRecipes,
+            loggerFactory.CreateLogger<ProfitMarginCalculator>()
         );
-
-        await using var en = result.GetAsyncEnumerator(cancellationToken);
-        while (await en.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-        {
-            yield return en.Current;
-        }
+        var pricedGems = await repository
+            .GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        var eligiblePricedGems = pricedGems
+            .AsParallel()
+            .SelectTruthy(g => calc.ComputeProfitMargin(g.Skill, g.Prices) is { } delta
+                ? new ProfitResponse
+                {
+                    Name = g.Skill.Name,
+                    Color = g.Skill.Color,
+                    Discriminator = g.Skill.Discriminator,
+                    Type = g.Skill.BaseType,
+                    ForeignInfoUrl = $"https://poedb.tw{g.Skill.RelativeUrl}",
+                    PreferredRecipe = delta.PreferredRecipe,
+                    Recipes = delta.ProfitMargins,
+                    GainMargin = delta.MaxGainMargin,
+                    Icon = g.Skill.IconUrl,
+                    Max = delta.Max.Data,
+                    Min = delta.Min.Data,
+                }
+                : null
+            )
+            .OrderByDescending(x => x.GainMargin)
+            .ToList();
+        return eligiblePricedGems;
     }
 }
 
-internal readonly struct ProfitMarginCalculator(
+internal sealed class ProfitMarginCalculator(
     ProfitRequest request,
-    SkillGem skill,
     ExchangeRateCollection exchangeRates,
     IReadOnlyDictionary<string, double> experienceFactorAddQualityByName,
+    IReadOnlySet<string> vendorRestrictedGems,
     IReadOnlyCollection<IProfitRecipe> recipes,
     ILogger<ProfitMarginCalculator> logger
 )
 {
-    public PriceDelta? ComputeProfitMargin(IEnumerable<SkillGemPrice> prices)
+    public PriceDelta? ComputeProfitMargin(SkillGem skill, IEnumerable<SkillGemPrice> prices)
     {
         var profitRequest = request;
         var pricesOrdered = prices
@@ -105,6 +108,7 @@ internal readonly struct ProfitMarginCalculator(
             skill,
             exchangeRates,
             experienceFactorAddQualityByName,
+            vendorRestrictedGems,
             pricesOrdered
         );
 

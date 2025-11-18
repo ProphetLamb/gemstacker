@@ -2,11 +2,6 @@
 
 public static class SkillsExtensions
 {
-    public static bool CanBuyFromVendor(this SkillGem gem)
-    {
-        return gem.DropLevel is > 0 && string.IsNullOrEmpty(gem.Discriminator) && !gem.IsVaalSkillGem() && !gem.IsAwakenedGem();
-    }
-
     public static bool IsVaalSkillGem(this SkillGem gem)
     {
         return gem.Name.StartsWith("vaal ", StringComparison.OrdinalIgnoreCase);

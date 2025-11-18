@@ -18,7 +18,7 @@ public class VendorBuyLevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             return null;
         }
 
-        if (!ctx.Skill.CanBuyFromVendor())
+        if (!ctx.CanBuyFromVendor())
         {
             return null;
         }

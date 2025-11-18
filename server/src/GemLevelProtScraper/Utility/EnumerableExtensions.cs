@@ -100,6 +100,23 @@ public static class EnumerableExtensions
         }
     }
 
+    public static ParallelQuery<TOut> SelectTruthy<TIn, TOut>(
+        this ParallelQuery<TIn> sequence,
+        Func<TIn, TOut?> filterPredicate
+    )
+        where TOut : class
+    {
+        return sequence.SelectMany(x => filterPredicate(x) is { } result ? [result] : Enumerable.Empty<TOut>());
+    }
+
+    public static ParallelQuery<TOut> SelectTruthy<TIn, TOut>(
+        this ParallelQuery<TIn> sequence,
+        Func<TIn, TOut?> filterPredicate
+    )
+        where TOut : struct
+    {
+        return sequence.SelectMany(x => filterPredicate(x) is { } result ? [result] : Enumerable.Empty<TOut>());
+    }
     public static void ForAll<T>(this IEnumerable<T> sequence, Action<T> action)
     {
         foreach (var item in sequence)
