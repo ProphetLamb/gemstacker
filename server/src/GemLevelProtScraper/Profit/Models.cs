@@ -48,6 +48,14 @@ public sealed record ProfitMargin
     public required double AdjustedEarnings { get; init; }
     public required double ExperienceDelta { get; init; }
     public required double GainMargin { get; init; }
+    public IReadOnlyList<ProbabilisticProfitMargin>? Probabilistic { get; init; }
+}
+
+public sealed record ProbabilisticProfitMargin
+{
+    public required double Chance { get; init; }
+    public required double Earnings { get; init; }
+    public string? Label { get; init; }
 }
 
 

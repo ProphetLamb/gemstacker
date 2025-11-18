@@ -29,6 +29,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
             AdjustedEarnings = levelEarning,
             Buy = ctx.ToProfitLevelResponse(min, 0),
             Sell = ctx.ToProfitLevelResponse(max, deltaExperience),
+            Probabilistic = [new() { Chance = 0.25, Earnings = max.ChaosValue, Label = "corrupt_vaal_version"}, new() { Chance = 0.75, Earnings = 0 }]
         };
     }
 }
