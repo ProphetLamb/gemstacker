@@ -127,8 +127,8 @@ export class LoadoutOptimizer {
       socket.count += 1
     }
     const totalBuyCost = items.map(x => x.gem.min.price * x.count).reduce((l, r) => l + r, 0)
-    const totalSellPrice = items.map(x => x.gem.max.price * x.count).reduce((l, r) => l + r, 0)
-    const totalExperience = items.map(x => x.gem.max.experience - x.gem.min.experience).reduce((l, r) => Math.max(l, r), 0)
+    const totalSellPrice = totalBuyCost + items.map(x => x.gem.recipes[x.gem.preferred_recipe]?.adjusted_earnings ?? 0 * x.count).reduce((l, r) => l + r, 0)
+    const totalExperience = items.map(x => x.gem.recipes[x.gem.preferred_recipe]?.experience_delta ?? 0).reduce((l, r) => Math.max(l, r), 0)
     const count = items.map(x => x.count).reduce((l, r) => l + r, 0)
     return { items, totalBuyCost, totalSellPrice, totalExperience, count }
   }
