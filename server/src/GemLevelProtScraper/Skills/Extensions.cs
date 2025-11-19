@@ -1,4 +1,6 @@
-﻿namespace GemLevelProtScraper.Skills;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace GemLevelProtScraper.Skills;
 
 public static class SkillsExtensions
 {
@@ -26,6 +28,18 @@ public static class SkillsExtensions
             ListingCount = 9999,
             ChaosValue = 0,
             DivineValue = 0
+        };
+    }
+
+    [return: NotNullIfNotNull(nameof(left)), NotNullIfNotNull(nameof(right))]
+    public static SkillGemPrice? Min(this SkillGemPrice? left, SkillGemPrice right)
+    {
+        return (left, right) switch
+        {
+            (null, null) => null,
+            (not null, null) => left,
+            (null, not null) => right,
+            _ => right.ChaosValue.CompareTo(left.ChaosValue) < 0 ? right : left
         };
     }
 }

@@ -195,6 +195,7 @@ public static class ProfitRecipeExtension
 {
     public static IServiceCollection AddProfitRecipes(this IServiceCollection services)
     {
+        AddRecipe(typeof(LevelCorruptAddLevelDropFailureSell));
         AddRecipe(typeof(LevelCorruptAddLevelSell));
         AddRecipe(typeof(LevelDoubleCorruptAddLevelAndQualitySell));
         AddRecipe(typeof(LevelSell));
@@ -202,6 +203,7 @@ public static class ProfitRecipeExtension
         AddRecipe(typeof(LevelVendorQualitySell));
         AddRecipe(typeof(QualityLevelSell));
         AddRecipe(typeof(VendorBuyCorruptLevelSellVaal));
+        AddRecipe(typeof(VendorBuyLevelCorruptAddLevelDropFailureSell));
         AddRecipe(typeof(VendorBuyLevelCorruptAddLevelSell));
         AddRecipe(typeof(VendorBuyLevelDoubleCorruptAddLevelAndQualitySell));
         AddRecipe(typeof(VendorBuyLevelSell));

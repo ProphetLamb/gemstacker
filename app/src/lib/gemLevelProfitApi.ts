@@ -98,6 +98,7 @@ export type GemProfitProbabilisticLabel =
 	| 'corrupt_add_level'
 	| 'corrupt_add_quality'
 	| 'corrupt_rem_quality'
+	| 'corrupt_rem_level'
 	| 'no_change';
 
 export interface GemProfitProbabilisticProfitMargin {
@@ -135,6 +136,7 @@ export const gemProfitResponseItemMarginSchema = z.object({
 });
 
 export type GemProfitResponseItemRecipeName =
+	| 'level_corrupt_add_level_drop_failure_sell'
 	| 'level_corrupt_add_level_sell'
 	| 'level_corrupt_add_level_and_quality_sell'
 	| 'level_sell'
@@ -142,6 +144,7 @@ export type GemProfitResponseItemRecipeName =
 	| 'level_vendor_quality_level_sell'
 	| 'quality_level_sell'
 	| 'vendor_buy_corrupt_level_sell_vaal'
+	| 'vendor_buy_level_corrupt_add_level_drop_failure_sell'
 	| 'vendor_buy_level_corrupt_add_level_and_quality_sell'
 	| 'vendor_buy_level_corrupt_add_level_sell'
 	| 'vendor_buy_level_sell'
