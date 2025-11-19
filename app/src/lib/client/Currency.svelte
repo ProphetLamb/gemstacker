@@ -12,7 +12,7 @@
     export let alt
     export let number_format: Intl.NumberFormat | undefined | null = defaultNumberFormat
 </script>
-<div class="flex flex-row items-center {$$props.class ?? ''}">
+<div class="flex flex-row items-center pr-1 lg:pr-0 {$$props.class ?? ''}">
     <span class={value_class ?? ''}>{(number_format ?? defaultNumberFormat).format(value)}</span>
     <img {src} {alt} class={img_class ?? defaultImgClass} />
 </div>
