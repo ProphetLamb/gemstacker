@@ -60,13 +60,11 @@
 		{/if}
 	{/each}
 </td>
-<td> <span class="font-semibold text-surface-600-300-token">=</span></td>
+<td> <span class="font-semibold text-surface-600-300-token">
+		{probabilistic ? '≃' : '='}</span></td>
 <td>
 	<div class="flex justify-end">
 		<div class="md:flex md:flex-row md:h-full items-center">
-		{#if probabilistic}
-			<span class="text-sm">avg.</span>
-		{/if}
 			<Chaos
 				value={adjusted_earnings}
 				value_class={adjusted_earnings >= 0
