@@ -106,3 +106,7 @@ function localSettingsStore(): Writable<LocalSettings> {
 }
 
 export const localSettings = localSettingsStore();
+
+export function settingsAreDangerous(s: LocalSettings) {
+	return (s.disallowed_recipes?.length ?? 0) > 0
+}

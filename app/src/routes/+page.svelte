@@ -77,7 +77,6 @@
 			min_listing_count: settings.min_listing_count,
 			disallowed_recipes: settings.disallowed_recipes
 		} satisfies GemProfitRequestParameter);
-		console.log(query)
 		const rsp = await fetch(`/api/profit-preview?${query}`);
 		if (rsp.status < 200 || rsp.status >= 300) {
 			console.log('/:getProfitPreview', await rsp.text());
