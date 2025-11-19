@@ -60,8 +60,7 @@
 		{/if}
 	{/each}
 </td>
-<td> <span class="font-semibold text-surface-600-300-token">
-		{probabilistic ? '≃' : '='}</span></td>
+<td> <span class="font-semibold text-surface-600-300-token">{probabilistic ? '≃' : '='}</span></td>
 <td>
 	<div class="flex justify-end">
 		<div class="md:flex md:flex-row md:h-full items-center">
