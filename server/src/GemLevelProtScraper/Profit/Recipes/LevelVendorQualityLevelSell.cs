@@ -42,7 +42,7 @@ public class LevelVendorQualityLevelSell : IProfitRecipe
         Dictionary<string, double> recipeCost = new() { [CurrencyTypeName.GemcuttersPrism] = 1 };
 
         var deltaExperience = ctx.Skill.SumExperience
-                              * (ctx.ExperienceFactor(ctx.GemQuality(min)) * ctx.ExperienceFactor(ctx.GemQuality(max)));
+                              * (ctx.ExperienceFactor(ctx.GemQuality(min)) + ctx.ExperienceFactor(ctx.GemQuality(max)));
 
         var adjustedEarnings = levelEarning - ctx.RecipeCost(recipeCost);
         return new()
