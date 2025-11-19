@@ -2,7 +2,7 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
-	import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
+	import { gemProfitRequestParameterSchema, type GemProfitRequestParameter } from '$lib/gemLevelProfitApi';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
@@ -21,6 +21,7 @@
 	import { exchangeRates } from '$lib/client/exchangeRates';
 	import { firstN } from '$lib/obj';
 	import ExportGems from '$lib/client/ExportGems.svelte';
+	import ExcludeRecipes from '$lib/client/ExcludeRecipes.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -92,8 +93,9 @@
 		const initialSettings = {
 			league: $localSettings.league,
 			min_experience_delta: $localSettings.min_experience_delta,
-			min_listing_count: $localSettings.min_listing_count
-		};
+			min_listing_count: $localSettings.min_listing_count,
+			disallowed_recipes: $localSettings.disallowed_recipes
+		} satisfies Partial<GemProfitRequestParameter>;
 		if (!$availableGems) {
 			$profitForm = {
 				...$profitForm,
@@ -251,6 +253,20 @@
 					<aside class="alert variant-glass-error">{$errors.min_listing_count}</aside>
 				{/if}
 			</label>
+			<!-- svelte-ignore a11y-label-has-associated-control -->
+			<label class="label">
+				<span>Exclude recipes</span>
+				<input
+					type="hidden"
+					name="disallowed_recipes"
+					bind:value={$profitForm.disallowed_recipes}
+				/>
+				<ExcludeRecipes
+					excludedRecipes={$profitForm?.disallowed_recipes ?? []}
+					onselectchanged={(e) => ($profitForm.disallowed_recipes = [...(e.excludedRecipes ?? [])])}
+					recipesShown={8}
+				/>
+			</label>
 			<AnimatedSearchButton type="submit" class="shadow-lg text-2xl">
 				<Icon src={hi.MagnifyingGlass} size="22" />
 				<span class="mr-0.5">Search</span></AnimatedSearchButton
@@ -280,12 +296,12 @@
 						<svelte:fragment slot="text">Most profitable gems queried:</svelte:fragment>
 
 						<svelte:fragment slot="buttons">
+							<BetterTrading data={items} />
 							<ExportGems data={gemProfit} />
 							<GemFilter />
 						</svelte:fragment>
 					</GemProfitTableHeader>
 					<GemProfitTable data={items} />
-					<BetterTrading data={items} />
 					{#if items.length === maxDataCount}
 						<div class="align-middle w-full text-center pb-[8rem]" use:loadMoreTrigger>
 							Search a gem name for more...

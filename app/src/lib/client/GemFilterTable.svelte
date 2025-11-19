@@ -27,7 +27,7 @@
 	}
 </script>
 
-<table class="list border-separate border-spacing-y-2">
+<table class="list border-separate border-spacing-y-2 {$$props.class ?? ''}">
 	<tbody>
 		{#each data as gem, idx}
 			{@const isExcluded = excludedGems.has(gem.name.toLowerCase())}

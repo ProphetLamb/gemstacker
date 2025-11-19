@@ -8,6 +8,7 @@ export interface GemProfitRequestParameter {
 	max_buy_price_chaos?: number | null;
 	min_experience_delta?: number | null;
 	min_listing_count?: number | null;
+	disallowed_recipes?: string[] | null;
 	items_count?: number | null;
 }
 
@@ -28,6 +29,7 @@ export const gemProfitRequestParameterSchema = z.object({
 	max_buy_price_chaos: z.number().min(1).max(999).nullable().optional(),
 	min_experience_delta: z.number().min(200000000).max(2000000000).step(50000000).default(300000000),
 	min_listing_count: gemProfitRequestParameterMinListingCountSchema,
+	disallowed_recipes: z.array(z.string()).optional().nullable(),
 	items_count: z.number().nullable().optional().default(10)
 });
 
@@ -153,6 +155,7 @@ export type GemProfitResponseItemRecipeName =
 	| 'vendor_buy_quality_level_sell';
 
 export const gemProfitResponseItemRecipeName = [
+	'level_corrupt_add_level_drop_failure_sell',
 	'level_corrupt_add_level_sell',
 	'level_corrupt_add_level_and_quality_sell',
 	'level_sell',
@@ -160,6 +163,7 @@ export const gemProfitResponseItemRecipeName = [
 	'level_vendor_quality_level_sell',
 	'quality_level_sell',
 	'vendor_buy_corrupt_level_sell_vaal',
+	'vendor_buy_level_corrupt_add_level_drop_failure_sell',
 	'vendor_buy_level_corrupt_add_level_and_quality_sell',
 	'vendor_buy_level_corrupt_add_level_sell',
 	'vendor_buy_level_sell',

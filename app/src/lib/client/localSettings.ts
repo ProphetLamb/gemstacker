@@ -11,6 +11,7 @@ export interface LocalSettings {
 	exclude_gems: string[];
 	min_listing_count: number;
 	currency_display: CurrencyDisplay;
+	disallowed_recipes: string[];
 }
 
 function localSettingsStore(): Writable<LocalSettings> {
@@ -20,18 +21,20 @@ function localSettingsStore(): Writable<LocalSettings> {
 			league: '',
 			min_experience_delta: gemProfitRequestParameterConstraints.min_experience_delta.defaultValue,
 			exclude_gems: [],
+			disallowed_recipes: [],
 			min_listing_count: gemProfitRequestParameterConstraints.min_listing_count.defaultValue,
-			currency_display: defaultCurrencyDisplay
+			currency_display: defaultCurrencyDisplay,
 		}
 	);
 	const reader = derived([storage, leagues], ([storage, leagues]) => {
-		const { league, min_experience_delta, exclude_gems, min_listing_count, currency_display } = storage;
+		const { league, min_experience_delta, exclude_gems, min_listing_count, currency_display, disallowed_recipes: exclude_recipes } = storage;
 		return {
 			min_experience_delta: normalizeMinExperienceDelta(min_experience_delta),
 			league: normalizeLeague(league, leagues),
 			exclude_gems: normalizeExcludeGems(exclude_gems),
+			disallowed_recipes: normalizeExcludeRecipes(exclude_recipes),
 			min_listing_count: normalizeMinListingsCount(min_listing_count),
-			currency_display: normalizeCurrencyDisplay(currency_display)
+			currency_display: normalizeCurrencyDisplay(currency_display),
 		} satisfies LocalSettings;
 	});
 	return {
@@ -42,6 +45,10 @@ function localSettingsStore(): Writable<LocalSettings> {
 
 	function normalizeExcludeGems(exclude_gems: string[]) {
 		return [...new Set(exclude_gems)];
+	}
+
+	function normalizeExcludeRecipes(exclude_recipes: string[]) {
+		return [...new Set(exclude_recipes)];
 	}
 
 	function normalizeLeague(league: string, leagues: PoeTradeLeagueResponse[]) {

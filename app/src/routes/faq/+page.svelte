@@ -12,7 +12,7 @@
 		class="article m-auto lg:max-w-screen-lg flex flex-col items-center justify-center space-y-4"
 	>
 		<h1 class="h1 p-4">FAQ</h1>
-		<div class="card p-4 w-full text-start">
+		<div class="card p-4 w-full text-start shadow-xl">
 			<a href="#basic_workings"><h2 class="h2">Basic Workings</h2></a>
 			<ol class="list">
 				<li>
@@ -71,7 +71,7 @@
 				</li>
 			</ol>
 		</div>
-		<div class="card variant-filled w-full p-4">
+		<div class="card variant-filled w-full p-4 shadow-xl">
 			<a href="#why-is-gem-X-missing"><h2 class="h2">Why is gem X missing?</h2></a>
 			<p>
 				A missing gem is unable to bought as well as sold at the "Minimum listing count" specified
@@ -89,7 +89,7 @@
 				time, these opportunities are likely to be missed anyway.
 			</p>
 		</div>
-		<div class="card w-full p-4">
+		<div class="card w-full p-4 shadow-xl">
 			<a href="#what-are-recipe-keyfigures"><h2 class="h2">What are recipe keyfigures?</h2></a>
 			<p>
 				Recipes calculate keyfigures on a per gem basis. Each recipe first verifies all prices
@@ -159,7 +159,7 @@
 				</li>
 			</ul>
 		</div>
-		<div class="card w-full p-4">
+		<div class="card w-full p-4 shadow-xl">
 			<a href="#which-recipes-are-available"><h2 class="h2">Which recipes are available?</h2></a>
 			<p>
 				The available recipes cover every known profitable strategy of leveling a gem.

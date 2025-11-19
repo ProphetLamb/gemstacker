@@ -74,8 +74,10 @@
 		const query = objectToQueryParams({
 			league: settings.league,
 			min_experience_delta: settings.min_experience_delta,
-			min_listing_count: settings.min_listing_count
+			min_listing_count: settings.min_listing_count,
+			disallowed_recipes: settings.disallowed_recipes
 		} satisfies GemProfitRequestParameter);
+		console.log(query)
 		const rsp = await fetch(`/api/profit-preview?${query}`);
 		if (rsp.status < 200 || rsp.status >= 300) {
 			console.log('/:getProfitPreview', await rsp.text());
@@ -130,7 +132,7 @@
 	</div>
 	<div class="flex flex-col items-center">
 		{#await profitPreview}
-			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2">
+			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2 shadow-xl">
 				<LoadingPlaceholder
 					class="w-[51rem] max-w-[calc(100vw-4rem)]"
 					front="bg-surface-backdrop-token"
@@ -149,7 +151,7 @@
 		{:then profitPreview}
 			{#if profitPreview}
 				<div
-					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4"
+					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 shadow-xl"
 				>
 					<GemProfitTableHeader>
 						<svelte:fragment slot="text">

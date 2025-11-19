@@ -181,6 +181,8 @@ app
             "min_sell_price_chaos",
             "max_buy_price_chaos",
             "min_experience_delta",
+            "min_listing_count",
+            "disallowed_recipes",
             "items_count"
         )
     );

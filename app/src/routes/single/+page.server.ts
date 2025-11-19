@@ -21,7 +21,10 @@ export const actions: Actions = {
 		if (!gemLevelsProfitForm.valid) {
 			setFlash({ message: 'Please enter valid data', type: 'error' } satisfies ToastMessage, event);
 			return fail(400, response);
-		}
+		} 
+
+		// workarounds for missing array handling
+		gemLevelsProfitForm.data.disallowed_recipes = gemLevelsProfitForm.data.disallowed_recipes?.at(0)?.split(',')
 
 		const gemProfitApi = createGemProfitApi(fetch, {
 			api_endpoint: API_ENDPOINT,

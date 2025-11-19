@@ -185,7 +185,7 @@
 		</form>
 	</WrapperItem>
 	<WrapperItem>
-		<div class="text-token flex flex-col items-center card p-4 space-y-2">
+		<div class="text-token flex flex-col items-center card p-4 space-y-2 shadow-xl">
 			{#if $delayed}
 				<LoadingPlaceholder
 					class="w-[55rem] max-w-[calc(100vw-4rem)]"

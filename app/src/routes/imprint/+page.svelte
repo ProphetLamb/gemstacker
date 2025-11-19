@@ -4,7 +4,7 @@
 
 <div class="w-full h-full mx-auto flex flex-col gap-4 justify-center items-center">
 	<h1 class="h1">Imprint</h1>
-	<div class="text-token card p-4">
+	<div class="text-token card p-4 shadow-xl">
 		<table>
 			<tbody>
 				<tr>

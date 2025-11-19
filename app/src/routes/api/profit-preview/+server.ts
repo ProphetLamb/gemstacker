@@ -17,6 +17,7 @@ export const GET = async ({ fetch, url }) => {
 		league: url.searchParams.get('league'),
 		min_experience_delta: parseInt(url.searchParams.get('min_experience_delta') || '0'),
 		min_listing_count: parseInt(url.searchParams.get('min_listing_count') || '0'),
+		disallowed_recipes: url.searchParams.getAll('disallowed_recipes'),
 	});
 	const gemProfitApi = createGemProfitApi(fetch, {
 		api_endpoint: API_ENDPOINT,
