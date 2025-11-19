@@ -20,7 +20,7 @@ export const menuNavLinks = [
 		decoration: {
 			title: 'Advanced',
 			class:
-				'btn variant-filled-warning absolute top-8 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-xs hover:brightness-100'
+				'btn variant-filled-warning absolute top-8 left-12 py-0 px-1 text-center justify-center flex flex-row text-xs hover:brightness-100'
 		}
 	},
 	{ href: '/loadout', icon: hi.Identification, title: 'Loadout' },

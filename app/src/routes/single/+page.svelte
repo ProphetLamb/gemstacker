@@ -20,6 +20,7 @@
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 	import { exchangeRates } from '$lib/client/exchangeRates';
 	import { firstN } from '$lib/obj';
+	import ExportGems from '$lib/client/ExportGems.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -49,12 +50,14 @@
 	const lazyLoadIncrement = 50;
 	let maxDataCount = 0;
 	$: items = firstN(gemProfit ?? [], maxDataCount);
-	const loadMoreTriggerObserver = browser ? new IntersectionObserver((entries) => {
-		if (entries.length === 0 || !entries[0].isIntersecting) {
-			return;
-		}
-		maxDataCount += lazyLoadIncrement;
-	}) : undefined;
+	const loadMoreTriggerObserver = browser
+		? new IntersectionObserver((entries) => {
+				if (entries.length === 0 || !entries[0].isIntersecting) {
+					return;
+				}
+				maxDataCount += lazyLoadIncrement;
+		  })
+		: undefined;
 	function loadMoreTrigger(e: HTMLDivElement) {
 		Promise.resolve().then(async () => {
 			while (maxDataCount < lazyLoadIncrement * 2) {
@@ -278,7 +281,10 @@
 					>
 				{:else if gemProfit && gemProfit.length > 0}
 					<GemProfitTableHeader>
-						<GemFilter slot="buttons" />
+						<svelte:fragment slot="buttons">
+							<ExportGems data={gemProfit} />
+							<GemFilter />
+						</svelte:fragment>
 					</GemProfitTableHeader>
 					<GemProfitTable data={items} />
 					<BetterTrading data={items} />

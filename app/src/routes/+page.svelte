@@ -23,8 +23,8 @@
 	import { page } from '$app/stores';
 	import type { ToastMessage } from '$lib/toast.js';
 	import { exchangeRates } from '$lib/client/exchangeRates.js';
-	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
-	import { menuNavLinks } from '$lib/navLinks.js';
+	import ExportGems from '$lib/client/ExportGems.svelte';
+	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 
 	export let data;
 
@@ -92,8 +92,8 @@
 			if (!pobText) {
 				throw Error('Cannot be empty');
 			}
-			const code = !!pobText.match(/^http/i) ? await download(pobText) : pobText
-			console.log(code)
+			const code = !!pobText.match(/^http/i) ? await download(pobText) : pobText;
+			console.log(code);
 			const xml = pob.deserializePob(code);
 			const sockets = pob.availableSockets(xml);
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
@@ -108,7 +108,7 @@
 		}
 
 		async function download(pobText: string) {
-			const rsp = await fetch(`/api/pob?src=${encodeURIComponent(pobText)}`)
+			const rsp = await fetch(`/api/pob?src=${encodeURIComponent(pobText)}`);
 			const { code } = await rsp.json();
 			return code;
 		}
@@ -151,6 +151,11 @@
 				<div
 					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2"
 				>
+					<GemProfitTableHeader>
+						<svelte:fragment slot="buttons">
+							<ExportGems data={profitPreview.gem_profit} />
+						</svelte:fragment>
+					</GemProfitTableHeader>
 					<GemProfitTable data={profitPreview.gem_profit} />
 					<BetterTrading data={profitPreview.gem_profit} />
 				</div>

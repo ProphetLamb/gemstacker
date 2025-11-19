@@ -20,6 +20,7 @@
 	import LocalSettings from '$lib/client/LocalSettings.svelte';
 	import GemProfitTableHeader from '$lib/client/GemProfitTableHeader.svelte';
 	import { exchangeRates } from '$lib/client/exchangeRates';
+	import ExportGems from '$lib/client/ExportGems.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -208,6 +209,7 @@
 				<GemProfitTableHeader>
 					<LoadoutInfo slot="text"bind:loadout/>
 					<svelte:fragment slot="buttons">
+						<ExportGems data={loadout.items.map((x) => x.gem)} />
 						<GemFilter />
 						<LocalSettings on:close={submitWhenSettingsChanged} />
 					</svelte:fragment>
