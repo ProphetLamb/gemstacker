@@ -2,7 +2,7 @@
 	import { intlFractionNumber } from "$lib/intl";
 	import type { CssClasses } from "@skeletonlabs/skeleton";
 
-    const defaultImgClass = 'h-4 w-4 mt-[0.1875rem]'
+    const defaultImgClass = 'h-4 w-4 mt-[0.1875rem] min-w-4'
     const defaultNumberFormat = intlFractionNumber
 
     export let value

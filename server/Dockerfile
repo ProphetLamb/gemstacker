@@ -8,7 +8,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 # Open Container Initiative (OCI) labels (See https://github.com/opencontainers/image-spec/blob/master/annotations.md).
 LABEL org.opencontainers.image.title="GemLevelProtScraper" \
-    org.opencontainers.image.description="Provides up to date information on gem values at specific levels" \
+    org.opencontainers.image.description="Provides up to date information on gem values at specific Levels" \
     org.opencontainers.image.documentation="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator" \
     org.opencontainers.image.source="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator.git" \
     org.opencontainers.image.url="https://github.com/ProphetLamb/poe-gemleveling-profit-calculator" \

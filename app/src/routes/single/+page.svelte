@@ -134,7 +134,7 @@
 <Wrapper>
 	<WrapperItem>
 		<h1 class="h1">
-			<span class="text-shadow shadow-surface-500"> Gem levels for </span><span
+			<span class="text-shadow shadow-surface-500"> Gem Levels for </span><span
 				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-indigo-500 to-sky-300 via-accent animate-gradient-xy font-bold"
 				>profit</span
 			>.

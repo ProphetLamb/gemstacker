@@ -11,7 +11,7 @@
 		: 'invisible opacity-0'} transition-all {$$props.class}"
 	on:click={() => ($inspectProfit.visible = !$inspectProfit.visible)}
 >
-	<span>Recipie Info</span>
+	<span>Recipe Info</span>
     <button
         type="button"
         class="btn-icon variant-filled-success w-8 h-8"

@@ -6,12 +6,12 @@ type GemProfitRecipeInfo = {
 };
 
 const literals = {
-	buyLevel1: 'Purchase the level 1 gem.',
+	buyLevel1: 'Purchase the Level 1 gem.',
 	buyVendor: 'Purchase the gem from a vendor',
-	levelToMax: 'Gain experience until max level.',
+	levelToMax: 'Gain experience until maxL.',
 	sell: 'Sell the gem.',
 	vendor20Quality:
-		"Vendor the max level Support Gem & 1 Gemcutter's Prism for level 1/20quality version.",
+		"Vendor the max Level Support Gem & 1 Gemcutter's Prism for Level 1/20quality version.",
 	qualityToMax: "Apply up to 20 Gemcutter's Prisms bringing the quality to maximum.",
 	corruptAddLevel: 'Corrupt the gem for +1 Level or +3 Quality',
 	corruptAddLevelAddQuality: 'Double corrupt the gem for +1 Level and +3 Quality',
