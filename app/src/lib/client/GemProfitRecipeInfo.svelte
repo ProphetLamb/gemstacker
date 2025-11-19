@@ -51,15 +51,19 @@
 				<p
 					class="{preferredRecipe.min_attempts_to_profit < 3
 						? 'text-success-400-500-token'
-						: 'text-warning-400-500-token'}  font-semibold"
+						: 'text-warning-400-500-token'} font-semibold"
 				>
-					{preferredRecipe?.min_attempts_to_profit} attempts for 66% expectation of profit
+				{#if preferredRecipe.min_attempts_to_profit === 1}
+					Guaranteed profit with this recipe.
+				{:else}
+					At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of profit.
+				{/if}
 				</p>
 			{/if}
 
 			{#if preferredRecipe?.min_attempts_to_profit === 0}
 				<p class="text-error-400-500-token font-semibold">
-					Infinite attempts for 66% expectation of profit
+					No profit expectation at all with this recipe.
 				</p>
 			{/if}
 		{/if}
