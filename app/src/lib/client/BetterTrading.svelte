@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { popup, type CssClasses, type PopupSettings } from '@skeletonlabs/skeleton';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import { createEventDispatcher } from 'svelte';
@@ -8,6 +8,7 @@
 	import { copy } from '$lib/client/copy';
 
 	export let data: GemProfitResponseItem[];
+	export let textClass: CssClasses | null | undefined = undefined;
 	let title = 'Gems';
 	$: betterTradingFolder = getBetterTradingFolder(data, title);
 
@@ -44,15 +45,18 @@
 </script>
 
 <button
-	class="btn btn-sm variant-ghost-warning flex"
+	class="btn btn-sm variant-ghost-warning flex py-0.5 {$$props.class}"
 	title="Better Trading folder for the current gem results"
 	use:popup={betterTradingPopup}
-	><img class="w-8 h-8" src="/better-trading.png" alt="" /> <span>Better Trading</span></button
+	><img class="w-6 h-6" src="/better-trading.png" alt="" />
+	<span class="max-md:hidden {textClass ?? ''}">Better Trading</span></button
 >
-<div class="">
-	<div data-popup="betterTradingPopup" class="w-[calc(100%-2rem)] pr-4 md:w-96">
+<div class="z-10" data-popup="betterTradingPopup">
+	<div class="w-[calc(100%-2rem)] pr-4 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
-		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
+		<div
+			class="card !opacity-100 flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl"
+		>
 			<div class="flex flex-row items-center justify-center w-full space-x-2 text-center">
 				<img class="w-8 h-8 pt-1" src="/better-trading.png" alt="" />
 				<h2 class="h2">Export Folder</h2>

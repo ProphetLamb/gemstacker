@@ -34,7 +34,8 @@
 <button
 	class="btn btn-sm variant-ghost-tertiary {$$props.class ?? ''}"
 	use:popup={localSettingsPopup}
-	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span class={textClass}>Settings</span
+	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span class="max-md:hidden {textClass ?? ''}"
+		>Settings</span
 	></button
 >
 <div class="">
@@ -43,9 +44,7 @@
 		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
 			<div class="flex flex-row justify-between items-center">
 				<h2 class="h2">Settings</h2>
-				<button class="btn-icon variant-ghost w-8 h-8"
-					><Icon src={hi.XMark} size="16" />
-				</button>
+				<button class="btn-icon variant-ghost w-8 h-8"><Icon src={hi.XMark} size="16" /> </button>
 			</div>
 			<label class="label">
 				<span>League</span>

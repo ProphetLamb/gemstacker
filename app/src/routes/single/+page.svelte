@@ -281,6 +281,8 @@
 					>
 				{:else if gemProfit && gemProfit.length > 0}
 					<GemProfitTableHeader>
+						<svelte:fragment slot="text">Most profitable gems queried:</svelte:fragment>
+
 						<svelte:fragment slot="buttons">
 							<ExportGems data={gemProfit} />
 							<GemFilter />

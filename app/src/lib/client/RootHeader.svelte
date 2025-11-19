@@ -77,7 +77,8 @@
 					alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
 				/>
 			</button>
-			<div class="card p-2 shadow-xl" data-popup="popupExchangeRates">
+			<div class="card p-4 shadow-xl w-[calc(100%-2rem)] md:w-96 text-center" data-popup="popupExchangeRates">
+				<h3 class="h3">Exchange rates</h3>
 				<ExchangeRates exchange_rates={$exchangeRates} />
 			</div>
 		{/if}

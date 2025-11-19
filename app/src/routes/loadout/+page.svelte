@@ -64,10 +64,10 @@
 	function fillFromFromQuery() {
 		function num(s?: string): number | undefined {
 			try {
-				return !!s ? parseInt(s) : undefined
+				return !!s ? parseInt(s) : undefined;
 			} catch (err) {
-				console.log('/single:fillFromFromQuery.num', err)
-				return undefined
+				console.log('/single:fillFromFromQuery.num', err);
+				return undefined;
 			}
 		}
 		// fill form from query
@@ -85,7 +85,7 @@
 	}
 
 	function shouldAutoRequestForm() {
-		return !$availableGems && maxCountLoadout($loadoutForm) > 0
+		return !$availableGems && maxCountLoadout($loadoutForm) > 0;
 	}
 
 	function submitFormFilledFromQuery() {
@@ -207,25 +207,32 @@
 				>
 			{:else if loadout && loadout.items.length > 0}
 				<GemProfitTableHeader>
-					<LoadoutInfo slot="text"bind:loadout/>
+					<LoadoutInfo slot="text" bind:loadout />
 					<svelte:fragment slot="buttons">
-						<ExportGems data={loadout.items.map((x) => x.gem)} />
-						<GemFilter />
-						<LocalSettings on:close={submitWhenSettingsChanged} />
+						<BetterTrading textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
+						<ExportGems textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
+						<GemFilter textClass="max-lg:hidden" />
+						<LocalSettings class="lg:hidden" textClass="hidden" on:close={submitWhenSettingsChanged} />
 					</svelte:fragment>
 				</GemProfitTableHeader>
 				<LoadoutTable bind:data={loadout.items} />
-				<BetterTrading data={loadout.items.map((x) => x.gem)} />
 			{:else}
 				<GemProfitTableHeader>
-					<LoadoutInfo slot="text"
-						loadout={{ count: 0, items: [], totalBuyCost: 0, totalExperience: 0, totalSellPrice: 0 }}
+					<LoadoutInfo
+						slot="text"
+						loadout={{
+							count: 0,
+							items: [],
+							totalBuyCost: 0,
+							totalExperience: 0,
+							totalSellPrice: 0
+						}}
 					/>
 					<svelte:fragment slot="buttons">
 						{#if $availableGems && $availableGems.length > 0}
 							<GemFilter />
 						{/if}
-						<LocalSettings on:close={submitWhenSettingsChanged} />
+						<LocalSettings class="md:hidden" on:close={submitWhenSettingsChanged} />
 					</svelte:fragment>
 				</GemProfitTableHeader>
 				<LoadingPlaceholder
@@ -242,12 +249,12 @@
 	</WrapperItem>
 </Wrapper>
 
-<style lang="postcss"></style>
-
 <svelte:head>
 	<meta property="og:title" content="Gem Stacker - The best gems for your loadout" />
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="{data.request_url}" />
+	<meta property="og:url" content={data.request_url} />
 	<meta property="og:locale" content="en-US" />
 	<meta property="og:locale:alternate" content="en-GB" />
-</svelte:head> 
+</svelte:head>
+
+<style lang="postcss"></style>

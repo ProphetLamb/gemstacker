@@ -149,15 +149,18 @@
 		{:then profitPreview}
 			{#if profitPreview}
 				<div
-					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2"
+					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4"
 				>
 					<GemProfitTableHeader>
+						<svelte:fragment slot="text">
+							Most profitable gems right now:
+						</svelte:fragment>
 						<svelte:fragment slot="buttons">
+							<BetterTrading data={profitPreview.gem_profit} />
 							<ExportGems data={profitPreview.gem_profit} />
 						</svelte:fragment>
 					</GemProfitTableHeader>
 					<GemProfitTable data={profitPreview.gem_profit} />
-					<BetterTrading data={profitPreview.gem_profit} />
 				</div>
 			{/if}
 		{/await}

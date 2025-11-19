@@ -3,7 +3,8 @@
         <slot name="text" />
 	</p>
 
-	<div class="flex flex-row space-x-2 mr-[-0.5rem]">
+	<div class="flex flex-row space-x-2">
 		<slot name="buttons" />
 	</div>
 </div>
+<hr class="w-full mt-2">

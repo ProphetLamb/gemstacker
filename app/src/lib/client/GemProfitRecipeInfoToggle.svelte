@@ -5,7 +5,7 @@
 </script>
 
 <button
-	class="card p-2 variant-soft-surface flex flex-row items-center space-x-2 {!$inspectProfit.visible &&
+	class="z-10 card p-2 variant-soft-surface flex flex-row items-center space-x-2 {!$inspectProfit.visible &&
 	$inspectProfit.gem
 		? ''
 		: 'invisible opacity-0'} transition-all {$$props.class}"

@@ -2,8 +2,10 @@
 	import type { GemProfitResponse, GemProfitResponseItemPrice } from "$lib/gemLevelProfitApi";
 	import { Icon } from "@steeze-ui/svelte-icon";
     import * as hi from '@steeze-ui/heroicons'
+	import type { CssClasses } from "@skeletonlabs/skeleton";
 
     export let data: GemProfitResponse
+    export let textClass: CssClasses | null | undefined = undefined
 
     $: csv = csvPayload(data)
 
@@ -16,6 +18,7 @@
     }
 </script>
 
-<a href="data:text/csv;charset=utf-8,{encodeURIComponent(csv)}" download="gemstacker-{new Date().toLocaleDateString()}" class="btn btn-sm text-token variant-ghost-tertiary shadow" title="Download CSV">
+<a href="data:text/csv;charset=utf-8,{encodeURIComponent(csv)}" download="gemstacker-{new Date().toLocaleDateString()}" class="btn btn-sm text-token variant-ghost-tertiary shadow" title="Download current gems as CSV">
     <Icon src={hi.ArrowDown} size=16 />
+    <span class="max-md:hidden {textClass ?? ''}">Download</span>
 </a>
