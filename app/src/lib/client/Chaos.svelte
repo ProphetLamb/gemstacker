@@ -42,16 +42,14 @@
 				{img_class}
 			/>
 		{/if}
-		{#if chaosOrb}
-			<Currency
-				value={chaosOrb}
-				{value_class}
-				number_format={intlWholeNumber}
-				alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-				src={wellKnownExchangeRateDisplay.chaos_orb.img}
-				{img_class}
-			/>
-		{/if}
+		<Currency
+			value={chaosOrb ?? 0}
+			{value_class}
+			number_format={intlWholeNumber}
+			alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
+			src={wellKnownExchangeRateDisplay.chaos_orb.img}
+			{img_class}
+		/>
 	{/if}
 {:else}
 	<Currency
