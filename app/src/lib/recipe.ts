@@ -130,7 +130,7 @@ const title = {
 	level_vendor_quality_sell: 'Level > Vendor Quality > Sell',
 	quality_level_sell: 'Quality > Level > Sell',
 	vendor_buy_corrupt_level_sell_vaal: 'Vendor > Corrupt Vaal Skill > Level > Sell',
-	vendor_buy_level_corrupt_add_level_drop_failure_sell: 'Level > Corrupt > Sell',
+	vendor_buy_level_corrupt_add_level_drop_failure_sell: 'Vendor > Level > Corrupt > Sell',
 	vendor_buy_level_corrupt_add_level_sell: 'Vendor > Level > Corrupt > Level -1 > Sell',
 	vendor_buy_level_corrupt_add_level_and_quality_sell: 'Vendor > Level > Double Corrupt > Sell',
 	vendor_buy_level_sell: 'Vendor > Level > Sell',
