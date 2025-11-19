@@ -8,8 +8,9 @@
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
-	const { adjusted_earnings, experience_delta, recipe_cost } =
-		gem.recipes[gem.preferred_recipe] ?? { adjusted_earnings: 0, experience_delta: 0};
+	const { adjusted_earnings, experience_delta, recipe_cost, probabilistic } = gem.recipes[
+		gem.preferred_recipe
+	] ?? { adjusted_earnings: 0, experience_delta: 0 };
 </script>
 
 <td class="pr-2">
@@ -48,25 +49,30 @@
 </td>
 <td>
 	{#each Object.values(wellKnownExchangeRateDisplay) as display}
-	{@const quantity = (recipe_cost ?? {})[display.name]}
-	{#if !!quantity}
-		<Currency
-			value={-quantity}
-			value_class="text-error-200-700-token"
-			src={display.img}
-			alt={display.alt}
-		/>
-	{/if}
+		{@const quantity = (recipe_cost ?? {})[display.name]}
+		{#if !!quantity}
+			<Currency
+				value={-quantity}
+				value_class="text-error-200-700-token"
+				src={display.img}
+				alt={display.alt}
+			/>
+		{/if}
 	{/each}
 </td>
 <td> <span class="font-semibold text-surface-600-300-token">=</span></td>
 <td>
-	<div class="md:flex md:flex-row md:h-full items-center justify-end">
-		<Chaos
-			value={adjusted_earnings}
-			value_class={adjusted_earnings >= 0
-				? 'text-success-200-700-token'
-				: 'text-error-200-700-token'}
-		/>
+	<div class="flex justify-end">
+		<div class="md:flex md:flex-row md:h-full items-center">
+		{#if probabilistic}
+			<span class="text-sm">avg.</span>
+		{/if}
+			<Chaos
+				value={adjusted_earnings}
+				value_class={adjusted_earnings >= 0
+					? 'text-success-200-700-token'
+					: 'text-error-200-700-token'}
+			/>
+		</div>
 	</div>
 </td>
