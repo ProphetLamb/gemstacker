@@ -7,6 +7,8 @@
 	import * as hi from '@steeze-ui/heroicons';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import Currency from './Currency.svelte';
+	import RecipeInfoProbabilities from './RecipeInfoProbabilities.svelte';
+	import RecipeInfoAllRecipes from './RecipeInfoAllRecipes.svelte';
 
 	export let gem: GemProfitResponseItem | undefined | null;
 	export let close: MouseEventHandler<HTMLButtonElement> | undefined | null = undefined;
@@ -53,11 +55,12 @@
 						? 'text-success-400-500-token'
 						: 'text-warning-400-500-token'} font-semibold"
 				>
-				{#if preferredRecipe.min_attempts_to_profit === 1}
-					Guaranteed profit with this recipe.
-				{:else}
-					At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of significant profit.
-				{/if}
+					{#if preferredRecipe.min_attempts_to_profit === 1}
+						Guaranteed profit with this recipe.
+					{:else}
+						At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of
+						significant profit.
+					{/if}
 				</p>
 			{/if}
 
@@ -69,35 +72,10 @@
 		{/if}
 		{#if preferredRecipe?.probabilistic}
 			<h5 class="h5">Probabilities</h5>
-			<ul>
-				{#each preferredRecipe.probabilistic as prob}
-					{@const label = wellKnownProbabilisticLabelDisplay[prob.label ?? 'misc']}
-					<li class="flex flex-col items-start align-middle w-full">
-						<span>{label}</span>
-						<div class="ml-auto flex flex-row items-end text-sm">
-							<Chaos value={prob.earnings} />
-							<span>@{intlFixed2Number.format(prob.chance * 100)}%</span>
-						</div>
-					</li>
-					<hr />
-				{/each}
-			</ul>
+			<RecipeInfoProbabilities probabilities={preferredRecipe.probabilistic} />
 		{/if}
 		<h5 class="h5">All Recipes</h5>
-		<ul>
-			{#each Object.entries(gem?.recipes ?? {}) as [recipe, gain]}
-				{@const recipeInfo = getRecipeInfo(recipe)}
-				<li class="flex flex-col items-start align-middle w-full">
-					<span class="mr-1">{recipeInfo.title} - {gain.sell.listing_count} selling</span>
-					<div class="ml-auto flex flex-row items-end text-sm">
-						<Chaos value={gain.adjusted_earnings} />
-						<span>&#47;{intlCompactNumber.format(gain.experience_delta)}exp</span>
-						<span>={intlFixed4Number.format(gain.gain_margin)}&permil;</span>
-					</div>
-				</li>
-				<hr />
-			{/each}
-		</ul>
+		<RecipeInfoAllRecipes recipes={gem?.recipes} />
 	</div>
 </div>
 
