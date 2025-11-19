@@ -113,10 +113,10 @@
 <Wrapper>
 	<WrapperItem>
 		<h1 class="h1">
-			Your <span
+			Socket colors of your <span
 				class="bg-clip-text shadow-surface-500 text-transparent bg-gradient-to-tr from-indigo-500 to-sky-300 via-accent animate-gradient-xy font-bold"
 				>loadout</span
-			>, your gems.
+			>.
 		</h1>
 		<form class="space-y-2" bind:this={htmlLoadoutForm} use:enhance method="POST">
 			<input type="hidden" name="league" value={$localSettings.league} />
@@ -185,10 +185,6 @@
 		</form>
 	</WrapperItem>
 	<WrapperItem>
-		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
-			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
-			<span>The best gems for you.</span>
-		</h1>
 		<div class="text-token flex flex-col items-center card p-4 space-y-2">
 			{#if $delayed}
 				<LoadingPlaceholder

@@ -174,7 +174,7 @@
 				{/if}
 			</label>
 			<label class="label">
-				<span>Added Quality</span>
+				<span>Added Quality from Sockets</span>
 				<input
 					name="added_quality"
 					class="input"
@@ -258,10 +258,6 @@
 		</form>
 	</WrapperItem>
 	<WrapperItem>
-		<h1 class="h1 flex flex-row items-center space-x-4 pb-4 text-shadow shadow-surface-500">
-			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
-			<span>The best gems for you.</span>
-		</h1>
 		<div class="flex flex-col items-center">
 			<div class="text-token card p-4 space-y-2">
 				{#if $delayed}
