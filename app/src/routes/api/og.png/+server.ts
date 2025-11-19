@@ -3,10 +3,11 @@ import type { Fetch } from '$lib/fetch';
 import {
 	gemProfitRequestParameterConstraints,
 	wellKnownExchangeRateDisplay,
-	type GemProfitResponse
+	type GemProfitResponse,
+	type WellKnownExchangeRateToChaosResponse
 } from '$lib/gemLevelProfitApi';
 import { gemProfitRequestParameterSchema } from '$lib/gemLevelProfitApi';
-import { intlCompactNumber, intlFractionNumber } from '$lib/intl';
+import { intlCompactNumber, intlFractionNumber, intlWholeNumber } from '$lib/intl';
 import { createGemProfitApi } from '$lib/server/gemLevelProfitApi';
 import { createPathOfExileApi } from '$lib/server/pathOfExileApi';
 import { Resvg } from '@resvg/resvg-js';
@@ -26,10 +27,10 @@ const svgArrowRight = `
 </svg>
 `;
 
-const currencyRerollRare = wellKnownExchangeRateDisplay.chaos_orb.img;
-const currencyGemQuality = wellKnownExchangeRateDisplay.gemcutters_prism.img;
-
-const template = (gemProfit: GemProfitResponse) => {
+const template = (
+	gemProfit: GemProfitResponse,
+	exchangeRates: WellKnownExchangeRateToChaosResponse
+) => {
 	let html = `
 	<div tw="bg-slate-800 flex flex-col w-full h-full items-center">
 		<div tw="flex bg-slate-900">
@@ -47,32 +48,37 @@ const template = (gemProfit: GemProfitResponse) => {
 		const deltaExp = gem.max.experience - gem.min.experience;
 		const deltaQty = Math.max(0, gem.max.quality - gem.min.quality);
 		const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty);
+		const divineOrb = Math.floor(exchangeRates.divine_orb);
+		const chaosOrb =
+			Math.sign(deltaPrice) *
+			(Math.abs(deltaPrice) - Math.floor(Math.abs(deltaPrice) / divineOrb) * divineOrb);
 		html += `
 				<li tw="flex text-gray-50 items-center text-3xl mt-4">
 					<div tw="flex flex-row w-full justify-between items-center">
 						<div tw="flex flex-row items-center">
-						<div tw="flex w-16 h-16 bg-slate-900 rounded-full mr-2">
-						<img src="${gem.icon}" alt="${idx}"/>
+						<div tw="flex w-16 h-16 bg-${gem.color === 'white' ? 'slate' : gem.color}-900 rounded-full mr-2">
 						</div>
 						<span>${gem.name}</span>
 						</div>
 						<div tw="flex flex-row items-center">
-							<span tw="ml-8">${gem.min.price}</span>
-							<img tw="h-8 w-8 mt-1" src="${currencyRerollRare}" alt="c" />
+							<span tw="text-sky-300">${intlCompactNumber.format(deltaExp)}exp</span>
 							${svgArrowRight}
-							<span>${gem.max.price}</span>
-							<img tw="h-8 w-8 mt-1" src="${currencyRerollRare}" alt="c" />
+							<span tw="text-lime-600">+</span>
 						`;
-		if (deltaQty > 0) {
+		if (deltaPrice / divineOrb >= 0) {
 			html += `
-								<span tw="text-red-600">-${intlCompactNumber.format(deltaQty)}</span>
-								<img tw="h-8 w-8 mt-1" src="${currencyGemQuality}" alt="gcp" />
-							`;
+							<span tw="text-lime-600">${intlWholeNumber.format(deltaPrice / divineOrb)}</span>
+							<img tw="h-8 w-8 mt-1" src="${wellKnownExchangeRateDisplay.divine_orb.img}" alt="${
+				wellKnownExchangeRateDisplay.divine_orb.alt
+			}" />
+			`;
 		}
+
 		html += `
-							<span tw="mx-4">=</span>
-							<span tw="text-lime-600">+${intlFractionNumber.format(deltaPrice)}</span>
-							<img tw="h-8 w-8 mt-1" src="${currencyRerollRare}" alt="c" />
+							<span tw="text-lime-600">${intlWholeNumber.format(chaosOrb)}</span>
+							<img tw="h-8 w-8 mt-1" src="${wellKnownExchangeRateDisplay.chaos_orb.img}" alt="${
+			wellKnownExchangeRateDisplay.chaos_orb.alt
+		}" />
 						</div>
 					</div>
 					<div tw="flex flex-row items-center text-xl">
@@ -90,8 +96,11 @@ const template = (gemProfit: GemProfitResponse) => {
 };
 
 export const GET: RequestHandler = async ({ fetch }) => {
-	const gemProfit = await defaultGemProfit(fetch);
-	const html = template(gemProfit || []);
+	const { gemProfit, exchangeRates } = (await defaultGemProfit(fetch)) ?? {
+		exchangeRates: {},
+		gemProfit: []
+	};
+	const html = template(gemProfit, exchangeRates as WellKnownExchangeRateToChaosResponse);
 	return imageFromHtml(html);
 };
 
@@ -128,7 +137,9 @@ async function imageFromHtml(html: string) {
 
 async function defaultGemProfit(
 	fetch: Fetch
-): Promise<GemProfitResponse | undefined> {
+): Promise<
+	{ gemProfit: GemProfitResponse; exchangeRates: WellKnownExchangeRateToChaosResponse } | undefined
+> {
 	try {
 		const poeApi = createPathOfExileApi(fetch);
 		const leaguesResponse = await poeApi.getLeaguesList();
@@ -142,7 +153,10 @@ async function defaultGemProfit(
 			api_key: API_KEY
 		});
 		const gemProfit = await gemProfitApi.getGemProfit(request);
-		return gemProfit.splice(0, 6);
+		return {
+			gemProfit: gemProfit.splice(0, 6),
+			exchangeRates: await gemProfitApi.getWellKnownExchangeRatesToChaos(request.league)
+		};
 	} catch (err) {
 		console.log('/api/og.png:getDefaultGemProfit', err);
 		return undefined;
