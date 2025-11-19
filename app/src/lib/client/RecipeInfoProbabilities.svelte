@@ -19,3 +19,12 @@
 		<hr />
 	{/each}
 </ul>
+
+<style lang="postcss">
+	hr:last-child {
+		@apply hidden;
+	}
+	h5 {
+		@apply mt-4;
+	}
+</style>

@@ -9,10 +9,10 @@
 	import Currency from './Currency.svelte';
 	import RecipeInfoProbabilities from './RecipeInfoProbabilities.svelte';
 	import RecipeInfoAllRecipes from './RecipeInfoAllRecipes.svelte';
+	import RecipeInfoRecipeCost from './RecipeInfoRecipeCost.svelte';
 
 	export let gem: GemProfitResponseItem | undefined | null;
 	export let close: MouseEventHandler<HTMLButtonElement> | undefined | null = undefined;
-	$: info = getRecipeInfo(gem?.preferred_recipe);
 	$: preferredRecipe = gem?.recipes[gem.preferred_recipe];
 </script>
 
@@ -35,55 +35,6 @@
 				>corrupted</span
 			>
 		</p>
-		<h5 class="h5">{info.title}</h5>
-		<p>{@html info.description?.replaceAll('\n', '<br/>') ?? ''}</p>
-		{#if preferredRecipe?.recipe_cost}
-			<h5 class="h5">Recipe Cost</h5>
-			<ul>
-				{#each Object.entries(preferredRecipe.recipe_cost) as [key, cost]}
-					{@const currency = currencyTypeDisplay(key)}
-					<li class="flex flex-row justify-between">
-						<span>{currency.name}</span>
-						<Currency value={cost} alt={currency.alt} src={currency.img} />
-					</li>
-					<hr />
-				{/each}
-			</ul>
-			{#if preferredRecipe?.min_attempts_to_profit}
-				<p
-					class="{preferredRecipe.min_attempts_to_profit < 3
-						? 'text-success-400-500-token'
-						: 'text-warning-400-500-token'} font-semibold"
-				>
-					{#if preferredRecipe.min_attempts_to_profit === 1}
-						Guaranteed profit with this recipe.
-					{:else}
-						At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of
-						significant profit.
-					{/if}
-				</p>
-			{/if}
-
-			{#if preferredRecipe?.min_attempts_to_profit === 0}
-				<p class="text-error-400-500-token font-semibold">
-					No profit expectation at all with this recipe.
-				</p>
-			{/if}
-		{/if}
-		{#if preferredRecipe?.probabilistic}
-			<h5 class="h5">Probabilities</h5>
-			<RecipeInfoProbabilities probabilities={preferredRecipe.probabilistic} />
-		{/if}
-		<h5 class="h5">All Recipes</h5>
 		<RecipeInfoAllRecipes recipes={gem?.recipes} />
 	</div>
 </div>
-
-<style lang="postcss">
-	hr:last-child {
-		@apply hidden;
-	}
-	h5 {
-		@apply mt-4;
-	}
-</style>
