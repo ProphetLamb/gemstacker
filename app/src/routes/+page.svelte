@@ -14,7 +14,7 @@
 		gemProfitRequestParameterSchema,
 		type GemProfitRequestParameter
 	} from '$lib/gemLevelProfitApi';
-	import { localSettings } from '$lib/client/localSettings';
+	import { localSettings, type LocalSettings } from '$lib/client/localSettings';
 	import BetterTrading from '$lib/client/BetterTrading.svelte';
 	import MetaHead from '$lib/client/MetaHead.svelte';
 	import type { ProfitPreviewResponse } from './api/profit-preview/+server.js';
@@ -68,13 +68,13 @@
 		'/single'
 	).pathSearchHash();
 
-	$: profitPreview = getProfitPreview();
+	$: profitPreview = getProfitPreview($localSettings);
 
-	async function getProfitPreview(): Promise<ProfitPreviewResponse | undefined> {
+	async function getProfitPreview(settings: LocalSettings): Promise<ProfitPreviewResponse | undefined> {
 		const query = objectToQueryParams({
-			league: $localSettings.league,
-			min_experience_delta: $localSettings.min_experience_delta,
-			min_listing_count: $localSettings.min_listing_count
+			league: settings.league,
+			min_experience_delta: settings.min_experience_delta,
+			min_listing_count: settings.min_listing_count
 		} satisfies GemProfitRequestParameter);
 		const rsp = await fetch(`/api/profit-preview?${query}`);
 		if (rsp.status < 200 || rsp.status >= 300) {
