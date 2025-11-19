@@ -28,7 +28,7 @@
 		{@const recipeInfo = getRecipeInfo(name)}
 		<AccordionItem
 			autocollapse
-			disabled={!recipe.probabilistic}
+			disabled={idx !== 0 && !recipe.probabilistic}
 			open={idx === 0}
 			class={idx === 0 ? 'bg-lime-500/10' : accordionBgColor(recipe)}
 		>
