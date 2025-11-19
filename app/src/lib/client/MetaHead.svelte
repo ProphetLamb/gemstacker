@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { urlTrimSearch } from "$lib/url";
+
+
     export let request_url
-	const request_path = request_url.split(/[?#]/)[0].replace(/\/$/, '')
+	const request_path = urlTrimSearch(request_url)
 
     const description = "Computes the profit gained per experience invested in a gem. Useful to make a net profit on 5-way rotas, and similar mechanics."
     const title = "Gem Stacker - Gem leveling for profit"

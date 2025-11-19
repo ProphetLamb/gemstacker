@@ -91,17 +91,25 @@
 			if (!pobText) {
 				throw Error('Cannot be empty');
 			}
-			const xml = pob.deserializePob(pobText);
+			const code = !!pobText.match(/^http/i) ? await download(pobText) : pobText
+			console.log(code)
+			const xml = pob.deserializePob(code);
 			const sockets = pob.availableSockets(xml);
 			const url = locationWithSearch(sockets, '/loadout').pathSearchHash();
 			goto(url);
 		} catch (err) {
 			console.log('/:gotoPob', err);
 			if (err instanceof Error) {
-				pobError = err.message;
+				pobError = `Failed to load pob: ${err.message}`;
 			} else {
 				pobError = 'Invalid build code';
 			}
+		}
+
+		async function download(pobText: string) {
+			const rsp = await fetch(`/api/pob?src=${encodeURIComponent(pobText)}`)
+			const { code } = await rsp.json();
+			return code;
 		}
 	}
 </script>
@@ -113,7 +121,7 @@
 			<span>
 				The best
 				<span
-					class="bg-clip-text shadow-lime-700 text-transparent bg-gradient-to-tr from-lime-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
+					class="bg-clip-text shadow-orange-600-700 text-transparent bg-gradient-to-tr from-red-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
 					>gems</span
 				></span
 			>
@@ -151,7 +159,7 @@
 </div>
 <Wrapper>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your perusal.</h2>
+		<h2 class="h2">Advanced Search</h2>
 		<label class="label">
 			<span>Gem Name</span>
 			<input
@@ -183,7 +191,7 @@
 		<div>&nbsp;</div>
 	</div>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your loadout.</h2>
+		<h2 class="h2">Available Sockets</h2>
 		<div class="space-y-2">
 			<label class="label">
 				<span>Red Sockets</span>
@@ -249,9 +257,9 @@
 		<div>&nbsp;</div>
 	</div>
 	<WrapperItem>
-		<h2 class="h2">&#133;for your build.</h2>
+		<h2 class="h2">Sockets by build</h2>
 		<label class="label">
-			<span>Build code</span>
+			<span>Build code or URL</span>
 			<input class="input" type="text" name="red" bind:value={pobText} />
 			{#if pobError}
 				<aside class="alert variant-glass-error">{pobError}</aside>

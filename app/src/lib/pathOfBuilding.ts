@@ -74,7 +74,7 @@ export function availableSockets(pob: XMLDocument) {
   for (const item of activeItems) {
     const match = /^Sockets:\s*?((?:[RGBW]-?)+)/gmi.exec(item.textContent ?? '')
     const group = match?.at(1)
-    if (!!group) {
+    if (group) {
       if (item.textContent?.includes("Dialla's Malefaction")) {
         sockets.white += Math.ceil(group.length * 0.5)
         continue
