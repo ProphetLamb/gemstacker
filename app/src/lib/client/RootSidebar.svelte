@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { AppRail, AppRailAnchor, getDrawerStore } from '@skeletonlabs/skeleton';
+	import { AppRail, getDrawerStore } from '@skeletonlabs/skeleton';
 	import { Icon } from '@steeze-ui/svelte-icon';
-	import * as hi from '@steeze-ui/heroicons';
-	import { menuNavLinks } from '$lib/links';
+	import { menuNavLinks } from '$lib/navLinks';
 	import { page } from '$app/stores';
 	import GithubIcon from './GithubIcon.svelte';
 	import LocalSettings from './LocalSettings.svelte';
@@ -38,7 +37,9 @@
 				{#each menuNavLinks as { href, icon, title }}
 					<li>
 						<a {href} class={listboxItemActive(href)} on:click={drawerClose}>
-							<Icon src={icon} size="24" />
+							{#if icon}
+								<Icon src={icon} size="24" />
+							{/if}
 							<span class="">{title}</span>
 						</a>
 					</li>

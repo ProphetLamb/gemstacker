@@ -24,6 +24,7 @@
 	import type { ToastMessage } from '$lib/toast.js';
 	import { exchangeRates } from '$lib/client/exchangeRates.js';
 	import GemProfitRecipeInfoSidebar from '$lib/client/GemProfitRecipeInfoSidebar.svelte';
+	import { menuNavLinks } from '$lib/navLinks.js';
 
 	export let data;
 
@@ -178,7 +179,7 @@
 			<Icon src={hi.ArrowTopRightOnSquare} size="22" />
 			<span class="mr-0.5">Search</span>
 			<div
-				class="btn variant-filled-warning absolute -top-4 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-sm"
+				class="btn variant-filled-warning absolute top-10 left-12 py-0.5 px-1 text-center justify-center flex flex-row text-xs hover:brightness-100"
 			>
 				<Icon src={hi.Scale} size="16" />
 				Advanced
