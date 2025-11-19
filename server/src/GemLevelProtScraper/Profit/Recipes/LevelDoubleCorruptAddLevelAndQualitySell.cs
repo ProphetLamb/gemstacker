@@ -14,7 +14,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
             || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality
-            || ctx.CorruptedMaxLevel23Quality is not { } corruptMaxLevel23Quality)
+            || ctx.CorruptedAddLevel23Quality is not { } corruptAddLevel23Quality)
         {
             return null;
         }
@@ -27,7 +27,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
         return ProfitMarginUnchecked(
             ctx,
             corruptAddLevel,
-            corruptMaxLevel23Quality,
+            corruptAddLevel23Quality,
             corruptAddLevelRemQuality,
             corruptAddQuality,
             corruptRemQuality,
@@ -39,7 +39,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
     public static ProfitMargin ProfitMarginUnchecked(
         SkillProfitCalculationContext ctx,
         SkillGemPrice corruptAddLevel,
-        SkillGemPrice corruptMaxLevel23Quality,
+        SkillGemPrice corruptAddLevel23Quality,
         SkillGemPrice corruptAddLevelRemQuality,
         SkillGemPrice corruptAddQuality,
         SkillGemPrice corruptRemQuality,
@@ -67,7 +67,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             new()
             {
                 Chance = pTwo,
-                Earnings = corruptMaxLevel23Quality.ChaosValue - min.ChaosValue,
+                Earnings = corruptAddLevel23Quality.ChaosValue - min.ChaosValue,
                 Label = "corrupt_add_level_add_quality",
             },
             new()

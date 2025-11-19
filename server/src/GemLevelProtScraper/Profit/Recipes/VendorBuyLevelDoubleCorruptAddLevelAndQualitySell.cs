@@ -13,7 +13,7 @@ public class VendorBuyLevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
             || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality
-            || ctx.CorruptedMaxLevel23Quality is not { } corruptMaxLevel23Quality)
+            || ctx.CorruptedAddLevel23Quality is not { } corruptAddLevel23Quality)
         {
             return null;
         }
@@ -25,7 +25,7 @@ public class VendorBuyLevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
         return LevelDoubleCorruptAddLevelAndQualitySell.ProfitMarginUnchecked(
             ctx,
             corruptAddLevel,
-            corruptMaxLevel23Quality,
+            corruptAddLevel23Quality,
             corruptAddLevelRemQuality,
             corruptAddQuality,
             corruptRemQuality,
