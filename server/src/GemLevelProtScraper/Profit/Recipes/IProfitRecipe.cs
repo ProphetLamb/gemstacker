@@ -148,23 +148,23 @@ public sealed class SkillProfitCalculationContext(
 
     public double AttemptsToProfit(IReadOnlyList<ProbabilisticProfitMargin> probabilistic)
     {
-        var (gain, loss) = probabilistic.BiPartition((ProbabilisticProfitMargin?, ProbabilisticProfitMargin?) (p) =>
-            p.Earnings > 10 ? (p, null) : (null, p)
-        );
-        var gainProb = gain.Sum(x => x.Chance);
-        var lossProb = loss.Sum(x => x.Chance);
-        if (gainProb == 0)
+        var maxProfit = probabilistic.MaxBy(x => x.Earnings)?.Earnings ?? 0;
+        if (maxProfit == 0)
         {
             return 0;
         }
-
-        if (lossProb == 0)
+        // calculate the expectation chance for profit by weighing each profit between the max and min profitable outcome
+        var virtualSignificantProfitChance = probabilistic
+            .Where(x => x.Earnings >= 0)
+            .Sum(x => x.Earnings / maxProfit * x.Chance);
+        var total = probabilistic.Sum(x => x.Chance);
+        if (total == 0)
         {
-            return 1;
+            return 0;
         }
-
+        var normalizedProfitChance = virtualSignificantProfitChance / total;
         // number of attempts until we have a 66% expectation of profit
-        var attempts = Math.Log(gainProb / lossProb) / Math.Log(2.0 / 3);
+        var attempts = Math.Log(normalizedProfitChance) / Math.Log(2.0 / 3);
         // if every attempt is profitable we get a negative number of attempts
         return Math.Ceiling(Math.Max(1, attempts));
     }

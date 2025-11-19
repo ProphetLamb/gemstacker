@@ -68,6 +68,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
         o.SerializerOptions.PropertyNameCaseInsensitive = true;
         o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicies.SnakeCaseLower;
         o.SerializerOptions.WriteIndented = true;
+        o.SerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
         o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicies.SnakeCaseLower));
     }
 );

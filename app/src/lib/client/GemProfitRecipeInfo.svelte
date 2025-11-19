@@ -56,7 +56,7 @@
 				{#if preferredRecipe.min_attempts_to_profit === 1}
 					Guaranteed profit with this recipe.
 				{:else}
-					At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of profit.
+					At least {preferredRecipe.min_attempts_to_profit} attempts needed for a 66% expectation of significant profit.
 				{/if}
 				</p>
 			{/if}
