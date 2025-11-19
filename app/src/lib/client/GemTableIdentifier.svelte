@@ -31,7 +31,7 @@
 			lvl
 			{gem.min.level} → {gem.max.level}
 			{probabilistic ? '≃' : '='}
-			<span class="text-secondary-300-600-token"
+			<span class="text-secondary-500-400-token"
 				>+{intlCompactNumber.format(experience_delta ?? 0)}</span
 			>exp
 		</div>
