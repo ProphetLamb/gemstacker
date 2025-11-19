@@ -28,7 +28,6 @@
 		{@const recipeInfo = getRecipeInfo(name)}
 		<AccordionItem
 			autocollapse
-			disabled={idx !== 0 && !recipe.probabilistic}
 			open={idx === 0}
 			class={idx === 0 ? 'bg-lime-500/10' : accordionBgColor(recipe)}
 		>
@@ -43,14 +42,16 @@
 				</div>
 			</svelte:fragment>
 			<svelte:fragment slot="content">
-                <h5 class="h5">{recipeInfo.title}</h5>
-                <p>{@html recipeInfo.description?.replaceAll('\n', '<br/>') ?? ''}</p>
+				<h5 class="h5">{recipeInfo.title}</h5>
+				<p>{@html recipeInfo.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 				{#if recipe?.recipe_cost}
 					<h5 class="h5">Recipe Cost</h5>
 					<RecipeInfoRecipeCost {recipe} />
 				{/if}
-				<h5 class="h5">Probabilities</h5>
-				<RecipeInfoProbabilities probabilities={recipe.probabilistic} />
+				{#if recipe.probabilistic}
+					<h5 class="h5">Probabilities</h5>
+					<RecipeInfoProbabilities probabilities={recipe.probabilistic} />
+				{/if}
 			</svelte:fragment>
 		</AccordionItem>
 	{/each}
