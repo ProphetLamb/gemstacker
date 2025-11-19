@@ -92,7 +92,13 @@ export const gemProfitResponseItemPriceSchema = z.object({
 export type GemColor = 'white' | 'blue' | 'green' | 'red';
 export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
-export type GemProfitProbabilisticLabel = 'corrupt_add_level_add_quality' | 'corrupt_add_level_rem_quality' |  'corrupt_add_level' | 'corrupt_add_quality' |  'corrupt_rem_quality' | 'no_change';
+export type GemProfitProbabilisticLabel =
+	| 'corrupt_add_level_add_quality'
+	| 'corrupt_add_level_rem_quality'
+	| 'corrupt_add_level'
+	| 'corrupt_add_quality'
+	| 'corrupt_rem_quality'
+	| 'no_change';
 
 export interface GemProfitProbabilisticProfitMargin {
 	chance: number;
@@ -142,6 +148,22 @@ export type GemProfitResponseItemRecipeName =
 	| 'vendor_buy_level_vendor_quality_level_sell'
 	| 'vendor_buy_level_vendor_quality_sell'
 	| 'vendor_buy_quality_level_sell';
+
+export const gemProfitResponseItemRecipeName = [
+	'level_corrupt_add_level_sell',
+	'level_corrupt_add_level_and_quality_sell',
+	'level_sell',
+	'level_vendor_quality_sell',
+	'level_vendor_quality_level_sell',
+	'quality_level_sell',
+	'vendor_buy_corrupt_level_sell_vaal',
+	'vendor_buy_level_corrupt_add_level_and_quality_sell',
+	'vendor_buy_level_corrupt_add_level_sell',
+	'vendor_buy_level_sell',
+	'vendor_buy_level_vendor_quality_level_sell',
+	'vendor_buy_level_vendor_quality_sell',
+	'vendor_buy_quality_level_sell'
+] as GemProfitResponseItemRecipeName[];
 
 export type GemProfitResponseItemRecipes = Partial<
 	Record<GemProfitResponseItemRecipeName, GemProfitResponeItemMargin>
@@ -219,16 +241,42 @@ export interface CurrencyTypeDisplay {
 }
 
 export const wellKnownExchangeRateDisplay = {
-	divine_orb: { name: 'Divine Orb', alt: 'd', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyModValues.png' },
-	cartographers_chisel: { name: "Cartographer's Chisel", alt: 'cc', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyMapQuality.png' },
-	gemcutters_prism: { name: "Gemcutter's Prism", alt: 'gcp', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png' },
-	vaal_orb: { name: 'Vaal Orb', alt: 'v', img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyVaal.png' },
-	chaos_orb: { name: 'Chaos Orb', alt: 'c', img:  'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png' }
+	divine_orb: {
+		name: 'Divine Orb',
+		alt: 'd',
+		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyModValues.png'
+	},
+	cartographers_chisel: {
+		name: "Cartographer's Chisel",
+		alt: 'cc',
+		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyMapQuality.png'
+	},
+	gemcutters_prism: {
+		name: "Gemcutter's Prism",
+		alt: 'gcp',
+		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png'
+	},
+	vaal_orb: {
+		name: 'Vaal Orb',
+		alt: 'v',
+		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyVaal.png'
+	},
+	chaos_orb: {
+		name: 'Chaos Orb',
+		alt: 'c',
+		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png'
+	}
 } satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb', CurrencyTypeDisplay>;
 
 export function currencyTypeDisplay(name?: CurrencyTypeDisplay | string | undefined) {
 	if (!name) {
-		return { name: '', alt: '', img: ''};
+		return { name: '', alt: '', img: '' };
 	}
-	return Object.values(wellKnownExchangeRateDisplay).find(x => x.name === name) ?? { name: '', alt: '', img: ''};
+	return (
+		Object.values(wellKnownExchangeRateDisplay).find((x) => x.name === name) ?? {
+			name: '',
+			alt: '',
+			img: ''
+		}
+	);
 }
