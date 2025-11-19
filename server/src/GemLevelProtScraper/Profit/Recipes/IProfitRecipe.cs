@@ -155,7 +155,6 @@ public sealed class SkillProfitCalculationContext(
         }
         // calculate the expectation chance for profit by weighing each profit between the max and min profitable outcome
         var virtualSignificantProfitChance = probabilistic
-            .Where(x => x.Earnings >= 0)
             .Sum(x => x.Earnings / maxProfit * x.Chance);
         var total = probabilistic.Sum(x => x.Chance);
         if (total == 0)
