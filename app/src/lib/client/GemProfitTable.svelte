@@ -4,6 +4,7 @@
 	import GemTableIdentifier from '$lib/client/GemTableIdentifier.svelte';
 	import { inspectProfit } from '$lib/client/gemProfitRecipeInfo';
 	import { onDestroy } from 'svelte';
+	import { getRecipeInfo } from '$lib/recipe';
 
 	export let data: GemProfitResponseItem[];
 	onDestroy(() => {
@@ -14,10 +15,12 @@
 <table class="list w-full border-separate border-spacing-y-2">
 	<tbody>
 		{#each data as gem, idx}
+		{@const recipe = getRecipeInfo(gem.preferred_recipe)}
 			<tr
 				class="h-12 hover:brightness-110"
 				on:mouseover={() => ($inspectProfit.gem = gem)}
 				on:focus={() => ($inspectProfit.gem = gem)}
+				title={recipe.description}
 			>
 				<GemTableIdentifier {gem} {idx} />
 				<td class="pl-2 hidden sm:table-cell">

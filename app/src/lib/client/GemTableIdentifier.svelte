@@ -5,6 +5,7 @@
 	import { intlCompactNumber } from '$lib/intl';
 	import Chaos from './Chaos.svelte';
 	import Currency from './Currency.svelte';
+	import { getRecipeInfo } from '$lib/recipe';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
@@ -17,22 +18,24 @@
 	<a
 		href={gem.foreign_info_url}
 		target="_blank"
+		title="Open poedb.tw"
 		class="badge-icon h-11 w-11 {gem.max.corrupted ? 'variant-soft-error' : 'variant-soft-primary'}"
 	>
 		<img src={gem.icon} alt={`${idx + 1}`} />
 	</a>
 </td>
 <td class="border-spacing-0 text-start">
-	<a href={gem.foreign_info_url} target="_blank" class="flex flex-col h-full"
-		><span class="align-top">{gem.name}</span>
+	<div class="flex flex-col h-full" >
+		<span class="align-top">{gem.name}</span>
 		<div class=" text-xs text-surface-600-300-token">
 			lvl
-			{gem.min.level} → {gem.max.level} =
+			{gem.min.level} → {gem.max.level}
+			{probabilistic ? '≃' : '='}
 			<span class="text-secondary-300-600-token"
 				>+{intlCompactNumber.format(experience_delta ?? 0)}</span
 			>exp
-		</div></a
-	>
+		</div>
+	</div>
 </td>
 <td>
 	<div class="md:flex md:flex-row md:h-full items-center justify-end">

@@ -8,7 +8,7 @@
 	let buyTradeUrl = getTradeQueryUrl({
 		name: gemPrice.type,
 		discriminator: gemPrice.discriminator,
-		corrupted: gemPrice.min.corrupted,
+		corrupted: gemPrice.min.corrupted ? undefined : false,
 		min_level: gemPrice.min.level,
 		max_level: gemPrice.max.level,
 		min_quality: gemPrice.min.quality,
@@ -16,7 +16,7 @@
 	let sellTradeUrl = getTradeQueryUrl({
 		name: gemPrice.type,
 		discriminator: gemPrice.discriminator,
-		corrupted: gemPrice.max.corrupted,
+		corrupted: gemPrice.max.corrupted ? undefined : false,
 		min_level: gemPrice.max.level,
 		min_quality: gemPrice.max.quality,
 	}
@@ -32,6 +32,6 @@
 </script>
 
 <div class="btn-group variant-soft-success flex-col rounded-xl md:flex-row md:rounded-full">
-	<a href={buyTradeUrl} target="_blank">Buy</a>
-	<a class="variant-soft-surface" href={sellTradeUrl} target="_blank">Sell</a>
+	<a href={buyTradeUrl} target="_blank" title="Buy lvl{gemPrice.min.level}/{gemPrice.min.quality}q {gemPrice.name} on trade">Buy</a>
+	<a class="variant-soft-surface" href={sellTradeUrl} target="_blank" title="Sell lvl{gemPrice.max.level}/{gemPrice.max.quality}q {gemPrice.name} on trade">Sell</a>
 </div>

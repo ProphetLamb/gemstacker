@@ -43,7 +43,10 @@
 	let betterTradingInput: HTMLInputElement;
 </script>
 
-<button class="btn btn-sm variant-ghost-warning flex" use:popup={betterTradingPopup}
+<button
+	class="btn btn-sm variant-ghost-warning flex"
+	title="Better Trading folder for the current gem results"
+	use:popup={betterTradingPopup}
 	><img class="w-8 h-8" src="/better-trading.png" alt="" /> <span>Better Trading</span></button
 >
 <div class="">
