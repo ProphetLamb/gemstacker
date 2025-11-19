@@ -61,7 +61,8 @@ const template = (
 						<span>${gem.name}</span>
 						</div>
 						<div tw="flex flex-row items-center">
-							<span tw="text-sky-300">${intlCompactNumber.format(deltaExp)}exp</span>
+							<span tw="text-sky-300">${intlCompactNumber.format(deltaExp)}</span>
+							<span>exp</span>
 							${svgArrowRight}
 							<span tw="text-lime-600">+</span>
 						`;
