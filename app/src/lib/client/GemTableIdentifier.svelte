@@ -48,17 +48,19 @@
 	</div>
 </td>
 <td>
-	{#each Object.values(wellKnownExchangeRateDisplay) as display}
-		{@const quantity = (recipe_cost ?? {})[display.name]}
-		{#if !!quantity}
-			<Currency
-				value={-quantity}
-				value_class="text-error-200-700-token"
-				src={display.img}
-				alt={display.alt}
-			/>
-		{/if}
-	{/each}
+	<div class="flex flex-wrap justify-end">
+		{#each Object.values(wellKnownExchangeRateDisplay) as display}
+			{@const quantity = (recipe_cost ?? {})[display.name]}
+			{#if !!quantity}
+				<Currency
+					value={-quantity}
+					value_class="text-warning-300-600-token"
+					src={display.img}
+					alt={display.alt}
+				/>
+			{/if}
+		{/each}
+	</div>
 </td>
 <td> <span class="font-semibold text-surface-600-300-token">{probabilistic ? '≃' : '='}</span></td>
 <td>
