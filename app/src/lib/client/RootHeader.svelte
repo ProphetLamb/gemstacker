@@ -63,13 +63,13 @@
 	<svelte:fragment slot="trail">
 		{#if $exchangeRates}
 			<button class="btn btn-sm variant-soft-tertiary flex flex-row space-x-0" use:popup={popupExchangeRates}>
-				<span>1</span>
+				<span class="max-lg:hidden">1</span>
 				<img
-					class="h-4 w-4 mt-[0.1875rem]"
+					class="h-4 w-4 mt-[0.1875rem] max-lg:hidden"
 					src={wellKnownExchangeRateDisplay.divine_orb.img}
 					alt={wellKnownExchangeRateDisplay.divine_orb.alt}
 				/>
-				<span>=</span>
+				<span class="max-lg:hidden">=</span>
 				<span>{$exchangeRates.divine_orb}</span>
 				<img
 					class="h-4 w-4 mt-[0.1875rem]"
@@ -81,7 +81,7 @@
 				<ExchangeRates exchange_rates={$exchangeRates} />
 			</div>
 		{/if}
-		<GithubIcon class="hidden sm:flex" />
+		<GithubIcon class="hidden lg:flex" />
 		<LocalSettings class="hidden sm:flex" />
 	</svelte:fragment>
 </AppBar>
