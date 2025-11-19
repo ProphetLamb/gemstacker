@@ -71,8 +71,26 @@
 				</li>
 			</ol>
 		</div>
+		<div class="card variant-filled w-full p-4">
+			<a href="#why-is-gem-X-missing"><h2 class="h2">Why is gem X missing?</h2></a>
+			<p>
+				A missing gem is unable to bought as well as sold at the "Minimum listing count" specified
+				in settings.<br />Often some level and quality comination is missing on
+				<a
+					href="https://poe.ninja"
+					target="_blank"
+					class="anchor inline-flex flex-row items-center mx-1"
+					><img src="https://poedb.tw/favicon.ico" alt="" class="w-4 h-4" />poe.ninja</a
+				>
+				recipes depending on this specific variant, e.g. lvl21/23q wont evaluate at all.
+				<br />
+				Consequently a few niche gem combinations in low volume may be missed by GemStacker. Conservative
+				estimates are preferable to false positives for high volatility listings, because leveling takes
+				time, these opportunities are likely to be missed anyway.
+			</p>
+		</div>
 		<div class="card w-full p-4">
-			<a href="#recipe-keyfigures"><h2 class="h2">Recipe keyfigures</h2></a>
+			<a href="#what-are-recipe-keyfigures"><h2 class="h2">What are recipe keyfigures?</h2></a>
 			<p>
 				Recipes calculate keyfigures on a per gem basis. Each recipe first verifies all prices
 				required are present. If that fails the recipe does not calculate its keyfigures.
@@ -82,9 +100,9 @@
 					<span class="mb-auto">1.</span>
 					<span class="flex flex-auto">
 						<p>
-							Adjusted earnings: the profit made by selling the gem, subtracting the cost of the
-							recipe. Probabilistic methods present the average value accounting for the average
-							loss of each possible outcome.
+							<strong>Adjusted earnings:</strong> the profit made by selling the gem, subtracting
+							the cost of the recipe. <br /> Probabilistic methods present the average value
+							accounting for the average loss of each possible outcome.
 							<span class="text-primary-500-400-token mx-1 inline-flex flex-row">
 								{wellKnownExchangeRateDisplay.gemcutters_prism.name}
 								<img
@@ -98,21 +116,25 @@
 				</li>
 				<li>
 					<span class="mb-auto">3.</span>
-					<span class="flex flex-auto"
-						>Experience delta: The experience needing to be earned in order to level the gem up to
-						max level. Probabilisitic methods present the average value accounting for level loss by
-						corruption.</span
+					<span class="flex flex-auto">
+						<p>
+							<strong>Experience delta:</strong> The experience needing to be earned in order to
+							level the gem up to max level. <br /> Probabilisitic methods present the average value
+							accounting for level loss by corruption.
+						</p></span
 					>
 				</li>
 				<li>
 					<span class="mb-auto">2.</span>
 					<span class="flex flex-auto">
 						<p>
-							Attempts to profit: how many attempts are required for at least a 60% expectation of
-							significat profit. Normal leveling always has exactly 1 attempt until profit.
-							Probabilisitic methods, including <span
-								class="text-primary-500-400-token mx-1 inline-flex flex-row"
-							>
+							<strong>Attempts to profit:</strong> how many attempts are required for at least a 60%
+							expectation of significat profit.
+							<br /> Normal leveling guarantees profit, the recipe always has exactly 1 attempt
+							until profit.
+							<br />
+							Probabilisitic methods, including
+							<span class="text-primary-500-400-token mx-1 inline-flex flex-row">
 								{wellKnownExchangeRateDisplay.vaal_orb.name}
 								<img
 									src={wellKnownExchangeRateDisplay.vaal_orb.img}
@@ -120,23 +142,32 @@
 									class="h-4 w-4 mt-auto mb-[0.125rem]"
 								/>
 							</span>
-							or similar randomizing factors, may have values greater than one. These recipes calculate
-							this expectation by summing up the chance of every positive outcome weighted by how close
-							they are to the best possible outcome in regards to profit.
+							or similar randomizing factors, may have values greater than one. They calculate number
+							of attempts for the 60% expectation by summing up the chance of every positive outcome
+							weighted by how close they are to the best possible outcome in regards to profit.
 						</p></span
 					>
 				</li>
 				<li>
 					<span class="mb-auto">4.</span>
-					<span class="flex flex-auto"
-						>Gain margin: The factor between the adjusted earnings and the experience delta
-						multiplied by 1 million.</span
-					>
+					<span class="flex flex-auto">
+						<p>
+							<strong>Gain margin:</strong> The factor between the adjusted earnings and the experience
+							delta multiplied by 1 million.
+						</p>
+					</span>
 				</li>
 			</ul>
 		</div>
 		<div class="card w-full p-4">
-			<a href="#available-recipes"><h2 class="h2">Available recipes</h2></a>
+			<a href="#which-recipes-are-available"><h2 class="h2">Which recipes are available?</h2></a>
+			<p>
+				The available recipes cover every known profitable strategy of leveling a gem.
+				<br />
+				Many recipes have equivalents for purchasing the gem from a vendor, for essencially free, and
+				buying from the market. In case a gem can be bought from the vendor, the market buy is not evaluates,
+				because it is always more expensive.
+			</p>
 			{#each gemProfitResponseItemRecipeName as key}
 				{@const recipe = getRecipeInfo(key)}
 				<a href="#recipe-{key}"><h3 class="h3 mt-2">{recipe.title}</h3></a>
