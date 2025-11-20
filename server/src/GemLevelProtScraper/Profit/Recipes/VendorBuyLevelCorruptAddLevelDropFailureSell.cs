@@ -8,17 +8,15 @@ public class VendorBuyLevelCorruptAddLevelDropFailureSell : IProfitRecipe
 
     public ProfitMargin? Execute(SkillProfitCalculationContext ctx)
     {
-        if ((ctx.MinLevel ?? ctx.MinLevel20Quality) is not { } min
-            || (ctx.CorruptedAddLevel20Quality ?? ctx.CorruptedAddLevel) is not { } corruptAddLevel
+        if ((ctx.CorruptedAddLevel20Quality ?? ctx.CorruptedAddLevel) is not { } corruptAddLevel
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
-            || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality
-            || (ctx.CorruptedMinLevel20Quality ?? ctx.CorruptedMinLevel ?? corruptFailure.Min(min)) is not { } minCorrupted)
+            || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality)
         {
             return null;
         }
 
-        if (ctx.CanBuyFromVendor())
+        if (!ctx.CanBuyFromVendor())
         {
             return null;
         }
@@ -29,8 +27,8 @@ public class VendorBuyLevelCorruptAddLevelDropFailureSell : IProfitRecipe
             corruptAddQuality,
             corruptRemQuality,
             corruptFailure,
-            min,
-            minCorrupted
+            corruptFailure.ToVendorFreePrice() with { Corrupted = false },
+            ctx.CorruptedMinLevel20Quality ?? ctx.CorruptedMinLevel ?? corruptFailure
         );
     }
 }

@@ -12,10 +12,7 @@ public class LevelCorruptAddLevelDropFailureSell : IProfitRecipe
             || (ctx.CorruptedAddLevel20Quality ?? ctx.CorruptedAddLevel) is not { } corruptAddLevel
             || (ctx.CorruptedMaxLevel20Quality ?? ctx.CorruptedMaxLevel) is not { } corruptFailure
             || (ctx.CorruptedMaxLevel23Quality ?? corruptFailure) is not { } corruptAddQuality
-            || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality
-            || (ctx.CorruptedMinLevel20Quality ?? ctx.CorruptedMinLevel ?? corruptFailure.Min(min)) is not
-            {
-            } minCorrupted)
+            || (ctx.CorruptedMaxLevel ?? corruptFailure) is not { } corruptRemQuality )
         {
             return null;
         }
@@ -32,7 +29,7 @@ public class LevelCorruptAddLevelDropFailureSell : IProfitRecipe
             corruptRemQuality,
             corruptFailure,
             min,
-            minCorrupted
+            ctx.CorruptedMinLevel20Quality ?? ctx.CorruptedMinLevel ?? corruptFailure.Min(min)
         );
     }
 
@@ -43,7 +40,7 @@ public class LevelCorruptAddLevelDropFailureSell : IProfitRecipe
         SkillGemPrice corruptRemQuality,
         SkillGemPrice corruptFailure,
         SkillGemPrice min,
-        SkillGemPrice minCorrupted
+        SkillGemPrice? minCorrupted
     )
     {
         var result = LevelCorruptAddLevelSell.ProfitMarginUnchecked(
@@ -58,7 +55,7 @@ public class LevelCorruptAddLevelDropFailureSell : IProfitRecipe
         // add chance to remove level and destroy the gem
         // sell the gem for the min level again
         probabilistic.Add(
-            new() { Earnings = minCorrupted.ChaosValue - min.ChaosValue, Chance = 1 / 8.0, Label = "corrupt_rem_level" }
+            new() { Earnings = (minCorrupted?.ChaosValue ?? 0) - min.ChaosValue, Chance = 1 / 8.0, Label = "corrupt_rem_level" }
         );
         // reduce chance for no effect to by the chance to destroy the gem
         var noChange = probabilistic.First(x => x.Label == "no_change");
