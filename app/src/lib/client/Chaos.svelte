@@ -38,7 +38,7 @@
 		/>
 	{:else if actualCurrencyDisplay === 'ChaosThenDivieFraction'}
 		{@const divineOrb = Math.floor($exchangeRates.divine_orb)}
-		{#if value / divineOrb >= 0.5}
+		{#if Math.abs(value / divineOrb) >= 0.5}
 		<Currency
 			{value_prefix}
 			value={value / $exchangeRates.divine_orb}
@@ -61,7 +61,7 @@
 		{@const divineOrb = Math.floor($exchangeRates.divine_orb)}
 		{@const chaosOrb =
 			Math.sign(value) * (Math.abs(value) - Math.floor(Math.abs(value) / divineOrb) * divineOrb)}
-		{#if value / divineOrb >= 1}
+		{#if Math.abs(value / divineOrb) >= 1}
 			<Currency
 				{value_prefix}
 				value={value / divineOrb}
@@ -73,7 +73,7 @@
 			/>
 		{/if}
 		<Currency
-			value_prefix={value / divineOrb >= 1 ? value_prefix : ''}
+			value_prefix={Math.abs(value / divineOrb) >= 1 ? value_prefix : ''}
 			value={chaosOrb ?? 0}
 			{value_class}
 			number_format={intlWholeNumber}
