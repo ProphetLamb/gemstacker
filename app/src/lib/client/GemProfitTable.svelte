@@ -26,7 +26,7 @@
 			<th title="Apply currency to the gem, see Recipe Info for specifics.">Apply</th>
 			<th />
 			<th title="Average profit per gem for the recipe, see Recipe Info for specifics.">Profit</th>
-			<th title="The average profit in chaos per 1M exp, see Recipe Info for specifics.">
+			<th title="The average profit in chaos per 1M exp, see Recipe Info for specifics." class="max-md:hidden">
 				<div class="flex flex-row items-center">
 					<img
 						src={wellKnownExchangeRateDisplay.chaos_orb.img}
