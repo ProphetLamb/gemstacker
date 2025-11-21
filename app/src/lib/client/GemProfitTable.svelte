@@ -38,7 +38,7 @@
 					<span>exp</span>
 				</div>
 			</th>
-			<th title="Click on Buy or Sell to check the price on PoE trade" class="max-md:hidden"
+			<th title="Click on Buy or Sell to check the price on PoE trade" class="max-sm:hidden"
 				>Trade</th
 			>
 		</tr>
@@ -57,7 +57,7 @@
 					<span>≃</span>
 					<span class="{gainMarginToTextColor(gem.gain_margin)}">{intlFixed4Number.format(gem.gain_margin)}</span>
 				</td>
-				<td class="pl-2 max-md:hidden">
+				<td class="pl-2 max-sm:hidden">
 					<GemTradeQueryButton gemPrice={gem} />
 				</td>
 			</tr>
