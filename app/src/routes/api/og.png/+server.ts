@@ -3,6 +3,7 @@ import type { Fetch } from '$lib/fetch';
 import {
 	gemProfitRequestParameterConstraints,
 	wellKnownExchangeRateDisplay,
+	type GemProfitResponeItemMargin,
 	type GemProfitResponse,
 	type WellKnownExchangeRateToChaosResponse
 } from '$lib/gemLevelProfitApi';
@@ -45,41 +46,44 @@ const template = (
 			<ol tw="flex flex-col">
 	`;
 	for (const [idx, gem] of gemProfit.entries()) {
-		const deltaExp = gem.max.experience - gem.min.experience;
-		const deltaQty = Math.max(0, gem.max.quality - gem.min.quality);
-		const deltaPrice = Math.max(0, gem.max.price - gem.min.price - deltaQty);
+		const recipe = gem.recipes[gem.preferred_recipe] as GemProfitResponeItemMargin;
 		const divineOrb = Math.floor(exchangeRates.divine_orb);
 		const chaosOrb =
-			Math.sign(deltaPrice) *
-			(Math.abs(deltaPrice) - Math.floor(Math.abs(deltaPrice) / divineOrb) * divineOrb);
+			Math.sign(recipe.adjusted_earnings) *
+			(Math.abs(recipe.adjusted_earnings) -
+				Math.floor(Math.abs(recipe.adjusted_earnings) / divineOrb) * divineOrb);
 		html += `
 				<li tw="flex text-gray-50 items-center text-3xl mt-4">
 					<div tw="flex flex-row w-full justify-between items-center">
 						<div tw="flex flex-row items-center">
-						<div tw="flex w-16 h-16 bg-${gem.color === 'white' ? 'slate' : gem.color}-900 rounded-full mr-2">
+						<div tw="flex w-16 h-16 bg-${gem.color === 'white' ? 'slate' : gem.color}-900/50 border border-${
+			gem.color === 'white' ? 'slate' : gem.color
+		}-700 rounded-full mr-2">
+							<img tw="" src="${gem.icon}" alt="${idx}" /> 
 						</div>
-						<span>${gem.name}</span>
+						<span tw="font-bold">${gem.name}</span>
 						</div>
 						<div tw="flex flex-row items-center">
-							<span tw="text-sky-300">${intlCompactNumber.format(deltaExp)}</span>
+							<span tw="text-sky-300">${intlCompactNumber.format(recipe.experience_delta)}</span>
 							<span>exp</span>
 							${svgArrowRight}
-							<span tw="text-lime-600">+</span>
 						`;
-		if (deltaPrice / divineOrb >= 0) {
+		if (recipe.adjusted_earnings / divineOrb >= 0.5) {
 			html += `
-							<span tw="text-lime-600">${intlWholeNumber.format(deltaPrice / divineOrb)}</span>
+							<span tw="text-lime-600">+${intlFractionNumber.format(recipe.adjusted_earnings / divineOrb)}</span>
 							<img tw="h-8 w-8 mt-1" src="${wellKnownExchangeRateDisplay.divine_orb.img}" alt="${
 				wellKnownExchangeRateDisplay.divine_orb.alt
 			}" />
 			`;
-		}
-
-		html += `
-							<span tw="text-lime-600">${intlWholeNumber.format(chaosOrb)}</span>
+		} else {
+			html += `
+							<span tw="text-lime-600">+${intlWholeNumber.format(chaosOrb)}</span>
 							<img tw="h-8 w-8 mt-1" src="${wellKnownExchangeRateDisplay.chaos_orb.img}" alt="${
-			wellKnownExchangeRateDisplay.chaos_orb.alt
-		}" />
+				wellKnownExchangeRateDisplay.chaos_orb.alt
+			}" />
+			`;
+		}
+		html += `
 						</div>
 					</div>
 					<div tw="flex flex-row items-center text-xl">
