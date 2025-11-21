@@ -11,7 +11,7 @@ type GemProfitRecipeInfo = {
 const literals = {
 	buyLevel1: 'Purchase the Level 1 gem.',
 	buyVendor: 'Purchase the gem from a vendor',
-	levelToMax: 'Gain experience until maxL.',
+	levelToMax: 'Gain experience until the gem reaches max Level.',
 	sell: 'Sell the gem.',
 	vendor20Quality:
 		"Vendor the max Level Support Gem & 1 Gemcutter's Prism for Level 1/20quality version.",
