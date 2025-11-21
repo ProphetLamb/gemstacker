@@ -35,13 +35,13 @@ export function localStorageStoreOptional<T extends object>(key: string, options
 	if (browser) {
 		ensureValidStorage(key, options);
 	}
-	const { set, subscribe, update } = localStorageStore<T | {}>(key, {});
+	const { set, subscribe, update } = localStorageStore<T | Record<string, never>>(key, {});
 	return {
 		set: (v) => set(!isNullOrEmpty(v) ? (v as T) : {}),
 		subscribe: (s, i) =>
 			subscribe(
 				(v) => s(!isNullOrEmpty(v) ? (v as T) : undefined),
-				!!i ? (v) => i(!isNullOrEmpty(v) ? (v as T) : undefined) : undefined
+				i ? (v) => i(!isNullOrEmpty(v) ? (v as T) : undefined) : undefined
 			),
 		update: (u) =>
 			update((v) => {
