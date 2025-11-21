@@ -1,3 +1,4 @@
+import { number } from 'zod';
 import type {
 	GemProfitProbabilisticLabel,
 	GemProfitResponseItemRecipeName
@@ -164,3 +165,26 @@ export const wellKnownProbabilisticLabelDisplay = {
 	no_change: 'Unchanged',
 	misc: 'Miscellaneous'
 } satisfies Record<GemProfitProbabilisticLabel | 'misc', string>;
+
+export function geinMarginToTextColor(gainMargin?: number) {
+	if (typeof gainMargin !== 'number') {
+		return '';
+	}
+	if (gainMargin > 0.1) {
+		return 'text-secondary-700-200-token';
+	}
+	if (gainMargin > 0.05) {
+		return 'text-warning-700-200-token';
+	}
+	return 'text-error-600-300-token';
+}
+
+export function profitToTextColor(profit?: number) {
+	if (typeof profit !== 'number') {
+		return '';
+	}
+	if (profit > 0.1) {
+		return 'text-success-200-700-token';
+	}
+	return 'text-error-300-600-token';
+}

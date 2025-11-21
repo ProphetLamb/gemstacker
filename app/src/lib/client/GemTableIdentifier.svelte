@@ -5,11 +5,11 @@
 	import { intlCompactNumber } from '$lib/intl';
 	import Chaos from './Chaos.svelte';
 	import Currency from './Currency.svelte';
-	import { getRecipeInfo } from '$lib/recipe';
+	import { profitToTextColor } from '$lib/recipe';
 
 	export let gem: GemProfitResponseItem;
 	export let idx: number;
-	const { adjusted_earnings, experience_delta, recipe_cost, probabilistic } = gem.recipes[
+	const { adjusted_earnings, experience_delta, recipe_cost, probabilistic, gain_margin } = gem.recipes[
 		gem.preferred_recipe
 	] ?? { adjusted_earnings: 0, experience_delta: 0 };
 </script>
@@ -42,22 +42,14 @@
 		<Chaos value={gem.min.price} />
 	</div>
 </td>
-<td class="w-fit text-surface-600-300-token">
-	<Icon src={hi.ArrowRight} size="14" />
-</td>
 <td>
-	<div class="md:flex md:flex-row md:h-full items-center justify-end">
-		<Chaos value={gem.max.price} />
-	</div>
-</td>
-<td>
-	<div class="flex flex-wrap justify-end">
+	<div class="flex flex-wrap justify-start">
 		{#each Object.values(wellKnownExchangeRateDisplay) as display}
 			{@const quantity = (recipe_cost ?? {})[display.name]}
 			{#if !!quantity}
 				<Currency
 					value={-quantity}
-					value_class="text-warning-300-600-token"
+					value_class="text-warning-400-500-token"
 					src={display.img}
 					alt={display.alt}
 				/>
@@ -65,15 +57,16 @@
 		{/each}
 	</div>
 </td>
-<td> <span class="font-semibold text-surface-600-300-token">{probabilistic ? '≃' : '='}</span></td>
+<td class="w-fit text-surface-600-300-token">
+	<Icon src={hi.ArrowRight} size="14" />
+</td>
 <td>
 	<div class="flex justify-end">
 		<div class="md:flex md:flex-row md:h-full items-center">
 			<Chaos
+				value_prefix={adjusted_earnings > 0 ? '+' : ''}
 				value={adjusted_earnings}
-				value_class={adjusted_earnings >= 0
-					? 'text-success-200-700-token'
-					: 'text-error-200-700-token'}
+				value_class={profitToTextColor(adjusted_earnings)}
 			/>
 		</div>
 	</div>

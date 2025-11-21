@@ -39,7 +39,7 @@
 			<RootHeader />
 		</svelte:fragment>
 		<!-- Page Route Content -->
-		 <GemProfitRecipeInfoToggle class="absolute right-4 top-14" />
+		 <GemProfitRecipeInfoToggle class="absolute right-0 lg:right-4 top-[5rem] lg:top-14" />
 		<slot />
 		<RootFooter />
 

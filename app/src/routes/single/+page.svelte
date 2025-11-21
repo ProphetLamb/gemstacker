@@ -275,7 +275,7 @@
 	</WrapperItem>
 	<WrapperItem>
 		<div class="flex flex-col items-center">
-			<div class="text-token card p-4 space-y-2">
+			<div class="text-token card p-4">
 				{#if $delayed}
 					<LoadingPlaceholder
 						class="w-[51rem] max-w-[calc(100vw-4rem)]"

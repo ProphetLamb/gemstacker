@@ -19,7 +19,7 @@
 	);
 
 	function accordionBgColor(gain: GemProfitResponeItemMargin) {
-		return gain.gain_margin > 0 ? 'bg-lime-500/5' : 'bg-red-500/5';
+		return gain.gain_margin > 0 ? 'bg-lime-500/5' : 'bg-red-500/10';
 	}
 </script>
 
@@ -33,16 +33,18 @@
 		>
 			<svelte:fragment slot="summary">
 				<div class="flex flex-col items-start align-middle w-full">
-					<span class="mr-1">{recipeInfo.title} - {recipe.sell.listing_count} selling</span>
+					<div class="inline-block">
+						<h5 class="ht inline mr-1">{recipeInfo.title}</h5>
+						<span class="whitespace-nowrap">{recipe.sell.listing_count} selling</span>
+					</div>
 					<div class="ml-auto flex flex-row items-end text-sm">
 						<Chaos value={recipe.adjusted_earnings} />
 						<span>&#47;{intlCompactNumber.format(recipe.experience_delta)}exp</span>
-						<span>={intlFixed4Number.format(recipe.gain_margin)}&permil;</span>
+						<span>={intlFixed4Number.format(recipe.gain_margin)}</span>
 					</div>
 				</div>
 			</svelte:fragment>
 			<svelte:fragment slot="content">
-				<h5 class="h5">{recipeInfo.title}</h5>
 				<p>{@html recipeInfo.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 				{#if recipe?.recipe_cost}
 					<h5 class="h5">Recipe Cost</h5>

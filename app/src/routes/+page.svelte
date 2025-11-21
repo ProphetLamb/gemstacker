@@ -161,7 +161,7 @@
 							<ExportGems data={profitPreview.gem_profit} />
 						</svelte:fragment>
 					</GemProfitTableHeader>
-					<GemProfitTable data={profitPreview.gem_profit} />
+					<GemProfitTable class="mt-0" data={profitPreview.gem_profit} />
 				</div>
 			{/if}
 		{/await}
