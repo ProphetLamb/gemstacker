@@ -15,7 +15,7 @@
         <hr />
     {/each}
 </ul>
-{#if recipe?.min_attempts_to_profit}
+{#if recipe?.min_attempts_to_profit && recipe.probabilistic && recipe.adjusted_earnings > 0}
     <p
         class="{recipe.min_attempts_to_profit < 3
             ? 'text-success-400-500-token'
