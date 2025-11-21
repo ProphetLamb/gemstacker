@@ -166,7 +166,7 @@ export const wellKnownProbabilisticLabelDisplay = {
 	misc: 'Miscellaneous'
 } satisfies Record<GemProfitProbabilisticLabel | 'misc', string>;
 
-export function geinMarginToTextColor(gainMargin?: number) {
+export function gainMarginToTextColor(gainMargin?: number) {
 	if (typeof gainMargin !== 'number') {
 		return '';
 	}
@@ -179,6 +179,22 @@ export function geinMarginToTextColor(gainMargin?: number) {
 	return 'text-error-600-300-token';
 }
 
+export function gainMarginToBgColor(gainMargin?: number) {
+	if (typeof gainMargin !== 'number') {
+		return '';
+	}
+	if (gainMargin > 0.2) {
+		return 'bg-lime-500/5';
+	}
+	if (gainMargin > 0.1) {
+		return 'bg-sky-500/5';
+	}
+	if (gainMargin > 0.05) {
+		return'bg-amber-500/5';
+	}
+	return 'bg-red-500/10';
+}
+
 export function profitToTextColor(profit?: number) {
 	if (typeof profit !== 'number') {
 		return '';
@@ -188,3 +204,4 @@ export function profitToTextColor(profit?: number) {
 	}
 	return 'text-error-300-600-token';
 }
+

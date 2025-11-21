@@ -4,7 +4,7 @@
 		GemProfitResponseItemRecipeName
 	} from '$lib/gemLevelProfitApi';
 	import { intlCompactNumber, intlFixed4Number } from '$lib/intl';
-	import { getRecipeInfo } from '$lib/recipe';
+	import { gainMarginToBgColor, getRecipeInfo } from '$lib/recipe';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import Chaos from './Chaos.svelte';
 	import RecipeInfoProbabilities from './RecipeInfoProbabilities.svelte';
@@ -17,10 +17,6 @@
 	$: sortedRecipes = Object.entries(recipes ?? {}).toSorted(
 		(x, y) => y[1].gain_margin - x[1].gain_margin
 	);
-
-	function accordionBgColor(gain: GemProfitResponeItemMargin) {
-		return gain.gain_margin > 0 ? 'bg-lime-500/5' : 'bg-red-500/10';
-	}
 </script>
 
 <Accordion>
@@ -29,7 +25,7 @@
 		<AccordionItem
 			autocollapse
 			open={idx === 0}
-			class={idx === 0 ? 'bg-lime-500/10' : accordionBgColor(recipe)}
+			class={gainMarginToBgColor(recipe.gain_margin)}
 		>
 			<svelte:fragment slot="summary">
 				<div class="flex flex-col items-start align-middle w-full">
