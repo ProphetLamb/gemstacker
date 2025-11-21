@@ -13,10 +13,10 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
     private readonly IMongoCollection<SkillGem> _skills = options.Value.GetSkillGemCollection();
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _prices = options.Value.GetPoeNinjaGemCollection();
 
-    public async IAsyncEnumerable<SkillGemPriced> GetPricedGemsAsync(LeagueMode leauge, string? containsName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(LeagueMode leauge, string? containsName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(options.Value, cancellationToken).ConfigureAwait(false);
-        var cursor = await _skills.AsQueryable()
+        return await _skills.AsQueryable()
             .GroupJoin(
                 _prices.AsQueryable(),
                 s => s.Name, e => e.Price.Name,
@@ -30,10 +30,7 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
                 => (containsName == null || r.Skill.Name.Contains(containsName))
                 && r.Prices.Any())
             .Select(r
-                => new
-                {
-                    r.Skill,
-                    Prices = r.Prices
+                => new SkillGemPriced(r.Skill, r.Prices
                         .Select(e => new SkillGemPrice
                             (
                                 e.Price.Icon,
@@ -44,19 +41,9 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
                                 e.Price.DivineValue,
                                 e.Price.ListingCount
                             )
-                        )
-                }
+                        ).ToList())
             )
-            .ToCursorAsync(cancellationToken).ConfigureAwait(false);
-
-        while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
-        {
-            foreach (var item in cursor.Current)
-            {
-                var prices = item.Prices;
-                yield return new(item.Skill, prices as List<SkillGemPrice> ?? prices.ToList());
-            }
-        }
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
 }

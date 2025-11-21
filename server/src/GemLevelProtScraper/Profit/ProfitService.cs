@@ -54,7 +54,6 @@ public sealed class ProfitService(
         );
         var pricedGems = await repository
             .GetPricedGemsAsync(request.League, request.GemNameWildcard, cancellationToken)
-            .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
         var eligiblePricedGems = pricedGems
             .AsParallel()
@@ -69,7 +68,7 @@ public sealed class ProfitService(
                     PreferredRecipe = delta.PreferredRecipe,
                     Recipes = delta.ProfitMargins,
                     GainMargin = delta.MaxGainMargin,
-                    Icon = g.Skill.IconUrl,
+                    Icon = g.Prices.SelectTruthy(x => x.Icon).FirstOrDefault() ?? g.Skill.IconUrl,
                     Max = delta.Max.Data,
                     Min = delta.Min.Data,
                 }
