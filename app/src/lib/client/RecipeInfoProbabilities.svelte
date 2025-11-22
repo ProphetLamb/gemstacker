@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GemProfitProbabilisticProfitMargin } from '$lib/gemLevelProfitApi';
 	import { intlFixed2Number } from '$lib/intl';
-	import { wellKnownProbabilisticLabelDisplay } from '$lib/recipe';
+	import { profitToTextColor, wellKnownProbabilisticLabelDisplay } from '$lib/recipe';
 	import Chaos from './Chaos.svelte';
 	export let probabilities: GemProfitProbabilisticProfitMargin[] | undefined | null;
 </script>
@@ -12,8 +12,8 @@
 		<li class="flex flex-col items-start align-middle w-full">
 			<span>{label}</span>
 			<div class="ml-auto flex flex-row items-end text-sm">
-				<Chaos value={prob.earnings} />
-				<span>@{intlFixed2Number.format(prob.chance * 100)}%</span>
+				<span>{intlFixed2Number.format(prob.chance * 100)}% for&nbsp;</span>
+				<Chaos value_prefix={prob.earnings > 0 ? '+' : ''} value_class="{profitToTextColor(prob.earnings)}" value={prob.earnings} />
 			</div>
 		</li>
 		<hr />

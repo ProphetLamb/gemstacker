@@ -30,7 +30,9 @@
 	</div>
 	<div>
 		<p>
-			{preferredRecipe?.buy.listing_count ?? 0} available
+			<span>Buy lvl{preferredRecipe?.buy.level ?? 0}/{preferredRecipe?.buy.quality ?? 0}q for</span>
+			<span class="inline-block"> <Chaos value={preferredRecipe?.buy.price ?? 0} /></span>
+			<span class="whitespace-nowrap">{preferredRecipe?.buy.listing_count ?? 0} available</span>
 			<span class="text-error-400-500-token {gem?.min.corrupted ? 'inline' : 'hidden'}"
 				>corrupted</span
 			>

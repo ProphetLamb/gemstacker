@@ -4,7 +4,7 @@
 		GemProfitResponseItemRecipeName
 	} from '$lib/gemLevelProfitApi';
 	import { intlCompactNumber, intlFixed4Number } from '$lib/intl';
-	import { gainMarginToBgColor, getRecipeInfo } from '$lib/recipe';
+	import { gainMarginToBgColor, gainMarginToTextColor, getRecipeInfo } from '$lib/recipe';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
 	import Chaos from './Chaos.svelte';
 	import RecipeInfoProbabilities from './RecipeInfoProbabilities.svelte';
@@ -22,33 +22,39 @@
 <Accordion>
 	{#each sortedRecipes as [name, recipe], idx}
 		{@const recipeInfo = getRecipeInfo(name)}
-		<AccordionItem
-			autocollapse
-			open={idx === 0}
-			class={gainMarginToBgColor(recipe.gain_margin)}
-		>
+		<AccordionItem autocollapse open={idx === 0} class={gainMarginToBgColor(recipe.gain_margin)}>
 			<svelte:fragment slot="summary">
 				<div class="flex flex-col items-start align-middle w-full">
 					<div class="inline-block">
 						<h5 class="ht inline mr-1">{recipeInfo.title}</h5>
-						<span class="whitespace-nowrap">{recipe.sell.listing_count} selling</span>
 					</div>
 					<div class="ml-auto flex flex-row items-end text-sm">
 						<Chaos value={recipe.adjusted_earnings} />
-						<span>&#47;{intlCompactNumber.format(recipe.experience_delta)}exp</span>
-						<span>={intlFixed4Number.format(recipe.gain_margin)}</span>
+						<span>&#47;</span><span class="text-secondary-500-400-token"
+							>{intlCompactNumber.format(recipe.experience_delta)}</span
+						><span>exp</span>
+						<span>=</span>
+						<span class={gainMarginToTextColor(recipe.gain_margin)}
+							>{intlFixed4Number.format(recipe.gain_margin)}</span
+						>
 					</div>
 				</div>
 			</svelte:fragment>
 			<svelte:fragment slot="content">
 				<p>{@html recipeInfo.description?.replaceAll('\n', '<br/>') ?? ''}</p>
 				{#if recipe?.recipe_cost}
-					<h5 class="h5">Recipe Cost</h5>
+					<h5 class="h5">Costs</h5>
 					<RecipeInfoRecipeCost {recipe} />
 				{/if}
 				{#if recipe.probabilistic}
-					<h5 class="h5">Probabilities</h5>
+					<h5 class="h5">Outcomes</h5>
 					<RecipeInfoProbabilities probabilities={recipe.probabilistic} />
+				{:else}
+					<h5 class="h5">Sell</h5>
+					<p>
+						<span>lvl{recipe.sell.level}/{recipe.sell.quality}q for</span>
+						<span class="inline-block"> <Chaos value={recipe.sell.price} /></span>
+					</p>
 				{/if}
 			</svelte:fragment>
 		</AccordionItem>
