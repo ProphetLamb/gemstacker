@@ -162,6 +162,16 @@ public sealed class SkillProfitCalculationContext(
             return 0;
         }
         var normalizedProfitChance = virtualSignificantProfitChance / total;
+
+        if (normalizedProfitChance <= 0)
+        {
+            return 0;
+        }
+
+        if (normalizedProfitChance >= 1)
+        {
+            return 1;
+        }
         // number of attempts until we have a 66% expectation of profit
         var attempts = Math.Log(normalizedProfitChance) / Math.Log(2.0 / 3);
         // if every attempt is profitable we get a negative number of attempts
