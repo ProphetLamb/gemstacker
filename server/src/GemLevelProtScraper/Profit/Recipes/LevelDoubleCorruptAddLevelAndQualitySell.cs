@@ -112,7 +112,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
         var levelEarning = ctx.ProbabilisticEarnings(probabilistic) - ctx.RecipeCost(recipeCost);
 
         // replace the divine with lapidary lens for output
-        _ = recipeCost.Remove(CurrencyTypeName.DivineOrb);
+        _ = recipeCost.Remove(CurrencyTypeName.ChaosOrb);
         recipeCost["Lapidary Lens"] = 1;
         return new()
         {

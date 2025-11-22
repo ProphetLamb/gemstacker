@@ -235,7 +235,8 @@ export type CurrencyTypeName =
 	| "Gemcutter's Prism"
 	| "Cartographer's Chisel"
 	| 'Chaos Orb'
-	| 'Vaal Orb';
+	| 'Vaal Orb'
+	| 'Lapidary Lens';
 
 export interface WellKnownExchangeRateToChaosResponse {
 	divine_orb: number;
@@ -275,8 +276,13 @@ export const wellKnownExchangeRateDisplay = {
 		name: 'Chaos Orb',
 		alt: 'c',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png'
+	},
+	lapidary_lens: {
+		name: 'Lapidary Lens',
+		alt: 'll',
+		img: '/lapidary_lens.png'
 	}
-} satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb', CurrencyTypeDisplay>;
+} satisfies Record<keyof WellKnownExchangeRateToChaosResponse | 'chaos_orb' | 'lapidary_lens', CurrencyTypeDisplay>;
 
 export function currencyTypeDisplay(name?: CurrencyTypeDisplay | string | undefined) {
 	if (!name) {
