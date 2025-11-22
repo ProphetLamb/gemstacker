@@ -4,7 +4,7 @@ import { error, json } from '@sveltejs/kit';
 export const GET = async ({ fetch, url }) => {
 	const src = decodeURIComponent(url.searchParams.get('src') ?? '');
 	const headers = {
-		'Cache-Control': 'public, immutable, no-transform, max-age=31536000'
+		'Cache-Control': 'public, max-age=31536000'
 	};
 	if (!src) {
 		return json({ origin: 'raw', code: src }, { headers });

@@ -32,7 +32,7 @@ export const GET = async ({ fetch, url }) => {
 			} satisfies ProfitPreviewResponse,
 			{
 				headers: {
-					'Cache-Control': 'public, immutable, no-transform, max-age=1800'
+					'Cache-Control': 'public, max-age=1800'
 				}
 			}
 		);

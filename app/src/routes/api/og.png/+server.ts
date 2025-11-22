@@ -135,7 +135,7 @@ async function imageFromHtml(html: string) {
 	return new Response(image.asPng() as unknown as ReadableStream<Uint8Array<ArrayBuffer>>, {
 		headers: {
 			'Content-Type': 'image/png',
-			'Cache-Control': 'public, immutable, no-transform, max-age=1800'
+			'Cache-Control': 'public, max-age=1800'
 		}
 	});
 }
