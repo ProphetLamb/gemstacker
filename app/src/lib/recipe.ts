@@ -156,12 +156,15 @@ export function getRecipeInfo(
 }
 
 export const wellKnownProbabilisticLabelDisplay = {
-	corrupt_add_level: 'Corrupt +1 Level',
-	corrupt_add_level_add_quality: 'Double corrupt +1 Level & +3 Quality',
-	corrupt_add_level_rem_quality: 'Double corrupt +1 Level & -10 Quality',
-	corrupt_add_quality: 'Corrupt +3 Quality',
-	corrupt_rem_quality: 'Corrupt -10 Quality',
+	corrupt_add_level: 'Corrupt +1 Level 20 Quality',
+	corrupt_add_quality: 'Corrupt 23 Quality',
+	corrupt_rem_quality: 'Corrupt 10 Quality',
 	corrupt_rem_level: 'Corrupt -1 Level',
+	double_corrupt_add_level_add_quality: 'Double corrupt +1 Level & 23 Quality',
+	double_corrupt_add_level_rem_quality: 'Double corrupt +1 Level & 10 Quality',
+	double_corrupt_add_level_max_quality: 'Double corrupt +1 Level & 20 Quality',
+	double_corrupt_max_level_add_quality: 'Double corrupt max Level & 23 Quality',
+	double_corrupt_corrupt_any_level_rem_quality: 'Double corrupt any Level & 10 Quality',
 	no_change: 'Unchanged',
 	misc: 'Miscellaneous'
 } satisfies Record<GemProfitProbabilisticLabel | 'misc', string>;

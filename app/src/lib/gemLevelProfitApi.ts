@@ -95,12 +95,15 @@ export type GemColor = 'white' | 'blue' | 'green' | 'red';
 export const gemColorSchema = z.enum(['white', 'blue', 'green', 'red']);
 
 export type GemProfitProbabilisticLabel =
-	| 'corrupt_add_level_add_quality'
-	| 'corrupt_add_level_rem_quality'
 	| 'corrupt_add_level'
 	| 'corrupt_add_quality'
 	| 'corrupt_rem_quality'
 	| 'corrupt_rem_level'
+	| 'double_corrupt_add_level_add_quality'
+	| 'double_corrupt_add_level_rem_quality'
+	| 'double_corrupt_add_level_max_quality'
+	| 'double_corrupt_max_level_add_quality'
+	| 'double_corrupt_corrupt_any_level_rem_quality'
 	| 'no_change';
 
 export interface GemProfitProbabilisticProfitMargin {
