@@ -216,3 +216,45 @@ public static class ProfitRecipeExtension
             services.TryAddEnumerable(new ServiceDescriptor(typeof(IProfitRecipe), t, ServiceLifetime.Transient));
     }
 }
+
+public readonly struct CorruptionOutcome(string value) : IEquatable<CorruptionOutcome>
+{
+    public static CorruptionOutcome AddLevel => new("corrupt_add_level");
+    public static CorruptionOutcome RemLevel => new("corrupt_rem_level");
+    public static CorruptionOutcome AddQuality => new("corrupt_add_quality");
+    public static CorruptionOutcome RemQuality => new("corrupt_rem_quality");
+    public static CorruptionOutcome AddLevelAddQuality => new("double_corrupt_add_level_add_quality");
+    public static CorruptionOutcome AddLevelRemQuality => new("double_corrupt_add_level_rem_quality");
+    public static CorruptionOutcome AddLevelMaxQuality => new("double_corrupt_add_level_max_quality");
+    public static CorruptionOutcome MaxLevelAddQuality => new("double_corrupt_max_level_add_quality");
+    public static CorruptionOutcome AnyLevelRemQuality => new("double_corrupt_corrupt_any_level_rem_quality");
+    public static CorruptionOutcome NoChange => new("no_change");
+
+    public string Value => value;
+
+    public bool Equals(CorruptionOutcome other)
+    {
+        var x = string.IsNullOrEmpty(Value) ? null : Value;
+        var y = string.IsNullOrEmpty(other.Value) ? null : other.Value;
+        return StringComparer.OrdinalIgnoreCase.Equals(x, y);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is CorruptionOutcome other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
+    }
+
+    public static CorruptionOutcome From(string? value)
+    {
+        return string.IsNullOrEmpty(value) ? default : new(value);
+    }
+
+    public static implicit operator string(CorruptionOutcome x) => x.Value;
+    public static bool operator ==(CorruptionOutcome x, CorruptionOutcome y) => x.Equals(y);
+    public static bool operator !=(CorruptionOutcome x, CorruptionOutcome y) => !(x == y);
+}

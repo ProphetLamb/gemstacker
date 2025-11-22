@@ -70,37 +70,37 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
                 Chance =
                     (double)addLevel23q,
                 Earnings = corruptAddLevel23Quality.ChaosValue - min.ChaosValue,
-                Label = "double_corrupt_add_level_add_quality",
+                Label = CorruptionOutcome.AddLevelAddQuality,
             },
             new()
             {
                 Chance = (double)addLevel10q,
                 Earnings = corruptAddLevelRemQuality.ChaosValue - min.ChaosValue,
-                Label = "double_corrupt_add_level_rem_quality"
+                Label = CorruptionOutcome.AddLevelRemQuality,
             },
             new()
             {
                 Chance = (double)addLevel20q,
                 Earnings = corruptAddLevel.ChaosValue - min.ChaosValue,
-                Label = "double_corrupt_add_level_max_quality",
+                Label = CorruptionOutcome.AddLevelMaxQuality,
             },
             new()
             {
                 Chance = (double)maxLevel23q,
                 Earnings = corruptAddQuality.ChaosValue - min.ChaosValue,
-                Label = "double_corrupt_max_level_add_quality"
+                Label = CorruptionOutcome.MaxLevelAddQuality
             },
             new()
             {
                 Chance = (double)anyLevel10q,
                 Earnings = corruptRemQuality.ChaosValue - min.ChaosValue,
-                Label = "double_corrupt_corrupt_any_level_rem_quality"
+                Label = CorruptionOutcome.AnyLevelRemQuality
             },
             new()
             {
                 Chance = (double)(1.0m - anyLevel10q - maxLevel23q - addLevel20q - addLevel10q - addLevel23q),
                 Earnings = corruptFailure.ChaosValue - min.ChaosValue,
-                Label = "no_change"
+                Label = CorruptionOutcome.NoChange
             },
         ];
 

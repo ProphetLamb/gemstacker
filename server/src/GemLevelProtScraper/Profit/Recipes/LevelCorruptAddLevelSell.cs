@@ -52,10 +52,10 @@ public class LevelCorruptAddLevelSell : IProfitRecipe
         // 25% add quality -> failure
         var p = 1 / 8.0;
         List<ProbabilisticProfitMargin> probabilistic = [
-            new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = "corrupt_add_level" },
-            new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label = "corrupt_add_quality" },
-            new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = "corrupt_rem_quality" },
-            new() { Chance = p * 5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = "no_change" },
+            new() { Chance = p, Earnings = corruptAddLevel.ChaosValue - min.ChaosValue, Label = CorruptionOutcome.AddLevel },
+            new() { Chance = p, Earnings = corruptAddQuality.ChaosValue - min.ChaosValue, Label =  CorruptionOutcome.AddQuality },
+            new() { Chance = p, Earnings =  corruptRemQuality.ChaosValue - min.ChaosValue, Label = CorruptionOutcome.RemQuality },
+            new() { Chance = p * 5, Earnings = corruptFailure.ChaosValue - min.ChaosValue, Label = CorruptionOutcome.NoChange },
         ];
 
         var corruptExperienceRemoveLevel = ctx.Skill.LastLevelExperience

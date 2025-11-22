@@ -55,10 +55,10 @@ public class LevelCorruptAddLevelDropFailureSell : IProfitRecipe
         // add chance to remove level and destroy the gem
         // sell the gem for the min level again
         probabilistic.Add(
-            new() { Earnings = (minCorrupted?.ChaosValue ?? 0) - min.ChaosValue, Chance = 1 / 8.0, Label = "corrupt_rem_level" }
+            new() { Earnings = (minCorrupted?.ChaosValue ?? 0) - min.ChaosValue, Chance = 1 / 8.0, Label = CorruptionOutcome.RemLevel }
         );
         // reduce chance for no effect to by the chance to destroy the gem
-        var noChange = probabilistic.First(x => x.Label == "no_change");
+        var noChange = probabilistic.First(x => CorruptionOutcome.NoChange == CorruptionOutcome.From(x.Label));
         _ = probabilistic.Remove(noChange);
         probabilistic.Add(noChange with { Chance = noChange.Chance - 1 / 8.0 });
         // recreate keyfigures
