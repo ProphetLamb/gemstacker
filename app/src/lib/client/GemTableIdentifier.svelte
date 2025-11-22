@@ -43,7 +43,7 @@
 	</div>
 </td>
 <td>
-	<div class="flex flex-wrap justify-start">
+	<div class="flex flex-wrap justify-center">
 		{#each Object.values(wellKnownExchangeRateDisplay) as display}
 			{@const quantity = (recipe_cost ?? {})[display.name]}
 			{#if !!quantity}
