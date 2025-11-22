@@ -164,7 +164,7 @@ export const wellKnownProbabilisticLabelDisplay = {
 	double_corrupt_add_level_rem_quality: 'Double corrupt +1 Level & 10 Quality',
 	double_corrupt_add_level_max_quality: 'Double corrupt +1 Level & 20 Quality',
 	double_corrupt_max_level_add_quality: 'Double corrupt max Level & 23 Quality',
-	double_corrupt_corrupt_any_level_rem_quality: 'Double corrupt any Level & 10 Quality',
+	double_corrupt_corrupt_any_level_rem_quality: 'Double corrupt -1 or unchanged Level & 10 Quality',
 	no_change: 'Unchanged',
 	misc: 'Miscellaneous'
 } satisfies Record<GemProfitProbabilisticLabel | 'misc', string>;
