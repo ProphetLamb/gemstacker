@@ -10,12 +10,12 @@
 	export let data: GemProfitResponseItem[];
 	export let textClass: CssClasses | null | undefined = undefined;
 	let title = 'Gems';
-	$: betterTradingFolder = getBetterTradingFolder(data, title);
+	$: folderExport = createExport(data, title);
 
-	function getBetterTradingFolder(data: GemProfitResponseItem[], title: string) {
+	function createExport(data: GemProfitResponseItem[], title: string) {
 		const trades = data.map(tradeBookmarkForGemBuy);
 		const bookmarks = new BetterTradingBookmarks();
-		const folder = bookmarks.serializeLegacy(
+		const betterTrading = bookmarks.serializeLegacy(
 			{
 				icon: null,
 				title,
@@ -23,7 +23,15 @@
 			},
 			trades
 		);
-		return folder;
+		const tft = bookmarks.serialize(
+			{
+				icon: null,
+				title,
+				archivedAt: null
+			},
+			trades
+		)
+		return { betterTrading,  tft };
 	}
 
 	const betterTradingPopup: PopupSettings = {
@@ -42,32 +50,58 @@
 	const dispatch = createEventDispatcher();
 
 	let betterTradingInput: HTMLInputElement;
+	let tftTradeExtensionInput: HTMLInputElement;
 </script>
 
 <button
-	class="btn btn-sm variant-ghost-warning flex py-0.5 {$$props.class}"
-	title="Better Trading folder for the current gem results"
+	class="btn btn-sm variant-ghost-warning flex flex-row items-center py-0.5 {$$props.class}"
+	title="Export Better Trading & TFT Trade Extension folder for the current gem results"
 	use:popup={betterTradingPopup}
-	><img class="w-6 h-6" src="/better-trading.png" alt="" />
-	<span class="max-md:hidden {textClass ?? ''}">Better Trading</span></button
+>
+	<img class="w-5 h-5" src="/better-trading.png" alt="bt" />
+	<img class="w-6 h-6" src="\tft.png" alt="tft" />
+	<span class="max-md:hidden {textClass ?? ''}">Folder</span></button
 >
 <div class="z-10" data-popup="betterTradingPopup">
-	<div class="w-[calc(100%-2rem)] pr-4 md:w-96">
+	<div class="w-72 md:w-96">
 		<div class="arrow bg-surface-100-800-token" />
 		<div
 			class="card !opacity-100 flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl"
 		>
 			<div class="flex flex-row items-center justify-center w-full space-x-2 text-center">
-				<img class="w-8 h-8 pt-1" src="/better-trading.png" alt="" />
 				<h2 class="h2">Export Folder</h2>
 			</div>
 			<label class="label">
-				<span>Folder Title</span>
+				<span>Title</span>
 				<input name="title" class="input" type="text" bind:value={title} minlength="1" />
 			</label>
 			<hr class="!border-t-2 w-full opacity-50" />
-			<label for="label">
-				<span>Folder Code</span>
+			<label>
+				<p class="flex flex-row items-center space-x-1">
+					<img class="inline w-6 h-6" src="/tft.png" alt="tft" />
+				<span>Export to TFT Trade Extension</span>
+				</p>
+				<div class="flex flex-row btn-group variant-ghost-primary">
+					<button
+						use:copy={{ value: () => tftTradeExtensionInput.value, on: 'click' }}
+						class="btn variant-ghost-primary rounded-s-full rounded-e-none"
+					>
+						<Icon src={hi.Clipboard} size="16" />
+					</button>
+					<input
+						bind:this={tftTradeExtensionInput}
+						class="bg-transparent text-token border-none focus:outline-none outline-0 rounded-e-full w-full"
+						type="text"
+						disabled
+						value={folderExport.tft}
+					/>
+				</div>
+			</label>
+			<label>
+				<p class="flex flex-row items-center space-x-1">
+					<img class="inline w-6 h-6" src="/better-trading.png" alt="bt" />
+				 	<span>Export to Better Trading</span>
+				</p>
 				<div class="flex flex-row btn-group variant-ghost-primary">
 					<button
 						use:copy={{ value: () => betterTradingInput.value, on: 'click' }}
@@ -80,7 +114,7 @@
 						class="bg-transparent text-token border-none focus:outline-none outline-0 rounded-e-full w-full"
 						type="text"
 						disabled
-						value={betterTradingFolder}
+						value={folderExport.betterTrading}
 					/>
 				</div>
 			</label>

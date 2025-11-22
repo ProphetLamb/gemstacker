@@ -185,13 +185,17 @@ export const bookmarksFolderIconSchema = z.union([
 	bookmarksFolderItemIconSchema
 ]);
 
-interface ExportedFolderStruct {
+interface ExportedFolderStructV1 {
 	icn: string | null;
 	tit: string;
 	trs: Array<{
 		tit: string;
 		loc: string;
 	}>;
+}
+
+interface ExportedFolderStructV3 extends ExportedFolderStructV1 {
+	ver: '1' | '2'
 }
 
 const exportedFolderStructSchema = z.object({
@@ -226,13 +230,14 @@ export class BetterTradingBookmarks {
 		const payload = {
 			icn: folder.icon,
 			tit: folder.title,
+			ver: '1',
 			trs: trades.map((trade) => ({
 				tit: trade.title,
-				loc: `${trade.location.type}:${trade.location.slug}`
+				loc: `1:${trade.location.type}:${trade.location.slug}`
 			}))
-		} satisfies ExportedFolderStruct;
+		} satisfies ExportedFolderStructV3;
 
-		return `2:${Base64.encode(JSON.stringify(payload))}`;
+		return `3:${Base64.encode(JSON.stringify(payload))}`;
 	}
 
 	serializeLegacy(folder: BookmarksFolderStruct, trades: BookmarksTradeStruct[]): string {
@@ -243,7 +248,7 @@ export class BetterTradingBookmarks {
 				tit: trade.title,
 				loc: `${trade.location.type}:${trade.location.slug}`
 			}))
-		} satisfies ExportedFolderStruct;
+		} satisfies ExportedFolderStructV1;
 
 		return btoa(JSON.stringify(payload));
 	}
