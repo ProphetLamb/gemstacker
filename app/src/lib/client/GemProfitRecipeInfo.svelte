@@ -1,16 +1,11 @@
 <script lang="ts">
 	import Chaos from './Chaos.svelte';
-	import { intlCompactNumber, intlFixed2Number, intlFixed4Number } from '$lib/intl';
-	import { currencyTypeDisplay, type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
-	import { getRecipeInfo, wellKnownProbabilisticLabelDisplay } from '$lib/recipe';
+	import { type GemProfitResponseItem } from '$lib/gemLevelProfitApi';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import type { MouseEventHandler } from 'svelte/elements';
-	import Currency from './Currency.svelte';
-	import RecipeInfoProbabilities from './RecipeInfoProbabilities.svelte';
 	import RecipeInfoAllRecipes from './RecipeInfoAllRecipes.svelte';
-	import RecipeInfoRecipeCost from './RecipeInfoRecipeCost.svelte';
-
+	
 	export let gem: GemProfitResponseItem | undefined | null;
 	export let close: MouseEventHandler<HTMLButtonElement> | undefined | null = undefined;
 	$: preferredRecipe = gem?.recipes[gem.preferred_recipe];

@@ -49,7 +49,7 @@
 			{#if !!quantity}
 				<Currency
 					value={-quantity}
-					value_class="text-warning-400-500-token"
+					value_class="hidden text-warning-400-500-token"
 					src={display.img}
 					alt={display.alt}
 				/>

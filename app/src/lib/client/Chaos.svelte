@@ -3,7 +3,7 @@
 	import type { CurrencyDisplay } from '$lib/currency';
 	import { localSettings } from '$lib/client/localSettings';
 	import { exchangeRates } from '$lib/client/exchangeRates';
-	import { intlWholeNumber } from '$lib/intl';
+	import { intlFixed2Number, intlWholeNumber } from '$lib/intl';
 	import type { CssClasses } from '@skeletonlabs/skeleton';
 	import Currency from './Currency.svelte';
 	import { wellKnownExchangeRateDisplay } from '$lib/gemLevelProfitApi';
@@ -43,6 +43,7 @@
 			{value_prefix}
 			value={value / $exchangeRates.divine_orb}
 			{value_class}
+			number_format={intlFixed2Number}
 			alt={wellKnownExchangeRateDisplay.divine_orb.alt}
 			src={wellKnownExchangeRateDisplay.divine_orb.img}
 		/>
