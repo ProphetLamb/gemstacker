@@ -24,8 +24,7 @@
 			{value}
 			{value_class}
 			number_format={intlWholeNumber}
-			alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-			src={wellKnownExchangeRateDisplay.chaos_orb.img}
+			{...wellKnownExchangeRateDisplay.chaos_orb}
 			{img_class}
 		/>
 	{:else if actualCurrencyDisplay === 'DivineFraction'}
@@ -33,8 +32,7 @@
 			{value_prefix}
 			value={value / $exchangeRates.divine_orb}
 			{value_class}
-			alt={wellKnownExchangeRateDisplay.divine_orb.alt}
-			src={wellKnownExchangeRateDisplay.divine_orb.img}
+			{...wellKnownExchangeRateDisplay.divine_orb}
 		/>
 	{:else if actualCurrencyDisplay === 'ChaosThenDivieFraction'}
 		{@const divineOrb = Math.floor($exchangeRates.divine_orb)}
@@ -44,8 +42,7 @@
 			value={value / $exchangeRates.divine_orb}
 			{value_class}
 			number_format={intlFixed2Number}
-			alt={wellKnownExchangeRateDisplay.divine_orb.alt}
-			src={wellKnownExchangeRateDisplay.divine_orb.img}
+			{...wellKnownExchangeRateDisplay.divine_orb}
 		/>
 		{:else}
 			<Currency
@@ -53,8 +50,7 @@
 				{value}
 				{value_class}
 				number_format={intlWholeNumber}
-				alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-				src={wellKnownExchangeRateDisplay.chaos_orb.img}
+				{...wellKnownExchangeRateDisplay.chaos_orb}
 				{img_class}
 			/>
 		{/if}
@@ -68,8 +64,7 @@
 				value={value / divineOrb}
 				{value_class}
 				number_format={intlWholeNumber}
-				alt={wellKnownExchangeRateDisplay.divine_orb.alt}
-				src={wellKnownExchangeRateDisplay.divine_orb.img}
+				{...wellKnownExchangeRateDisplay.divine_orb}
 				{img_class}
 			/>
 		{/if}
@@ -78,8 +73,7 @@
 			value={chaosOrb ?? 0}
 			{value_class}
 			number_format={intlWholeNumber}
-			alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-			src={wellKnownExchangeRateDisplay.chaos_orb.img}
+			{...wellKnownExchangeRateDisplay.chaos_orb}
 			{img_class}
 		/>
 	{/if}
@@ -89,8 +83,7 @@
 		{value}
 		{value_class}
 		number_format={intlWholeNumber}
-		alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-		src={wellKnownExchangeRateDisplay.chaos_orb.img}
+		{...wellKnownExchangeRateDisplay.chaos_orb}
 		{img_class}
 	/>
 {/if}

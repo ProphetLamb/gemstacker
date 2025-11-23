@@ -15,6 +15,7 @@
 	import ExchangeRates from './ExchangeRates.svelte';
 	import { exchangeRates } from './exchangeRates';
 	import { wellKnownExchangeRateDisplay } from '$lib/gemLevelProfitApi';
+	import CurrencyIcon from './CurrencyIcon.svelte';
 
 	const drawerStore = getDrawerStore();
 
@@ -64,18 +65,13 @@
 		{#if $exchangeRates}
 			<button class="btn btn-sm variant-soft-tertiary flex flex-row space-x-0" use:popup={popupExchangeRates}>
 				<span class="max-lg:hidden">1</span>
-				<img
-					class="h-4 w-4 mt-[0.1875rem] max-lg:hidden"
-					src={wellKnownExchangeRateDisplay.divine_orb.img}
-					alt={wellKnownExchangeRateDisplay.divine_orb.alt}
-				/>
+				<CurrencyIcon
+					class="max-lg:hidden"
+					{...wellKnownExchangeRateDisplay.divine_orb}
+				 />
 				<span class="max-lg:hidden">=</span>
 				<span>{$exchangeRates.divine_orb}</span>
-				<img
-					class="h-4 w-4 mt-[0.1875rem]"
-					src={wellKnownExchangeRateDisplay.chaos_orb.img}
-					alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-				/>
+				<CurrencyIcon {...wellKnownExchangeRateDisplay.chaos_orb} />
 			</button>
 			<div class="card p-4 shadow-xl w-[calc(100%-2rem)] md:w-96 text-center" data-popup="popupExchangeRates">
 				<h3 class="h3">Exchange rates</h3>

@@ -9,12 +9,11 @@
 	{#each Object.entries(recipe?.recipe_cost ?? {}) as [key, cost]}
 		{@const currency = currencyTypeDisplay(key)}
 		<li class="flex flex-row justify-between">
-			<span>{currency.name}</span>
+			<span>{currency.title}</span>
 			<Currency
 				value={cost}
 				value_class="text-warning-400-500-token"
-				alt={currency.alt}
-				src={currency.img}
+				{...currency}
 			/>
 		</li>
 		<hr />

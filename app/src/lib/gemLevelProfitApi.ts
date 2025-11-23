@@ -246,39 +246,39 @@ export interface WellKnownExchangeRateToChaosResponse {
 }
 
 export interface CurrencyTypeDisplay {
-	name: CurrencyTypeName;
+	title: CurrencyTypeName;
 	alt: string;
 	img: string;
 }
 
 export const wellKnownExchangeRateDisplay = {
 	divine_orb: {
-		name: 'Divine Orb',
+		title: 'Divine Orb',
 		alt: 'd',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyModValues.png'
 	},
 	cartographers_chisel: {
-		name: "Cartographer's Chisel",
+		title: "Cartographer's Chisel",
 		alt: 'cc',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyMapQuality.png'
 	},
 	gemcutters_prism: {
-		name: "Gemcutter's Prism",
+		title: "Gemcutter's Prism",
 		alt: 'gcp',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyGemQuality.png'
 	},
 	vaal_orb: {
-		name: 'Vaal Orb',
+		title: 'Vaal Orb',
 		alt: 'v',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyVaal.png'
 	},
 	chaos_orb: {
-		name: 'Chaos Orb',
+		title: 'Chaos Orb',
 		alt: 'c',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyRerollRare.png'
 	},
 	lapidary_lens: {
-		name: 'Lapidary Lens',
+		title: 'Lapidary Lens',
 		alt: 'll',
 		img: '/lapidary_lens.png'
 	}
@@ -289,7 +289,7 @@ export function currencyTypeDisplay(name?: CurrencyTypeDisplay | string | undefi
 		return { name: '', alt: '', img: '' };
 	}
 	return (
-		Object.values(wellKnownExchangeRateDisplay).find((x) => x.name === name) ?? {
+		Object.values(wellKnownExchangeRateDisplay).find((x) => x.title === name) ?? {
 			name: '',
 			alt: '',
 			img: ''

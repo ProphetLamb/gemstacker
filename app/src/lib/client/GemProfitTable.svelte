@@ -8,6 +8,7 @@
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import { intlFixed4Number } from '$lib/intl';
+	import CurrencyIcon from './CurrencyIcon.svelte';
 
 	export let data: GemProfitResponseItem[];
 	onDestroy(() => {
@@ -28,11 +29,7 @@
 			<th title="Average profit per gem for the recipe, see Recipe Info for specifics.">Profit</th>
 			<th title="The average profit in chaos per 1M exp, see Recipe Info for specifics." class="max-md:hidden">
 				<div class="flex flex-row items-center">
-					<img
-						src={wellKnownExchangeRateDisplay.chaos_orb.img}
-						alt={wellKnownExchangeRateDisplay.chaos_orb.alt}
-						class="h-4 w-4 mt-[0.1875rem] min-w-4"
-					/>
+					<CurrencyIcon {...wellKnownExchangeRateDisplay.chaos_orb} />
 					<span>&#47;</span>
 					<span>1M</span>
 					<span>exp</span>

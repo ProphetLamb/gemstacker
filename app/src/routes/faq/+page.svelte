@@ -1,5 +1,6 @@
 <script>
 	import Currency from '$lib/client/Currency.svelte';
+	import CurrencyIcon from '$lib/client/CurrencyIcon.svelte';
 	import {
 		gemProfitResponseItemRecipeName,
 		wellKnownExchangeRateDisplay
@@ -104,12 +105,8 @@
 							the cost of the recipe. <br /> Probabilistic methods present the average value
 							accounting for the average loss of each possible outcome.
 							<span class="text-primary-500-400-token mx-1 inline-flex flex-row">
-								{wellKnownExchangeRateDisplay.gemcutters_prism.name}
-								<img
-									src={wellKnownExchangeRateDisplay.gemcutters_prism.img}
-									alt={wellKnownExchangeRateDisplay.gemcutters_prism.img}
-									class="h-4 w-4 mt-auto mb-[0.125rem]"
-								/>
+								{wellKnownExchangeRateDisplay.gemcutters_prism.title}
+								<CurrencyIcon  {...wellKnownExchangeRateDisplay.gemcutters_prism} />
 							</span> are most commonly used.
 						</p>
 					</span>
@@ -135,12 +132,8 @@
 							<br />
 							Probabilisitic methods, including
 							<span class="text-primary-500-400-token mx-1 inline-flex flex-row">
-								{wellKnownExchangeRateDisplay.vaal_orb.name}
-								<img
-									src={wellKnownExchangeRateDisplay.vaal_orb.img}
-									alt={wellKnownExchangeRateDisplay.vaal_orb.img}
-									class="h-4 w-4 mt-auto mb-[0.125rem]"
-								/>
+								{wellKnownExchangeRateDisplay.vaal_orb.title}
+								<CurrencyIcon  {...wellKnownExchangeRateDisplay.vaal_orb} />
 							</span>
 							or similar randomizing factors, may have values greater than one. They calculate number
 							of attempts for the 60% expectation by summing up the chance of every positive outcome

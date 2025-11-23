@@ -5,6 +5,7 @@
 	} from '$lib/gemLevelProfitApi';
 	import { intlFractionNumber } from '$lib/intl';
 	import type { CssClasses } from '@skeletonlabs/skeleton';
+	import CurrencyIcon from './CurrencyIcon.svelte';
 
 	export let li_class: CssClasses | undefined | null = undefined;
 	export let exchange_rates: Partial<WellKnownExchangeRateToChaosResponse>;
@@ -16,8 +17,8 @@
 		{#if rate}
 			<li class={li_class ?? ''}>
 				<div class="flex flex-row items-center">
-					<img class="h-4 w-4 mt-[0.1875rem]" src={display.img} alt={display.alt} />
-					<span>{display.name}</span>
+					<CurrencyIcon {...display} />
+					<span>{display.title}</span>
 				</div>
 				<input
 					class="input"

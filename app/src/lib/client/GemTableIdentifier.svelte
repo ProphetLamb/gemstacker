@@ -45,13 +45,12 @@
 <td>
 	<div class="flex flex-wrap justify-center">
 		{#each Object.values(wellKnownExchangeRateDisplay) as display}
-			{@const quantity = (recipe_cost ?? {})[display.name]}
+			{@const quantity = (recipe_cost ?? {})[display.title]}
 			{#if !!quantity}
 				<Currency
 					value={-quantity}
 					value_class="hidden text-warning-400-500-token"
-					src={display.img}
-					alt={display.alt}
+					{...display}
 				/>
 			{/if}
 		{/each}
