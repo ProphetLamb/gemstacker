@@ -116,7 +116,7 @@
 	}
 </script>
 
-<article class="flex flex-col justify-center items-center">
+<article class="flex flex-col justify-center items-center m-4">
 	<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
 		<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
 		<span>
