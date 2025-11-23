@@ -290,7 +290,7 @@ export function currencyTypeDisplay(name?: CurrencyTypeDisplay | string | undefi
 	}
 	return (
 		Object.values(wellKnownExchangeRateDisplay).find((x) => x.title === name) ?? {
-			name: '',
+			title: '',
 			alt: '',
 			img: ''
 		}

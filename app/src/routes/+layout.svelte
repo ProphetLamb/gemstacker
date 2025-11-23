@@ -33,21 +33,19 @@
 <Modal components={modals} />
 <RootDrawer />
 
-<div class="contents bg-image-blur h-full overflow-hidden">
-	<AppShell>
-		<svelte:fragment slot="header">
-			<RootHeader />
-		</svelte:fragment>
-		<!-- Page Route Content -->
-		 <GemProfitRecipeInfoToggle class="absolute right-0 lg:right-4 top-[5rem] lg:top-14" />
-		<slot />
-		<RootFooter />
+<AppShell class="bg-image-blur h-full overflow-hidden">
+	<svelte:fragment slot="header">
+		<RootHeader />
+	</svelte:fragment>
+	<!-- Page Route Content -->
+		<GemProfitRecipeInfoToggle class="absolute right-0 lg:right-4 top-[5rem] lg:top-14" />
+	<slot />
+	<RootFooter />
 
-		<svelt:fragment slot="sidebarRight">
-			<GemProfitRecipeInfoSidebar />
-		</svelt:fragment>
-	</AppShell>
-</div>
+	<svelt:fragment slot="sidebarRight">
+		<GemProfitRecipeInfoSidebar />
+	</svelt:fragment>
+</AppShell>
 
 <style lang="postcss">
 	:global(div.bg-image-blur) {
@@ -68,9 +66,6 @@
 			filter: blur(calc(100vw * 0.003)) brightness(0.95);
 			-webkit-filter: blur(calc(100vw * 0.003)) brightness(0.95);
 			image-rendering: optimizeSpeed;
-		}
-
-		& > div {
 		}
 	}
 </style>

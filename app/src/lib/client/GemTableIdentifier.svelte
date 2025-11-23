@@ -14,7 +14,7 @@
 	] ?? { adjusted_earnings: 0, experience_delta: 0 };
 </script>
 
-<td class="pr-2">
+<td class="">
 	<a
 		href={gem.foreign_info_url}
 		target="_blank"

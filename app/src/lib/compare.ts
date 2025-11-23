@@ -20,8 +20,8 @@ export function deepEqual(lhs: any, rhs: any): boolean {
 
     if (keys1.length !== keys2.length || !keys1.every(key => keys2.includes(key))) return false;
 
-    for (let key in lhs) {
-      let isEqual = deepEqual(lhs[key], rhs[key])
+    for (const key in lhs) {
+      const isEqual = deepEqual(lhs[key], rhs[key])
       if (!isEqual) { return false; }
     }
 
