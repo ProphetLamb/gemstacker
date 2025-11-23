@@ -7,9 +7,9 @@
 	export { classes as class };
 </script>
 
-<div class="rounded-full border-2 gem-{color} {classes}">
+<span class="rounded-full border-2 gem-{color} {classes}">
 	<slot />
-</div>
+</span>
 
 <style lang="postcss">
 	.gem-red {

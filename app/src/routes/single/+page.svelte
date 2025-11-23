@@ -2,7 +2,10 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import { superForm } from 'sveltekit-superforms/client';
 	import type { ActionData, PageData } from './$types';
-	import { gemProfitRequestParameterSchema, type GemProfitRequestParameter } from '$lib/gemLevelProfitApi';
+	import {
+		gemProfitRequestParameterSchema,
+		type GemProfitRequestParameter
+	} from '$lib/gemLevelProfitApi';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import GemProfitTable from '$lib/client/GemProfitTable.svelte';
@@ -273,7 +276,7 @@
 			>
 		</form>
 	</WrapperItem>
-	<WrapperItem class="card p-4">
+	<WrapperItem class="card p-4 shadow-xl m-4">
 		{#if $delayed}
 			<LoadingPlaceholder
 				class="w-[51rem] max-w-[calc(100vw-4rem)]"

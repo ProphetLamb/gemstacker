@@ -24,7 +24,4 @@
 	hr:last-child {
 		@apply hidden;
 	}
-	h5 {
-		@apply mt-4;
-	}
 </style>

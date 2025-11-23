@@ -2,7 +2,7 @@ type EventType = 'dblclick' | 'click' | 'copy' | 'cut' | 'paste' | string
 
 export function copy(e: HTMLElement, param: { value: (event: Event) => string, on: EventType | EventType[] }) {
   async function copyText(event: Event): Promise<void> {
-    let text = param.value(event);
+    const text = param.value(event);
 
     try {
       await navigator.clipboard.writeText(text);

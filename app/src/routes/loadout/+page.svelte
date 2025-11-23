@@ -184,7 +184,7 @@
 			>
 		</form>
 	</WrapperItem>
-	<WrapperItem class="card p-4 space-y-2 shadow-xl">
+	<WrapperItem class="card p-4 space-y-2 shadow-xl m-4">
 		{#if $delayed}
 			<LoadingPlaceholder
 				class="w-[55rem] max-w-[calc(100vw-4rem)]"

@@ -5,8 +5,6 @@
 	import { inspectProfit } from '$lib/client/gemProfitRecipeInfo';
 	import { onDestroy } from 'svelte';
 	import { gainMarginToTextColor, getRecipeInfo } from '$lib/recipe';
-	import { Icon } from '@steeze-ui/svelte-icon';
-	import * as hi from '@steeze-ui/heroicons';
 	import { intlFixed4Number } from '$lib/intl';
 	import CurrencyIcon from './CurrencyIcon.svelte';
 

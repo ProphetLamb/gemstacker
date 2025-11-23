@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { urlTrimSearch } from "$lib/url";
 
-
     export let request_url
 	const request_path = urlTrimSearch(request_url)
 

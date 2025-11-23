@@ -40,24 +40,22 @@
 	>
 	<div class="dangerous-settings {settingsAreDangerous($localSettings) ? '' : 'hidden'}" />
 </button>
-<div class="">
-	<div data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">
-		<div class="arrow bg-surface-100-800-token" />
-		<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
-			<div class="flex flex-row justify-between items-center">
-				<h2 class="h2">Settings</h2>
-				<button class="btn-icon variant-ghost w-8 h-8"><Icon src={hi.XMark} size="16" /> </button>
-			</div>
-			<LocalSettingsBasic />
-			<hr class="!border-t-2 w-full opacity-50" />
-			<a class="btn variant-soft-success relative" href="/settings" title={settingsTitle}
-				><Icon src={hi.Cog6Tooth} size="16" theme="solid" />
-				<span>More Settings</span>
-				<div class="dangerous-settings {settingsAreDangerous($localSettings) ? '' : 'hidden'}" />
-			</a>
+<aside data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">
+	<div class="arrow bg-surface-100-800-token" />
+	<div class="card flex flex-col items-stretch justify-start space-y-2 p-4 shadow-xl">
+		<div class="flex flex-row justify-between items-center">
+			<h2 class="h2">Settings</h2>
+			<button class="btn-icon variant-ghost w-8 h-8"><Icon src={hi.XMark} size="16" /> </button>
 		</div>
+		<LocalSettingsBasic />
+		<hr class="!border-t-2 w-full opacity-50" />
+		<a class="btn variant-soft-success relative" href="/settings" title={settingsTitle}
+			><Icon src={hi.Cog6Tooth} size="16" theme="solid" />
+			<span>More Settings</span>
+			<div class="dangerous-settings {settingsAreDangerous($localSettings) ? '' : 'hidden'}" />
+		</a>
 	</div>
-</div>
+</aside>
 
 <style lang="postcss">
 	.dangerous-settings {
