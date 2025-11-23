@@ -273,60 +273,56 @@
 			>
 		</form>
 	</WrapperItem>
-	<WrapperItem>
-		<div class="flex flex-col items-center">
-			<div class="text-token card p-4">
-				{#if $delayed}
-					<LoadingPlaceholder
-						class="w-[51rem] max-w-[calc(100vw-4rem)]"
-						front="bg-surface-backdrop-token"
-						placeholder="animate-pulse"
-						rows={10}
-					>
-						<ProgressRadial
-							stroke={100}
-							value={undefined}
-							meter="stroke-tertiary-500"
-							track="stroke-tertiary-500/30"
-						/>
-						<p class="text-xl">Loading...</p></LoadingPlaceholder
-					>
-				{:else if gemProfit && gemProfit.length > 0}
-					<GemProfitTableHeader>
-						<svelte:fragment slot="text">Most profitable gems queried:</svelte:fragment>
+	<WrapperItem class="card p-4">
+		{#if $delayed}
+			<LoadingPlaceholder
+				class="w-[51rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				placeholder="animate-pulse"
+				rows={10}
+			>
+				<ProgressRadial
+					stroke={100}
+					value={undefined}
+					meter="stroke-tertiary-500"
+					track="stroke-tertiary-500/30"
+				/>
+				<p class="text-xl">Loading...</p></LoadingPlaceholder
+			>
+		{:else if gemProfit && gemProfit.length > 0}
+			<GemProfitTableHeader>
+				<svelte:fragment slot="text">Most profitable gems queried:</svelte:fragment>
 
-						<svelte:fragment slot="buttons">
-							<BetterTrading data={items} />
-							<ExportGems data={gemProfit} />
-							<GemFilter />
-						</svelte:fragment>
-					</GemProfitTableHeader>
-					<GemProfitTable data={items} />
-					{#if items.length === maxDataCount}
-						<div class="align-middle w-full text-center pb-[8rem]" use:loadMoreTrigger>
-							Search a gem name for more...
-						</div>
+				<svelte:fragment slot="buttons">
+					<BetterTrading data={items} />
+					<ExportGems data={gemProfit} />
+					<GemFilter />
+				</svelte:fragment>
+			</GemProfitTableHeader>
+			<GemProfitTable data={items} />
+			{#if items.length === maxDataCount}
+				<div class="align-middle w-full text-center pb-[8rem]" use:loadMoreTrigger>
+					Search a gem name for more...
+				</div>
+			{/if}
+		{:else}
+			<GemProfitTableHeader>
+				<svelte:fragment slot="buttons">
+					{#if $availableGems && $availableGems.length > 0}
+						<GemFilter />
 					{/if}
-				{:else}
-					<GemProfitTableHeader>
-						<svelte:fragment slot="buttons">
-							{#if $availableGems && $availableGems.length > 0}
-								<GemFilter />
-							{/if}
-						</svelte:fragment>
-					</GemProfitTableHeader>
-					<LoadingPlaceholder
-						class="w-[51rem] max-w-[calc(100vw-4rem)]"
-						front="bg-surface-backdrop-token"
-						rows={10}
-					>
-						<p class="text-xl">
-							Enter your criteria or just <span class="font-extrabold">search</span>
-						</p>
-					</LoadingPlaceholder>
-				{/if}
-			</div>
-		</div>
+				</svelte:fragment>
+			</GemProfitTableHeader>
+			<LoadingPlaceholder
+				class="w-[51rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				rows={10}
+			>
+				<p class="text-xl">
+					Enter your criteria or just <span class="font-extrabold">search</span>
+				</p>
+			</LoadingPlaceholder>
+		{/if}
 	</WrapperItem>
 </Wrapper>
 

@@ -8,39 +8,37 @@
 	import ExcludeRecipes from '$lib/client/ExcludeRecipes.svelte';
 </script>
 
-<div class="w-full h-full">
-	<div
-		class="article m-auto lg:max-w-screen-lg flex flex-col items-center justify-center space-y-4 text-center"
-	>
-		<h1 class="h1 flex flex-row items-center space-x-2">
-			<Icon src={hi.Cog6Tooth} size="44" class="-mb-1" theme="solid" /> <span>Settings</span>
-		</h1>
-		<div class="card">
-			<h2 class="h2">Basics</h2>
-			<LocalSettingsBasic />
-		</div>
+<article
+	class="article m-auto lg:max-w-screen-lg flex flex-col items-center justify-center space-y-4 text-center"
+>
+	<h1 class="h1 flex flex-row items-center space-x-2">
+		<Icon src={hi.Cog6Tooth} size="44" class="-mb-1" theme="solid" /> <span>Settings</span>
+	</h1>
+	<section class="card">
+		<h2 class="h2">Basics</h2>
+		<LocalSettingsBasic />
+	</section>
 
-		<div class="card">
-			<h2 class="h2">Exclude Recipes</h2>
-			<ExcludeRecipes
-				bind:excludedRecipes={$localSettings.disallowed_recipes}
-			/>
-		</div>
+	<section class="card">
+		<h2 class="h2">Exclude Recipes</h2>
+		<ExcludeRecipes
+			bind:excludedRecipes={$localSettings.disallowed_recipes}
+		/>
+	</section>
 
-		<div class="card">
-			<h2 class="h2">Exclude Gems</h2>
-			{#if !$availableGems?.length}
-				<p>Unable to remove gems from excludsion. No data has been loaded</p>
-				<p>Load data first</p>
-			{:else}
-				<GemFilterTable class="overflow-y-scroll" data={$availableGems} />
-			{/if}
-		</div>
-	</div>
-</div>
+	<section class="card">
+		<h2 class="h2">Exclude Gems</h2>
+		{#if !$availableGems?.length}
+			<p>Unable to remove gems from excludsion. No data has been loaded</p>
+			<p>Load data first</p>
+		{:else}
+			<GemFilterTable class="overflow-y-scroll" data={$availableGems} />
+		{/if}
+	</section>
+</article>
 
 <style lang="postcss">
-	.article > div {
+	.article > section {
 		@apply p-4 space-y-2 shadow-xl w-full;
 		& > h2 {
 			@apply mb-4;

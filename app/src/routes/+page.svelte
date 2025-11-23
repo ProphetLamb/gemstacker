@@ -116,57 +116,49 @@
 	}
 </script>
 
-<div class="flex flex-col justify-center items-center">
-	<div class="w-full align-middle flex justify-center p-4">
-		<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
-			<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
-			<span>
-				The best
-				<span
-					class="bg-clip-text shadow-orange-600-700 text-transparent bg-gradient-to-tr from-red-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
-					>gems</span
-				></span
-			>
-		</h1>
-	</div>
-	<div class="flex flex-col items-center">
+<article class="flex flex-col justify-center items-center">
+	<h1 class="h1 flex flex-row items-center space-x-4 pb-4">
+		<Icon src={hi.Sparkles} theme="solid" class=" text-yellow-300" size="32" />
+		<span>
+			The best
+			<span
+				class="bg-clip-text shadow-orange-600-700 text-transparent bg-gradient-to-tr from-red-700 to-yellow-600 via-accent animate-gradient-xy font-bold"
+				>gems</span
+			></span
+		>
+	</h1>
+	<section class="bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2 shadow-xl">
 		{#await profitPreview}
-			<div class="text-token bg-surface-100/75 dark:bg-surface-800/90 card p-4 space-y-2 shadow-xl">
-				<LoadingPlaceholder
-					class="w-[51rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					placeholder="animate-pulse"
-					rows={10}
-				>
-					<ProgressRadial
-						stroke={100}
-						value={undefined}
-						meter="stroke-tertiary-500"
-						track="stroke-tertiary-500/30"
-					/>
-					<p class="text-xl">Loading...</p></LoadingPlaceholder
-				>
-			</div>
+			<LoadingPlaceholder
+				class="w-[51rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				placeholder="animate-pulse"
+				rows={10}
+			>
+				<ProgressRadial
+					stroke={100}
+					value={undefined}
+					meter="stroke-tertiary-500"
+					track="stroke-tertiary-500/30"
+				/>
+				<p class="text-xl">Loading...</p></LoadingPlaceholder
+			>
 		{:then profitPreview}
 			{#if profitPreview}
-				<div
-					class="text-token flex flex-col items-center bg-surface-100/75 dark:bg-surface-800/90 card p-4 shadow-xl"
-				>
-					<GemProfitTableHeader>
-						<svelte:fragment slot="text">
-							Most profitable gems right now:
-						</svelte:fragment>
-						<svelte:fragment slot="buttons">
-							<BetterTrading data={profitPreview.gem_profit} />
-							<ExportGems data={profitPreview.gem_profit} />
-						</svelte:fragment>
-					</GemProfitTableHeader>
-					<GemProfitTable class="mt-0" data={profitPreview.gem_profit} />
-				</div>
+				<GemProfitTableHeader>
+					<svelte:fragment slot="text">
+						Most profitable gems right now:
+					</svelte:fragment>
+					<svelte:fragment slot="buttons">
+						<BetterTrading data={profitPreview.gem_profit} />
+						<ExportGems data={profitPreview.gem_profit} />
+					</svelte:fragment>
+				</GemProfitTableHeader>
+				<GemProfitTable class="mt-0" data={profitPreview.gem_profit} />
 			{/if}
 		{/await}
-	</div>
-</div>
+	</section>
+</article>
 <Wrapper>
 	<WrapperItem>
 		<h2 class="h2">Advanced Search</h2>

@@ -184,64 +184,62 @@
 			>
 		</form>
 	</WrapperItem>
-	<WrapperItem>
-		<div class="text-token flex flex-col items-center card p-4 space-y-2 shadow-xl">
-			{#if $delayed}
-				<LoadingPlaceholder
-					class="w-[55rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					placeholder="animate-pulse"
-					rows={10}
-				>
-					<ProgressRadial
-						stroke={100}
-						value={undefined}
-						meter="stroke-tertiary-500"
-						track="stroke-tertiary-500/30"
-					/>
-					<p class="text-xl">Loading...</p></LoadingPlaceholder
-				>
-			{:else if loadout && loadout.items.length > 0}
-				<GemProfitTableHeader>
-					<LoadoutInfo slot="text" bind:loadout />
-					<svelte:fragment slot="buttons">
-						<BetterTrading textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
-						<ExportGems textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
-						<GemFilter textClass="max-lg:hidden" />
-						<LocalSettings class="lg:hidden" textClass="hidden" on:close={submitWhenSettingsChanged} />
-					</svelte:fragment>
-				</GemProfitTableHeader>
-				<LoadoutTable bind:data={loadout.items} />
-			{:else}
-				<GemProfitTableHeader>
-					<LoadoutInfo
-						slot="text"
-						loadout={{
-							count: 0,
-							items: [],
-							totalBuyCost: 0,
-							totalExperience: 0,
-							totalSellPrice: 0
-						}}
-					/>
-					<svelte:fragment slot="buttons">
-						{#if $availableGems && $availableGems.length > 0}
-							<GemFilter />
-						{/if}
-						<LocalSettings class="md:hidden" on:close={submitWhenSettingsChanged} />
-					</svelte:fragment>
-				</GemProfitTableHeader>
-				<LoadingPlaceholder
-					class="w-[55rem] max-w-[calc(100vw-4rem)]"
-					front="bg-surface-backdrop-token"
-					rows={10}
-				>
-					<p class="text-xl">
-						Enter your criteria or just <span class="font-extrabold">search</span>
-					</p>
-				</LoadingPlaceholder>
-			{/if}
-		</div>
+	<WrapperItem class="card p-4 space-y-2 shadow-xl">
+		{#if $delayed}
+			<LoadingPlaceholder
+				class="w-[55rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				placeholder="animate-pulse"
+				rows={10}
+			>
+				<ProgressRadial
+					stroke={100}
+					value={undefined}
+					meter="stroke-tertiary-500"
+					track="stroke-tertiary-500/30"
+				/>
+				<p class="text-xl">Loading...</p></LoadingPlaceholder
+			>
+		{:else if loadout && loadout.items.length > 0}
+			<GemProfitTableHeader>
+				<LoadoutInfo slot="text" bind:loadout />
+				<svelte:fragment slot="buttons">
+					<BetterTrading textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
+					<ExportGems textClass="max-lg:hidden" data={loadout.items.map((x) => x.gem)} />
+					<GemFilter textClass="max-lg:hidden" />
+					<LocalSettings class="lg:hidden" textClass="hidden" on:close={submitWhenSettingsChanged} />
+				</svelte:fragment>
+			</GemProfitTableHeader>
+			<LoadoutTable bind:data={loadout.items} />
+		{:else}
+			<GemProfitTableHeader>
+				<LoadoutInfo
+					slot="text"
+					loadout={{
+						count: 0,
+						items: [],
+						totalBuyCost: 0,
+						totalExperience: 0,
+						totalSellPrice: 0
+					}}
+				/>
+				<svelte:fragment slot="buttons">
+					{#if $availableGems && $availableGems.length > 0}
+						<GemFilter />
+					{/if}
+					<LocalSettings class="md:hidden" on:close={submitWhenSettingsChanged} />
+				</svelte:fragment>
+			</GemProfitTableHeader>
+			<LoadingPlaceholder
+				class="w-[55rem] max-w-[calc(100vw-4rem)]"
+				front="bg-surface-backdrop-token"
+				rows={10}
+			>
+				<p class="text-xl">
+					Enter your criteria or just <span class="font-extrabold">search</span>
+				</p>
+			</LoadingPlaceholder>
+		{/if}
 	</WrapperItem>
 </Wrapper>
 
