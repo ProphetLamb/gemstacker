@@ -38,7 +38,7 @@
 	</div>
 </td>
 <td>
-	<div class="md:flex md:flex-row md:h-full items-center justify-end">
+	<div class="flex flex-row items-center justify-end">
 		<Chaos value={gem.min.price} />
 	</div>
 </td>
@@ -61,13 +61,11 @@
 	<Icon src={hi.ArrowRight} size="14" />
 </td>
 <td>
-	<div class="flex justify-end">
-		<div class="md:flex md:flex-row md:h-full items-center">
-			<Chaos
-				value_prefix={adjusted_earnings > 0 ? '+' : ''}
-				value={adjusted_earnings}
-				value_class={profitToTextColor(adjusted_earnings)}
-			/>
-		</div>
+	<div class="flex flex-row justify-end md:h-full items-center">
+		<Chaos
+			value_prefix={adjusted_earnings > 0 ? '+' : ''}
+			value={adjusted_earnings}
+			value_class={profitToTextColor(adjusted_earnings)}
+		/>
 	</div>
 </td>
