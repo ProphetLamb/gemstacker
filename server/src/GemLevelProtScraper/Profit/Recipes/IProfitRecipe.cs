@@ -173,7 +173,7 @@ public sealed class SkillProfitCalculationContext(
             return 1;
         }
         // number of attempts until we have a 66% expectation of profit
-        var attempts = Math.Log(normalizedProfitChance) / Math.Log(2.0 / 3);
+        var attempts = Math.Log(1 - (2.0 / 3)) / Math.Log(1.0 - normalizedProfitChance);
         // if every attempt is profitable we get a negative number of attempts
         return Math.Ceiling(Math.Max(1, attempts));
     }
