@@ -58,7 +58,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
         };
 
         var addLevel23q = (1 / 8.0m) * ((1 / 3.0m) * (8 / 21.0m)) + ((1 / 4.0m) * (8 / 21.0m)) * (1 / 6.0m);
-        var addLevel20q = (1 / 8.0m) * (1 / 3.0m + (1 / 3.0m * 1 / 21.0m)) + (2 / 8.0m + (1 / 8.0m * 1 / 21.0m)) * (1 / 6.0m); // 1/21 to no change quality even if quality is rolled
+        var addLevel20q = (1 / 8.0m) * (1 / 3.0m + (1 / 3.0m * 3 / 21.0m)) + (2 / 8.0m + (1 / 8.0m * 3 / 21.0m)) * (1 / 6.0m); // 3/21 to no change quality or less then +3 quality if quality rolled
         var addLevel10q = addLevel20q - addLevel23q;
         var maxLevel23q = (3 / 4.0m) * ((1 / 3.0m) * (8 / 21.0m)) + ((1 / 4.0m) * (8 / 21.0m)) * (2 / 3.0m);
         var anyLevel10q = maxLevel23q + addLevel23q; // add and remove level & quality have the same chances
