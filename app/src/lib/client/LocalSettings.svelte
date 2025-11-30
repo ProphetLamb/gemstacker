@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { popup, type CssClasses, type PopupSettings } from '@skeletonlabs/skeleton';
-	import { localSettings, settingsAreDangerous } from './localSettings';
+	import { localSettings, settingsAreDangerous, type LocalSettings } from './localSettings';
 	import { Icon } from '@steeze-ui/svelte-icon';
 	import * as hi from '@steeze-ui/heroicons';
 	import { createEventDispatcher } from 'svelte';
 	import { deepEqual } from '$lib/compare';
 	import LocalSettingsBasic from './LocalSettingsBasic.svelte';
+	import LocalSettingsProbabilisticToggle from './LocalSettingsProbabilisticToggle.svelte';
 
 	export let textClass: CssClasses = '';
 
@@ -29,6 +30,7 @@
 	$: settingsTitle = settingsAreDangerous($localSettings)
 		? 'One or more settings significantly affect reported profits and gems'
 		: 'Open settings';
+
 </script>
 
 <button
@@ -38,7 +40,7 @@
 	><Icon src={hi.Cog6Tooth} size="16" theme="solid" /><span class="max-md:hidden {textClass ?? ''}"
 		>Settings</span
 	>
-	<div class="dangerous-settings {settingsAreDangerous($localSettings) ? '' : 'hidden'}" />
+	<div class="dangerous-settings {settingsAreDangerous($localSettings) ? 'block' : 'hidden'}" />
 </button>
 <aside data-popup="localSettingsPopup" class="w-[calc(100%)] sm:w-[calc(100%-2rem)] pr-4 md:w-96">
 	<div class="arrow bg-surface-100-800-token" />
@@ -48,6 +50,10 @@
 			<button class="btn-icon variant-ghost w-8 h-8"><Icon src={hi.XMark} size="16" /> </button>
 		</div>
 		<LocalSettingsBasic />
+		<div class="label">
+			<span>Recipes</span>
+			<LocalSettingsProbabilisticToggle />
+		</div>
 		<hr class="!border-t-2 w-full opacity-50" />
 		<a class="btn variant-soft-success relative" href="/settings" title={settingsTitle}
 			><Icon src={hi.Cog6Tooth} size="16" theme="solid" />
@@ -59,6 +65,6 @@
 
 <style lang="postcss">
 	.dangerous-settings {
-		@apply absolute bg-warning-500-400-token rounded-full top-1 left-0 block w-3 h-3 translate-x-[-50%] translate-y-[-50%];
+		@apply absolute bg-warning-500-400-token rounded-full top-1 left-0 w-3 h-3 translate-x-[-50%] translate-y-[-50%];
 	}
 </style>

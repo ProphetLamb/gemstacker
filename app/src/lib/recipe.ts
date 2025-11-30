@@ -1,4 +1,3 @@
-import { number } from 'zod';
 import type {
 	GemProfitProbabilisticLabel,
 	GemProfitResponseItemRecipeName
@@ -7,6 +6,7 @@ import type {
 type GemProfitRecipeInfo = {
 	description: string;
 	title: string;
+	probabilistic?: boolean;
 };
 
 const literals = {
@@ -33,126 +33,156 @@ function buildDescription(steps: string[], note?: string[]) {
 	return !note ? recipe : `${recipe}\n${note.join('\n')}`;
 }
 
-const description = {
-	level_corrupt_add_level_drop_failure_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.corruptAddLevel,
-		literals.remLEvelDropFailure,
-		literals.sell
-	]),
-	level_corrupt_add_level_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.corruptAddLevel,
-		literals.remLevelLevelFailure,
-		literals.sell
-	]),
-	level_corrupt_add_level_and_quality_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.corruptAddLevelAddQuality,
-		literals.sell
-	]),
-	level_sell: buildDescription([literals.buyLevel1, literals.levelToMax, literals.sell]),
-	level_vendor_quality_level_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.vendor20Quality,
-		literals.levelToMax,
-		literals.sell
-	]),
-	level_vendor_quality_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.vendor20Quality,
-		literals.sell
-	]),
-	quality_level_sell: buildDescription([
-		literals.buyLevel1,
-		literals.qualityToMax,
-		literals.levelToMax,
-		literals.sell
-	]),
-	vendor_buy_corrupt_level_sell_vaal: buildDescription([
-		literals.buyVendor,
-		literals.corruptForVaalSkill,
-		literals.levelToMax,
-		literals.sell
-	]),
-	vendor_buy_level_corrupt_add_level_drop_failure_sell: buildDescription([
-		literals.buyLevel1,
-		literals.levelToMax,
-		literals.corruptAddLevel,
-		literals.remLEvelDropFailure,
-		literals.sell
-	]),
-	vendor_buy_level_corrupt_add_level_sell: buildDescription([
-		literals.buyVendor,
-		literals.levelToMax,
-		literals.corruptAddLevel,
-		literals.remLevelLevelFailure,
-		literals.sell
-	]),
-	vendor_buy_level_corrupt_add_level_and_quality_sell: buildDescription([
-		literals.buyVendor,
-		literals.levelToMax,
-		literals.corruptAddLevelAddQuality,
-		literals.sell
-	]),
-	vendor_buy_level_sell: buildDescription([literals.buyVendor, literals.levelToMax, literals.sell]),
-	vendor_buy_level_vendor_quality_level_sell: buildDescription([
-		literals.buyVendor,
-		literals.levelToMax,
-		literals.vendor20Quality,
-		literals.levelToMax,
-		literals.sell
-	]),
-	vendor_buy_level_vendor_quality_sell: buildDescription([
-		literals.buyVendor,
-		literals.levelToMax,
-		literals.vendor20Quality,
-		literals.sell
-	]),
-	vendor_buy_quality_level_sell: buildDescription([
-		literals.buyVendor,
-		literals.qualityToMax,
-		literals.levelToMax,
-		literals.sell
-	])
-} satisfies Record<GemProfitResponseItemRecipeName, string>;
-
-const title = {
-	level_corrupt_add_level_drop_failure_sell: 'Level > Corrupt > Sell',
-	level_corrupt_add_level_sell: 'Level > Corrupt > Level -1 > Sell',
-	level_corrupt_add_level_and_quality_sell: 'Level > Double Corrupt > Sell',
-	level_sell: 'Level > Sell',
-	level_vendor_quality_level_sell: 'Level > Vendor Quality > Level > Sell',
-	level_vendor_quality_sell: 'Level > Vendor Quality > Sell',
-	quality_level_sell: 'Quality > Level > Sell',
-	vendor_buy_corrupt_level_sell_vaal: 'Vendor > Corrupt Vaal Skill > Level > Sell',
-	vendor_buy_level_corrupt_add_level_drop_failure_sell: 'Vendor > Level > Corrupt > Sell',
-	vendor_buy_level_corrupt_add_level_sell: 'Vendor > Level > Corrupt > Level -1 > Sell',
-	vendor_buy_level_corrupt_add_level_and_quality_sell: 'Vendor > Level > Double Corrupt > Sell',
-	vendor_buy_level_sell: 'Vendor > Level > Sell',
-	vendor_buy_level_vendor_quality_level_sell: 'Vendor > Level > Vendor Quality > Level > Sell',
-	vendor_buy_level_vendor_quality_sell: 'Vendor > Level > Vendor Quality > Sell',
-	vendor_buy_quality_level_sell: 'Vendor > Quality > Level > Sell'
-} satisfies Record<GemProfitResponseItemRecipeName, string>;
+export const wellKnownRecipeInfo = {
+	level_corrupt_add_level_drop_failure_sell: {
+		title: 'Level > Corrupt > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.corruptAddLevel,
+			literals.remLEvelDropFailure,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	level_corrupt_add_level_sell: {
+		title: 'Level > Corrupt > Level -1 > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.corruptAddLevel,
+			literals.remLevelLevelFailure,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	level_corrupt_add_level_and_quality_sell: {
+		title: 'Level > Double Corrupt > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.corruptAddLevelAddQuality,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	level_sell: {
+		title: 'Level > Sell',
+		description: buildDescription([literals.buyLevel1, literals.levelToMax, literals.sell])
+	},
+	level_vendor_quality_level_sell: {
+		title: 'Level > Vendor Quality > Level > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.vendor20Quality,
+			literals.levelToMax,
+			literals.sell
+		])
+	},
+	level_vendor_quality_sell: {
+		title: 'Level > Vendor Quality > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.vendor20Quality,
+			literals.sell
+		])
+	},
+	quality_level_sell: {
+		title: 'Quality > Level > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.qualityToMax,
+			literals.levelToMax,
+			literals.sell
+		])
+	},
+	vendor_buy_corrupt_level_sell_vaal: {
+		title: 'Vendor > Corrupt Vaal Skill > Level > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.corruptForVaalSkill,
+			literals.levelToMax,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	vendor_buy_level_corrupt_add_level_drop_failure_sell: {
+		title: 'Vendor > Level > Corrupt > Sell',
+		description: buildDescription([
+			literals.buyLevel1,
+			literals.levelToMax,
+			literals.corruptAddLevel,
+			literals.remLEvelDropFailure,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	vendor_buy_level_corrupt_add_level_sell: {
+		title: 'Vendor > Level > Corrupt > Level -1 > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.levelToMax,
+			literals.corruptAddLevel,
+			literals.remLevelLevelFailure,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	vendor_buy_level_corrupt_add_level_and_quality_sell: {
+		title: 'Vendor > Level > Double Corrupt > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.levelToMax,
+			literals.corruptAddLevelAddQuality,
+			literals.sell
+		]),
+		probabilistic: true
+	},
+	vendor_buy_level_sell: {
+		title: 'Vendor > Level > Sell',
+		description: buildDescription([literals.buyVendor, literals.levelToMax, literals.sell])
+	},
+	vendor_buy_level_vendor_quality_level_sell: {
+		title: 'Vendor > Level > Vendor Quality > Level > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.levelToMax,
+			literals.vendor20Quality,
+			literals.levelToMax,
+			literals.sell
+		])
+	},
+	vendor_buy_level_vendor_quality_sell: {
+		title: 'Vendor > Level > Vendor Quality > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.levelToMax,
+			literals.vendor20Quality,
+			literals.sell
+		])
+	},
+	vendor_buy_quality_level_sell: {
+		title: 'Vendor > Quality > Level > Sell',
+		description: buildDescription([
+			literals.buyVendor,
+			literals.qualityToMax,
+			literals.levelToMax,
+			literals.sell
+		])
+	},
+	misc: { title: 'Miscellaneous', description: '' }
+} as Record<GemProfitResponseItemRecipeName | 'misc', GemProfitRecipeInfo>;
 
 export function getRecipeInfo(
 	recipe?: GemProfitResponseItemRecipeName | string
 ): GemProfitRecipeInfo {
 	if (!recipe) {
-		return { description: '', title: '' };
+		return wellKnownRecipeInfo.misc;
 	}
 	const key = recipe as GemProfitResponseItemRecipeName;
-	const info = {
-		description: description[key] ?? '',
-		title: title[key] ?? ''
-	} satisfies GemProfitRecipeInfo;
-
-	return info;
+	return wellKnownRecipeInfo[key] ?? wellKnownRecipeInfo.misc;
 }
 
 export const wellKnownProbabilisticLabelDisplay = {
@@ -193,7 +223,7 @@ export function gainMarginToBgColor(gainMargin?: number) {
 		return 'bg-sky-500/5';
 	}
 	if (gainMargin > 0.05) {
-		return'bg-amber-500/5';
+		return 'bg-amber-500/5';
 	}
 	return 'bg-red-500/10';
 }
@@ -207,4 +237,3 @@ export function profitToTextColor(profit?: number) {
 	}
 	return 'text-error-300-600-token';
 }
-
