@@ -128,6 +128,13 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 ? ParseInfoTable(infoTable)
                 : throw new InvalidOperationException("Missing skill stats table");
 
+            // discriminator is now embedded in activeskillscode
+            if (string.IsNullOrEmpty(discriminator) && !string.IsNullOrEmpty(skillStats.ActiveSkillCode))
+            {
+                var match = MatchAltDiscriminatorRegex().Match(skillStats.ActiveSkillCode).Groups[1];
+                discriminator = match.Success ? match.Value : null;
+            }
+
             var genus = PoeDbHtml.TryGetHeader(headers, skillName, "Genus", logger) is { } genusHeader
                 ? ParseGenusList(genusHeader)
                 : null;
@@ -201,6 +208,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 ?? [];
             var references = titleView["Reference"].SingleOrDefault()?.First().Children.OfType<IHtmlAnchorElement>().Select(a => new PoeDbLink(a.TextContent, a.Href))
                 ?? [];
+            var activeSkillsCode = titleView.Match("ActiveSkillsCode").SingleOrDefault()?.FirstOrDefault()?.TextContent;
             var dropLevel = titleView.Match("DropLevel*").SingleOrDefault()?.Select(x => long.Parse(x.TextContent, CultureInfo.GetCultureInfo(1033))).FirstOrDefault();
             return new(
                 baseType,
@@ -208,6 +216,7 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 acronyms.ToImmutableArray(),
                 metadata,
                 references.ToImmutableArray(),
+                activeSkillsCode,
                 dropLevel
             );
         }
