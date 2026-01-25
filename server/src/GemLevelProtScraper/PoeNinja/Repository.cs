@@ -64,7 +64,7 @@ public sealed class PoeNinjaIncursionTempleRepository(
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _templeCollection
             .Find(x => true)
-            .Project(s => KeyValuePair.Create(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.Name, s.Price.ChaosValue)))
+            .Project(s => new KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.Name, s.Price.ChaosValue)))
             .ToCursorAsync(cancellationToken)
             .ConfigureAwait(false);
         return cursor;
@@ -255,7 +255,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _currencyCollection
             .Find(x => true)
-            .Project(s => KeyValuePair.Create(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent)))
+            .Project(s => new KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent)))
             .ToCursorAsync(cancellationToken)
             .ConfigureAwait(false);
         return cursor;
