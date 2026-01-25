@@ -10,7 +10,7 @@ internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<double?> Data, double TotalChange);
 
-internal sealed record PoeNinjaApiGemPrice(
+internal sealed record PoeNinjaApiPrice(
     string Name,
     string Icon,
     PoeNinjaApiSparkLine SparkLine,
@@ -42,14 +42,16 @@ internal sealed record PoeNinjaApiExchangeItem(
 
 internal sealed record PoeNinjaApiExchangeCore(string Primary, string Secondary, Dictionary<string, double> Rates);
 
-[BsonIgnoreExtraElements]
 internal sealed record PoeNinjaApiExchangeResponse(PoeNinjaApiExchangeCore Core, ImmutableArray<PoeNinjaApiExchangeLine> Lines, ImmutableArray<PoeNinjaApiExchangeItem> Items);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
+internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiPrice Price);
+
+[BsonIgnoreExtraElements]
+internal sealed record PoeNinjaApiIncursionTemplePriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiPrice Price);
 
 internal sealed record PoeNinjaApiGemResponse(
-    ImmutableArray<PoeNinjaApiGemPrice> Lines
+    ImmutableArray<PoeNinjaApiPrice> Lines
 );
 
 internal sealed record PoeNinjaApiCurrencyPrice(

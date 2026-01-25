@@ -12,7 +12,8 @@ internal sealed class PoeNinjaScraper(IServiceScopeFactory serviceScopeFactory) 
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await using var scope = serviceScopeFactory.CreateAsyncScope();
+            var scope = serviceScopeFactory.CreateAsyncScope();
+            await using var scope1 = scope.ConfigureAwait(false);
             await Task.WhenAll(
                 // ReSharper disable once AccessToDisposedClosure
                 LeagueModeHelper.WellknownLeagues.Select(league => ScrapeTradeLeague(scope, league, stoppingToken))
@@ -48,9 +49,10 @@ internal sealed class PoeNinjaSkillGemSpider(IStaticPageLoader pageLoader, IData
     {
         Uri url = new($"{root.Url}/api/data/itemoverview?league={root.League.Name}&type=SkillGem&language=en");
         var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
-        await using var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        await using var content1 = content.ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPriceEnvelope");
+                       ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiGemPriceEnvelope");
         await gemPublisher.PublishAllAsync(
             envelope.Lines.Select(price => new PoeNinjaApiGemPriceEnvelope(root.League.Mode, default, price)),
             cancellationToken
@@ -58,7 +60,7 @@ internal sealed class PoeNinjaSkillGemSpider(IStaticPageLoader pageLoader, IData
     }
 }
 
-internal sealed class ProNinjaExchangeSpider(IStaticPageLoader pageLoader, IDataflowPublisher<PoeNinjaApiCurrencyPriceEnvelope> currencyPublisher) : IDataflowHandler<PoeNinjaList>
+internal sealed class PoeNinjaExchangeSpider(IStaticPageLoader pageLoader, IDataflowPublisher<PoeNinjaApiCurrencyPriceEnvelope> currencyPublisher) : IDataflowHandler<PoeNinjaList>
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
 
@@ -66,7 +68,8 @@ internal sealed class ProNinjaExchangeSpider(IStaticPageLoader pageLoader, IData
     {
         Uri url = new($"{root.Url}/poe1/api/economy/exchange/current/overview?league={root.League.Name}&type=Currency&language=en");
         var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
-        await using var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        await using var content1 = content.ConfigureAwait(false);
         var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiExchangeResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
                        ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiExchangeResponse");
         var itemByKey = envelope.Items.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
@@ -82,6 +85,25 @@ internal sealed class ProNinjaExchangeSpider(IStaticPageLoader pageLoader, IData
             var rate = line.MaxVolumeCurrency == envelope.Core.Primary ? 1 : envelope.Core.Rates.GetValueOrDefault(line.MaxVolumeCurrency, 1);
             return new(item?.Name ?? "", null, null, null, null, line.PrimaryValue / rate, null, null, line.Id);
         }
+    }
+}
+
+internal sealed class PoeNinjaIncursionTempleSpider(IStaticPageLoader pageLoader, IDataflowPublisher<PoeNinjaApiIncursionTemplePriceEnvelope> templePublisher) : IDataflowHandler<PoeNinjaList>
+{
+    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web) { NumberHandling = JsonNumberHandling.AllowReadingFromString };
+
+    public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
+    {
+        Uri url = new($"{root.Url}/poe1/api/economy/stash/current/item/overview?league={root.League.Mode}&type=IncursionTemple");
+        var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
+        var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        await using var content1 = content.ConfigureAwait(false);
+        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
+                       ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiIncursionTemplePriceEnvelope");
+        await templePublisher.PublishAllAsync(
+            envelope.Lines.Select(price => new PoeNinjaApiIncursionTemplePriceEnvelope(root.League.Mode, default, price)),
+            cancellationToken
+        ).ConfigureAwait(false);
     }
 }
 
@@ -120,7 +142,7 @@ internal sealed class PoeNinjaCleanup(PoeNinjaGemRepository gemRepository, PoeNi
     }
 }
 
-internal sealed class PoeNinjaSink(PoeNinjaGemRepository gemRepository, PoeNinjaCurrencyRepository currencyRepository) : IDataflowHandler<PoeNinjaApiGemPriceEnvelope>, IDataflowHandler<PoeNinjaApiCurrencyPriceEnvelope>
+internal sealed class PoeNinjaSink(PoeNinjaGemRepository gemRepository, PoeNinjaCurrencyRepository currencyRepository, PoeNinjaIncursionTempleRepository templeRepository) : IDataflowHandler<PoeNinjaApiGemPriceEnvelope>, IDataflowHandler<PoeNinjaApiCurrencyPriceEnvelope>, IDataflowHandler<PoeNinjaApiIncursionTemplePriceEnvelope>
 {
     public async ValueTask HandleAsync(PoeNinjaApiGemPriceEnvelope newGem, CancellationToken cancellationToken = default)
     {
@@ -130,5 +152,13 @@ internal sealed class PoeNinjaSink(PoeNinjaGemRepository gemRepository, PoeNinja
     public async ValueTask HandleAsync(PoeNinjaApiCurrencyPriceEnvelope newCurrency, CancellationToken cancellationToken = default)
     {
         await currencyRepository.AddOrUpdateAsync(newCurrency.League, newCurrency.Price, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask HandleAsync(
+        PoeNinjaApiIncursionTemplePriceEnvelope newTemple,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await templeRepository.AddOrUpdateAsync(newTemple.League, newTemple.Price, cancellationToken).ConfigureAwait(false);
     }
 }

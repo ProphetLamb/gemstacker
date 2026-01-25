@@ -37,7 +37,7 @@ public sealed class ProfitService(
 
     public async ValueTask<IReadOnlyList<ProfitResponse>> GetProfitAsync(
         ProfitRequest request,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default
+        CancellationToken cancellationToken = default
     )
     {
         var allowedRecipes = request.DisallowedRecipes is null

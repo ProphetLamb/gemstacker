@@ -2,11 +2,13 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeNinja;
+using MongoDB.Driver;
 
 namespace GemLevelProtScraper;
 
 public sealed class ExchangeRateProvider(
     PoeNinjaCurrencyRepository currencyRepository,
+    PoeNinjaIncursionTempleRepository templeRepository,
     IServiceScopeFactory scopeFactory
 ) : BackgroundService
 {
@@ -17,7 +19,8 @@ public sealed class ExchangeRateProvider(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using var scope = scopeFactory.CreateAsyncScope();
+        var scope = scopeFactory.CreateAsyncScope();
+        await using var scope1 = scope.ConfigureAwait(false);
         var signal = scope.ServiceProvider.GetRequiredService<DataflowSignal<PoeNinjaListCompleted>>();
         await Task
             .WhenAll(RefreshUsingSignal(signal, stoppingToken), RefreshPeriodically(stoppingToken))
@@ -102,18 +105,31 @@ public sealed class ExchangeRateProvider(
         CancellationToken cancellationToken
     )
     {
-        var results = await currencyRepository
-            .GetAllExchangeRatesAsync(cancellationToken)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(results.Count);
-        foreach (var (league, rate) in results)
+        var currency = await Task.WhenAll(Currency(), Temple()).ConfigureAwait(false);
+        Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(currency.Sum(x => x.Count));
+        foreach (var (league, rate) in currency.SelectMany(x => x))
         {
             exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
         }
 
         AmendAndReplaceExchangeRates(null, exchangeRates);
         return exchangeRates;
+
+        async Task<List<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> Currency()
+        {
+            var currencyCursor =
+                await currencyRepository.GetAllExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
+            var keyValuePairs = await currencyCursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return keyValuePairs;
+        }
+
+        async Task<List<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> Temple()
+        {
+            var currencyCursor =
+                await templeRepository.GetAllExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
+            var keyValuePairs = await currencyCursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return keyValuePairs;
+        }
     }
 
     private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> RefreshAsync(
@@ -121,7 +137,10 @@ public sealed class ExchangeRateProvider(
         CancellationToken cancellationToken = default
     )
     {
-        var newExchangeRates = currencyRepository.GetExchangeRatesAsync(league, cancellationToken);
+        var newCurrency = Task.WhenAll(
+            currencyRepository.GetExchangeRatesAsync(league, cancellationToken),
+            templeRepository.GetExchangeRatesAsync(league, cancellationToken)
+        );
         int count;
         lock (_exchangeRatesLock)
         {
@@ -129,10 +148,18 @@ public sealed class ExchangeRateProvider(
         }
 
         Dictionary<Key, PoeNinjaCurrencyExchangeRate> exchangeRates = new(count);
-        await foreach (var rate in newExchangeRates.ConfigureAwait(false))
+        var cursors = await newCurrency.ConfigureAwait(false);
+
+        foreach (var cursor in cursors)
         {
-            exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
-            cancellationToken.ThrowIfCancellationRequested();
+            while (await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false))
+            {
+                foreach (var rate in cursor.Current)
+                {
+                    exchangeRates.Add(new(league, rate.CurrencyTypeName), rate);
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            }
         }
 
         AmendAndReplaceExchangeRates(league, exchangeRates);
@@ -227,6 +254,7 @@ public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeN
     public static CurrencyTypeName GemcuttersPrism => new("Gemcutter's Prism");
     public static CurrencyTypeName ChaosOrb => new("Chaos Orb");
     public static CurrencyTypeName VaalOrb => new("Vaal Orb");
+    public static CurrencyTypeName LocusOfCorruptionT3 => new("Locus of Corruption (Tier 3)");
 
 
     public bool Equals(CurrencyTypeName other)

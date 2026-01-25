@@ -14,7 +14,8 @@ internal sealed class PoeDbScraper(IServiceScopeFactory serviceScopeFactory, ISy
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await using var scope = serviceScopeFactory.CreateAsyncScope();
+            var scope = serviceScopeFactory.CreateAsyncScope();
+            await using var scope1 = scope.ConfigureAwait(false);
             var activePublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbActiveSkillList>>();
             var supportPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbSupportSkillList>>();
             var completionPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeDbListCompleted>>();

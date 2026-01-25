@@ -41,7 +41,7 @@ public static class DataFlowExtensions
 
         async Task Deflate(ChannelReader<T> reader)
         {
-            await foreach (var item in reader.ReadAllAsync(parallelOptions.CancellationToken))
+            await foreach (var item in reader.ReadAllAsync(parallelOptions.CancellationToken).ConfigureAwait(false))
             {
                 await publisher.PublishAsync(item).ConfigureAwait(false);
             }

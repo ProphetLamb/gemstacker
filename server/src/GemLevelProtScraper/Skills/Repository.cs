@@ -13,7 +13,7 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
     private readonly IMongoCollection<SkillGem> _skills = options.Value.GetSkillGemCollection();
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvelope> _prices = options.Value.GetPoeNinjaGemCollection();
 
-    public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(LeagueMode leauge, string? containsName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(LeagueMode leauge, string? containsName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(options.Value, cancellationToken).ConfigureAwait(false);
         return await _skills.AsQueryable()

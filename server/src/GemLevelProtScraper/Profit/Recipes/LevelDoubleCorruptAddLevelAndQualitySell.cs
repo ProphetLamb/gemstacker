@@ -54,7 +54,7 @@ public class LevelDoubleCorruptAddLevelAndQualitySell : IProfitRecipe
         Dictionary<string, double> recipeCost = new()
         {
             [CurrencyTypeName.GemcuttersPrism] = corruptAddLevel.GemQuality - min.GemQuality, // 20 quality
-            [CurrencyTypeName.ChaosOrb] = 50, // "Lapidary Lens" isn't currency we value it with 50c for now
+            [CurrencyTypeName.ChaosOrb] = ctx.ExchangeRate(CurrencyTypeName.LocusOfCorruptionT3) ?? 50, // "Lapidary Lens" isn't currency we value it with 50c for now
         };
 
         var addLevel23q = (1 / 8.0m) * ((1 / 3.0m) * (8 / 21.0m)) + ((1 / 4.0m) * (8 / 21.0m)) * (1 / 6.0m);

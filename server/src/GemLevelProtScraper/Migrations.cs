@@ -17,6 +17,7 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     public required string PoeLeagueCollectionName { get; init; }
     public required string PoeDbSkillCollectionName { get; init; }
     public required string PoeNinjaGemCollectionName { get; init; }
+    public required string PoeNinjaTempleCollectionName { get; init; }
     public required string PoeNinjaCurrencyCollectionName { get; init; }
     public required string SkillGemViewName { get; init; }
 
@@ -55,6 +56,14 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     {
         database ??= GetDatabase();
         return database.GetCollection<PoeNinjaApiGemPriceEnvelope>(PoeNinjaGemCollectionName);
+    }
+
+    internal IMongoCollection<PoeNinjaApiIncursionTemplePriceEnvelope> GetPoeNinjaTempleCollection(
+        IMongoDatabase? database = null
+    )
+    {
+        database ??= GetDatabase();
+        return database.GetCollection<PoeNinjaApiIncursionTemplePriceEnvelope>(PoeNinjaTempleCollectionName);
     }
 
     internal IMongoCollection<PoeNinjaApiCurrencyPriceEnvelope> GetPoeNinjaCurrencyCollection(IMongoDatabase? database = null)

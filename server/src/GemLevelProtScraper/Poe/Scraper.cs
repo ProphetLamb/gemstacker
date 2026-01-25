@@ -9,7 +9,8 @@ internal sealed class PoeScraper(IServiceScopeFactory serviceScopeFactory) : Bac
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await using var scope = serviceScopeFactory.CreateAsyncScope();
+            var scope = serviceScopeFactory.CreateAsyncScope();
+            await using var scope1 = scope.ConfigureAwait(false);
             var rootPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeagueList>>();
             var completedPublisher = scope.ServiceProvider.GetRequiredService<IDataflowPublisher<PoeLeagueListCompleted>>();
             await rootPublisher.PublishAsync(new("https://www.pathofexile.com/api"), stoppingToken).ConfigureAwait(false);

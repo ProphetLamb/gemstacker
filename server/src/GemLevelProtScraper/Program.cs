@@ -34,6 +34,7 @@ builder
     .AddSingleton<SignalCompletionStorage>()
     .AddTransient<PoeDbRepository>()
     .AddTransient<PoeNinjaGemRepository>()
+    .AddTransient<PoeNinjaIncursionTempleRepository>()
     .AddTransient<PoeNinjaCurrencyRepository>()
     .AddTransient<PoeRepository>()
     .AddTransient<SkillGemRepository>()
