@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-internal sealed record PoeNinjaList(DateTimeOffset Timestamp, PoeLeague League, string ApiUrl);
+internal sealed record PoeNinjaList(DateTimeOffset Timestamp, PoeLeague League, string Url);
 
 internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague League);
 
@@ -23,9 +23,30 @@ internal sealed record PoeNinjaApiGemPrice(
     long ListingCount
 );
 
+internal sealed record PoeNinjaApiExchangeLine(
+    string Id,
+    double PrimaryValue,
+    double VolumePrimaryValue,
+    string MaxVolumeCurrency,
+    double MaxVolumeRate,
+    PoeNinjaApiSparkLine Sparkline
+);
+
+internal sealed record PoeNinjaApiExchangeItem(
+    string Id,
+    string Name,
+    string Image,
+    string Category,
+    string DetailsId
+);
+
+internal sealed record PoeNinjaApiExchangeCore(string Primary, string Secondary, Dictionary<string, double> Rates);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiGemPriceEnvalope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
+internal sealed record PoeNinjaApiExchangeResponse(PoeNinjaApiExchangeCore Core, ImmutableArray<PoeNinjaApiExchangeLine> Lines, ImmutableArray<PoeNinjaApiExchangeItem> Items);
+
+[BsonIgnoreExtraElements]
+internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
 internal sealed record PoeNinjaApiGemResponse(
     ImmutableArray<PoeNinjaApiGemPrice> Lines
@@ -33,13 +54,13 @@ internal sealed record PoeNinjaApiGemResponse(
 
 internal sealed record PoeNinjaApiCurrencyPrice(
     string CurrencyTypeName,
-    PoeNinjaApiCurrencyTrade Pay,
-    PoeNinjaApiCurrencyTrade Receive,
-    PoeNinjaApiSparkLine PaySparkLine,
-    PoeNinjaApiSparkLine ReceiveSparkLine,
+    PoeNinjaApiCurrencyTrade? Pay,
+    PoeNinjaApiCurrencyTrade? Receive,
+    PoeNinjaApiSparkLine? PaySparkLine,
+    PoeNinjaApiSparkLine? ReceiveSparkLine,
     double ChaosEquivalent,
-    PoeNinjaApiSparkLine LowConfidencePaySparkLine,
-    PoeNinjaApiSparkLine LowConfidenceReceiveSparkLine,
+    PoeNinjaApiSparkLine? LowConfidencePaySparkLine,
+    PoeNinjaApiSparkLine? LowConfidenceReceiveSparkLine,
     string DetailsId
 );
 
@@ -64,7 +85,7 @@ internal sealed record PoeNinjaApiCurrencyDetails(
 );
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiCurrencyPriceEnvalope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiCurrencyPrice Price);
+internal sealed record PoeNinjaApiCurrencyPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiCurrencyPrice Price);
 
 internal sealed record PoeNinjaApiCurrencyResponse(
     ImmutableArray<PoeNinjaApiCurrencyPrice> Lines,

@@ -51,16 +51,16 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
         return database.GetCollection<PoeDbSkillEnvalope>(PoeDbSkillCollectionName);
     }
 
-    internal IMongoCollection<PoeNinjaApiGemPriceEnvalope> GetPoeNinjaGemCollection(IMongoDatabase? database = null)
+    internal IMongoCollection<PoeNinjaApiGemPriceEnvelope> GetPoeNinjaGemCollection(IMongoDatabase? database = null)
     {
         database ??= GetDatabase();
-        return database.GetCollection<PoeNinjaApiGemPriceEnvalope>(PoeNinjaGemCollectionName);
+        return database.GetCollection<PoeNinjaApiGemPriceEnvelope>(PoeNinjaGemCollectionName);
     }
 
-    internal IMongoCollection<PoeNinjaApiCurrencyPriceEnvalope> GetPoeNinjaCurrencyCollection(IMongoDatabase? database = null)
+    internal IMongoCollection<PoeNinjaApiCurrencyPriceEnvelope> GetPoeNinjaCurrencyCollection(IMongoDatabase? database = null)
     {
         database ??= GetDatabase();
-        return database.GetCollection<PoeNinjaApiCurrencyPriceEnvalope>(PoeNinjaCurrencyCollectionName);
+        return database.GetCollection<PoeNinjaApiCurrencyPriceEnvelope>(PoeNinjaCurrencyCollectionName);
     }
 
     internal IMongoCollection<SkillGem> GetSkillGemCollection(IMongoDatabase? database = null)
@@ -241,13 +241,13 @@ public sealed class PoeNinjaCurrencyAddIdentifierIndexMigration(IOptions<PoeData
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvelope> builder = new();
         var index = builder.Combine(
             builder.Ascending(e => e.Price.CurrencyTypeName),
             builder.Ascending(e => e.League)
         );
 
-        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvelope> model = new(index, new()
         {
             Unique = true,
             Name = CurrencyIdentifierIndexName
@@ -271,10 +271,10 @@ public sealed class PoeNinjaCurrencyAddLeagueIndexMigration(IOptions<PoeDatabase
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvelope> builder = new();
         var index = builder.Ascending(e => e.League);
 
-        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvelope> model = new(index, new()
         {
             Name = CurrencyLeagueIndexName
         });
@@ -296,10 +296,10 @@ public sealed class PoeNinjaCurrencyAddNameIndexMigration(IOptions<PoeDatabaseSe
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiCurrencyPriceEnvelope> builder = new();
         var index = builder.Hashed(e => e.Price.CurrencyTypeName);
 
-        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiCurrencyPriceEnvelope> model = new(index, new()
         {
             Name = CurrencyTypeNameIndexName
         });
@@ -396,10 +396,10 @@ public sealed class PoeNinjaGemAddLeagueIndexMigration(IOptions<PoeDatabaseSetti
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaGemCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvelope> builder = new();
         var index = builder.Ascending(e => e.League);
 
-        CreateIndexModel<PoeNinjaApiGemPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiGemPriceEnvelope> model = new(index, new()
         {
             Name = GemLeagueIndexName
         });
@@ -421,10 +421,10 @@ public sealed class PoeNinjaGemAddNameIndexMigration(IOptions<PoeDatabaseSetting
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaGemCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvelope> builder = new();
         var index = builder.Hashed(e => e.Price.Name);
 
-        CreateIndexModel<PoeNinjaApiGemPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiGemPriceEnvelope> model = new(index, new()
         {
             Name = GemNameIndexName
         });
@@ -446,7 +446,7 @@ public sealed class PoeNinjaGemAddIdentifierIndexMigration(IOptions<PoeDatabaseS
     public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
     {
         var col = optionsAccessor.Value.GetPoeNinjaGemCollection(database);
-        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvalope> builder = new();
+        IndexKeysDefinitionBuilder<PoeNinjaApiGemPriceEnvelope> builder = new();
         var index = builder.Combine(
             builder.Ascending(e => e.Price.Name),
             builder.Ascending(e => e.League),
@@ -454,7 +454,7 @@ public sealed class PoeNinjaGemAddIdentifierIndexMigration(IOptions<PoeDatabaseS
             builder.Ascending(e => e.Price.GemQuality)
         );
 
-        CreateIndexModel<PoeNinjaApiGemPriceEnvalope> model = new(index, new()
+        CreateIndexModel<PoeNinjaApiGemPriceEnvelope> model = new(index, new()
         {
             Unique = true,
             Name = GemIdentifierIndexName

@@ -11,7 +11,7 @@ namespace GemLevelProtScraper.Skills;
 public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IMongoMigrationCompletion completion)
 {
     private readonly IMongoCollection<SkillGem> _skills = options.Value.GetSkillGemCollection();
-    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvalope> _prices = options.Value.GetPoeNinjaGemCollection();
+    private readonly IMongoCollection<PoeNinjaApiGemPriceEnvelope> _prices = options.Value.GetPoeNinjaGemCollection();
 
     public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(LeagueMode leauge, string? containsName, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
