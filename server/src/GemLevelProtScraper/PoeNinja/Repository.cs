@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using DotNet.Globbing;
 using GemLevelProtScraper.Poe;
 using Microsoft.Extensions.Options;
@@ -15,14 +14,12 @@ public sealed class PoeNinjaIncursionTempleRepository(
 {
     private readonly IMongoCollection<PoeNinjaApiIncursionTemplePriceEnvelope> _templeCollection = settings.Value.GetPoeNinjaTempleCollection();
 
-    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiPrice newPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiTemplePrice newPrice, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _templeCollection.FindOneAndReplaceAsync(
             item
                 => item.League == leagueMode
-                   && item.Price.GemLevel == newPrice.GemLevel
-                   && item.Price.GemQuality == newPrice.GemQuality
                    && item.Price.Name == newPrice.Name,
             new(leagueMode, clock.UtcNow.UtcDateTime, newPrice),
             new() { IsUpsert = true },
@@ -30,7 +27,7 @@ public sealed class PoeNinjaIncursionTempleRepository(
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiPrice>> GetByNameAsync(LeagueMode league, string? templeName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiTemplePrice>> GetByNameAsync(LeagueMode league, string? templeName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(templeName))
@@ -75,7 +72,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
 {
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvelope> _gemCollection = settings.Value.GetPoeNinjaGemCollection();
 
-    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiPrice newPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newPrice, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemCollection.FindOneAndReplaceAsync(
@@ -90,7 +87,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiPrice>> GetByNameAsync(LeagueMode league, string? skillName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(LeagueMode league, string? skillName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
@@ -106,7 +103,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var skillNameSet = skillNames.ToHashSet();
@@ -126,7 +123,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
         return result.IsAcknowledged ? result.DeletedCount : -1;
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (nameWildcard == "*")

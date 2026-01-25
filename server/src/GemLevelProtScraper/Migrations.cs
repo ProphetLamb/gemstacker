@@ -79,6 +79,61 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     }
 }
 
+[MongoMigration(PoeDatabaseSettings.Alias, 12, 13, Description = $"Add unique composite index {CurrencyIdentifierIndexName}.")]
+public sealed class PoeNinjaTempleAddIdentifierIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public const string CurrencyIdentifierIndexName = "CurrencyIdentifier";
+
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var currencyCollection = optionsAccessor.Value.GetPoeNinjaTempleCollection(database);
+        await currencyCollection.Indexes.DropOneAsync(CurrencyIdentifierIndexName, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetPoeNinjaTempleCollection(database);
+        IndexKeysDefinitionBuilder<PoeNinjaApiIncursionTemplePriceEnvelope> builder = new();
+        var index = builder.Combine(
+            builder.Ascending(e => e.Price.Name),
+            builder.Ascending(e => e.League)
+        );
+
+        CreateIndexModel<PoeNinjaApiIncursionTemplePriceEnvelope> model = new(index, new()
+        {
+            Unique = true,
+            Name = CurrencyIdentifierIndexName
+        });
+        _ = await col.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+[MongoMigration(PoeDatabaseSettings.Alias, 11, 12, Description = $"Add unique index {CurrencyLeagueIndexName}.")]
+public sealed class PoeNinjaTempleAddLeagueIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public const string CurrencyLeagueIndexName = "CurrencyLeague";
+
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetPoeNinjaTempleCollection(database);
+        await col.Indexes.DropOneAsync(CurrencyLeagueIndexName, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        var col = optionsAccessor.Value.GetPoeNinjaTempleCollection(database);
+        IndexKeysDefinitionBuilder<PoeNinjaApiIncursionTemplePriceEnvelope> builder = new();
+        var index = builder.Ascending(e => e.League);
+
+        CreateIndexModel<PoeNinjaApiIncursionTemplePriceEnvelope> model = new(index, new()
+        {
+            Name = CurrencyLeagueIndexName
+        });
+        _ = await col.Indexes.CreateOneAsync(model, null, cancellationToken).ConfigureAwait(false);
+    }
+}
+
+
 [MongoMigration(PoeDatabaseSettings.Alias, 10, 11, Description = $"Add last level exp to SkillGemView.")]
 public sealed class AddLastLevelExprToSkillGemView(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
 {

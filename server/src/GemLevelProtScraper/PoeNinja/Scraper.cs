@@ -94,11 +94,11 @@ internal sealed class PoeNinjaIncursionTempleSpider(IStaticPageLoader pageLoader
 
     public async ValueTask HandleAsync(PoeNinjaList root, CancellationToken cancellationToken = default)
     {
-        Uri url = new($"{root.Url}/poe1/api/economy/stash/current/item/overview?league={root.League.Mode}&type=IncursionTemple");
+        Uri url = new($"{root.Url}/poe1/api/economy/stash/current/item/overview?league={root.League.Name}&type=IncursionTemple");
         var response = await pageLoader.LoadAsync(url, cancellationToken).ConfigureAwait(false);
         var content = await response.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
         await using var content1 = content.ConfigureAwait(false);
-        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiGemResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
+        var envelope = await JsonSerializer.DeserializeAsync<PoeNinjaApiTempleResponse>(content, _jsonOptions, cancellationToken).ConfigureAwait(false)
                        ?? throw new InvalidOperationException("The poe.ninja API response is no PoeNinjaApiIncursionTemplePriceEnvelope");
         await templePublisher.PublishAllAsync(
             envelope.Lines.Select(price => new PoeNinjaApiIncursionTemplePriceEnvelope(root.League.Mode, default, price)),

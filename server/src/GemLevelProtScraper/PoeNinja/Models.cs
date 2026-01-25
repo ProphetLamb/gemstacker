@@ -10,7 +10,7 @@ internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<double?> Data, double TotalChange);
 
-internal sealed record PoeNinjaApiPrice(
+internal sealed record PoeNinjaApiGemPrice(
     string Name,
     string Icon,
     PoeNinjaApiSparkLine SparkLine,
@@ -18,6 +18,16 @@ internal sealed record PoeNinjaApiPrice(
     bool Corrupted,
     long GemLevel,
     long GemQuality,
+    double ChaosValue,
+    double DivineValue,
+    long ListingCount
+);
+
+internal sealed record PoeNinjaApiTemplePrice(
+    string Name,
+    string Icon,
+    PoeNinjaApiSparkLine SparkLine,
+    PoeNinjaApiSparkLine LowConfidenceSparkLine,
     double ChaosValue,
     double DivineValue,
     long ListingCount
@@ -45,14 +55,16 @@ internal sealed record PoeNinjaApiExchangeCore(string Primary, string Secondary,
 internal sealed record PoeNinjaApiExchangeResponse(PoeNinjaApiExchangeCore Core, ImmutableArray<PoeNinjaApiExchangeLine> Lines, ImmutableArray<PoeNinjaApiExchangeItem> Items);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiPrice Price);
+internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiIncursionTemplePriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiPrice Price);
+internal sealed record PoeNinjaApiIncursionTemplePriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiTemplePrice Price);
 
 internal sealed record PoeNinjaApiGemResponse(
-    ImmutableArray<PoeNinjaApiPrice> Lines
+    ImmutableArray<PoeNinjaApiGemPrice> Lines
 );
+
+internal sealed record PoeNinjaApiTempleResponse(ImmutableArray<PoeNinjaApiTemplePrice> Lines);
 
 internal sealed record PoeNinjaApiCurrencyPrice(
     string CurrencyTypeName,
