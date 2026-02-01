@@ -1,2 +1,2 @@
-GET http://localhost:34571/gem-profit?league=Keepers&min_experience_delta=300000000&min_listing_count=10&items_count=10
+GET http://localhost:5000/gem-profit?league=Keepers&min_experience_delta=300000000&min_listing_count=10&items_count=10
 Authorization: Token dGVzdA==
