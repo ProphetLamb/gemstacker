@@ -47,8 +47,7 @@ public sealed class PoeLeaguesSpider(IDataflowPublisher<PoeLeague> publisher, IH
                 (
                     item.Id,
                     item.Text,
-                    RealmHelper.Parse(item.Realm),
-                    LeagueModeHelper.Parse(item.Id, league)
+                    RealmHelper.Parse(item.Realm)
                 )
             );
 

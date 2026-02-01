@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeNinja;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -13,7 +11,7 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
     private readonly IMongoCollection<SkillGem> _skills = options.Value.GetSkillGemCollection();
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvelope> _prices = options.Value.GetPoeNinjaGemCollection();
 
-    public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(LeagueMode leauge, string? containsName, CancellationToken cancellationToken = default)
+    public async ValueTask<List<SkillGemPriced>> GetPricedGemsAsync(string league, string? containsName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(options.Value, cancellationToken).ConfigureAwait(false);
         return await _skills.AsQueryable()
@@ -23,7 +21,7 @@ public sealed class SkillGemRepository(IOptions<PoeDatabaseSettings> options, IM
                 (s, e) => new
                 {
                     Skill = s,
-                    Prices = e.Where(e => e.League == leauge)
+                    Prices = e.Where(e => e.League == league)
                 }
             )
             .Where(r

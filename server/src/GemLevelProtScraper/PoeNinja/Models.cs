@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
-using GemLevelProtScraper.Poe;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace GemLevelProtScraper.PoeNinja;
 
-internal sealed record PoeNinjaList(DateTimeOffset Timestamp, PoeLeague League, string Url);
+internal sealed record PoeNinjaList(DateTimeOffset Timestamp, string League, string Url);
 
-internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, PoeLeague League);
+internal sealed record PoeNinjaListCompleted(DateTimeOffset Timestamp, string League);
 
 internal sealed record PoeNinjaApiSparkLine(ImmutableArray<double?> Data, double TotalChange);
 
@@ -55,10 +54,10 @@ internal sealed record PoeNinjaApiExchangeCore(string Primary, string Secondary,
 internal sealed record PoeNinjaApiExchangeResponse(PoeNinjaApiExchangeCore Core, ImmutableArray<PoeNinjaApiExchangeLine> Lines, ImmutableArray<PoeNinjaApiExchangeItem> Items);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiGemPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
+internal sealed record PoeNinjaApiGemPriceEnvelope(string League, DateTime UtcTimestamp, PoeNinjaApiGemPrice Price);
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiIncursionTemplePriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiTemplePrice Price);
+internal sealed record PoeNinjaApiIncursionTemplePriceEnvelope(string League, DateTime UtcTimestamp, PoeNinjaApiTemplePrice Price);
 
 internal sealed record PoeNinjaApiGemResponse(
     ImmutableArray<PoeNinjaApiGemPrice> Lines
@@ -99,7 +98,7 @@ internal sealed record PoeNinjaApiCurrencyDetails(
 );
 
 [BsonIgnoreExtraElements]
-internal sealed record PoeNinjaApiCurrencyPriceEnvelope(LeagueMode League, DateTime UtcTimestamp, PoeNinjaApiCurrencyPrice Price);
+internal sealed record PoeNinjaApiCurrencyPriceEnvelope(string League, DateTime UtcTimestamp, PoeNinjaApiCurrencyPrice Price);
 
 internal sealed record PoeNinjaApiCurrencyResponse(
     ImmutableArray<PoeNinjaApiCurrencyPrice> Lines,

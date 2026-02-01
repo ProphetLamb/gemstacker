@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using GemLevelProtScraper.Poe;
 using GemLevelProtScraper.PoeNinja;
 using MongoDB.Driver;
 
@@ -37,7 +36,7 @@ public sealed class ExchangeRateProvider(
         {
             var task = Interlocked.Exchange(
                 ref _exchangeRatesTask,
-                RefreshAsync(completion.League.Mode, cancellationToken)
+                RefreshAsync(completion.League, cancellationToken)
             );
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (task is not null)
@@ -115,7 +114,7 @@ public sealed class ExchangeRateProvider(
         AmendAndReplaceExchangeRates(null, exchangeRates);
         return exchangeRates;
 
-        async Task<List<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> Currency()
+        async Task<List<KeyValuePair<string, PoeNinjaCurrencyExchangeRate>>> Currency()
         {
             var currencyCursor =
                 await currencyRepository.GetAllExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
@@ -123,7 +122,7 @@ public sealed class ExchangeRateProvider(
             return keyValuePairs;
         }
 
-        async Task<List<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> Temple()
+        async Task<List<KeyValuePair<string, PoeNinjaCurrencyExchangeRate>>> Temple()
         {
             var currencyCursor =
                 await templeRepository.GetAllExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
@@ -133,7 +132,7 @@ public sealed class ExchangeRateProvider(
     }
 
     private async Task<Dictionary<Key, PoeNinjaCurrencyExchangeRate>> RefreshAsync(
-        LeagueMode league,
+        string league,
         CancellationToken cancellationToken = default
     )
     {
@@ -167,7 +166,7 @@ public sealed class ExchangeRateProvider(
     }
 
     private void AmendAndReplaceExchangeRates(
-        LeagueMode? amendExceptLeague,
+        string? amendExceptLeague,
         Dictionary<Key, PoeNinjaCurrencyExchangeRate> newExchangeRates
     )
     {
@@ -175,7 +174,7 @@ public sealed class ExchangeRateProvider(
         {
             if (amendExceptLeague is { } l)
             {
-                foreach (var (key, value) in _exchangeRates.Where(kvp => kvp.Key.Mode != l))
+                foreach (var (key, value) in _exchangeRates.Where(kvp => kvp.Key.League != l))
                 {
                     _ = newExchangeRates.TryAdd(key, value);
                 }
@@ -185,9 +184,9 @@ public sealed class ExchangeRateProvider(
         }
     }
 
-    public readonly struct Key(LeagueMode mode, string name) : IEquatable<Key>
+    public readonly struct Key(string league, string name) : IEquatable<Key>
     {
-        public LeagueMode Mode => mode;
+        public string League => league;
         public string Name => name;
 
         public override bool Equals([NotNullWhen(true)] object? obj)
@@ -197,12 +196,12 @@ public sealed class ExchangeRateProvider(
 
         public bool Equals(Key other)
         {
-            return other.Mode == mode && other.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
+            return other.League == league && other.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(mode, name);
+            return HashCode.Combine(league, name);
         }
 
         public static bool operator ==(Key left, Key right) => left.Equals(right);
@@ -218,7 +217,7 @@ public readonly struct ExchangeRateCollection(
     public int Count => exchangeRates.Count;
 
     public bool TryGetValue(
-        LeagueMode mode,
+        string mode,
         CurrencyTypeName name,
         [MaybeNullWhen(false)] out PoeNinjaCurrencyExchangeRate rates
     )

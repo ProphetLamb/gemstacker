@@ -79,6 +79,22 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
     }
 }
 
+[MongoMigration(PoeDatabaseSettings.Alias, 13, 14, Description = $"Clear LeagueMode related data")]
+public sealed class PoeNinjaClearLeagueModeData(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await optionsAccessor.Value.GetPoeNinjaCurrencyCollection(database).DeleteManyAsync(x => true, cancellationToken).ConfigureAwait(false);
+        await optionsAccessor.Value.GetPoeNinjaTempleCollection(database).DeleteManyAsync(x => true, cancellationToken).ConfigureAwait(false);
+        await optionsAccessor.Value.GetPoeNinjaGemCollection(database).DeleteManyAsync(x => true, cancellationToken).ConfigureAwait(false);
+    }
+}
+
 [MongoMigration(PoeDatabaseSettings.Alias, 12, 13, Description = $"Add unique composite index {CurrencyIdentifierIndexName}.")]
 public sealed class PoeNinjaTempleAddIdentifierIndexMigration(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
 {

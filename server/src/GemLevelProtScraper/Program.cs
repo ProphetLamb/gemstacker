@@ -89,20 +89,14 @@ app
             [FromServices] ExchangeRateProvider exchangeRateProvider,
             [FromServices] PoeRepository poeRepository,
             [FromQuery(Name = "currency")] string[] currencyNames,
-            [FromQuery(Name = "league")] string? league = null,
+            [FromQuery(Name = "league")] string? leagueName = null,
             CancellationToken cancellationToken = default
         ) =>
         {
-            var (leagueMode, failure) =
-                await poeRepository.TryParseLeague(league, cancellationToken).ConfigureAwait(false);
-            if (failure is not null)
+            var league = await poeRepository.ByName(leagueName, null, cancellationToken).ConfigureAwait(false);
+            if (league is null)
             {
-                return failure;
-            }
-
-            if (currencyNames.Length == 0)
-            {
-                return Results.Ok(new Dictionary<string, double>());
+                return Results.BadRequest("Unable to find the requested league realm combination");
             }
 
             var col = await exchangeRateProvider.GetExchangeRatesAsync(cancellationToken).ConfigureAwait(false);
@@ -111,7 +105,7 @@ app
                 .Select(CurrencyTypeName.Parse)
                 .Distinct()
                 .BiPartition(ValueTuple<PoeNinjaCurrencyExchangeRate?, string?> (c) =>
-                    col.TryGetValue(leagueMode, c, out var exchangeRate) ? (exchangeRate, null) : (null, c.Value)
+                    col.TryGetValue(league.Name, c, out var exchangeRate) ? (exchangeRate, null) : (null, c.Value)
                 );
             if (missingCurrencies.Count != 0)
             {
@@ -137,7 +131,7 @@ app
         async (
             [FromServices] ProfitService profitService,
             [FromServices] PoeRepository poeRepository,
-            [FromQuery(Name = "league")] string? league = null,
+            [FromQuery(Name = "league")] string? leagueName = null,
             [FromQuery(Name = "gem_name")] string? gemNameWildcard = null,
             [FromQuery(Name = "added_quality")] long addedQuality = 0,
             [FromQuery(Name = "min_sell_price_chaos")] double? minSellPriceChaos = null,
@@ -149,16 +143,14 @@ app
             CancellationToken cancellationToken = default
         ) =>
         {
-            var (leagueMode, failure) =
-                await poeRepository.TryParseLeague(league, cancellationToken).ConfigureAwait(false);
-            if (failure is not null)
+            var league = await poeRepository.ByName(leagueName, null, cancellationToken).ConfigureAwait(false);
+            if (league is null)
             {
-                return failure;
+                return Results.BadRequest("Unable to find the requested league realm combination");
             }
-
             ProfitRequest request = new()
             {
-                League = leagueMode,
+                League = league.Name,
                 GemNameWildcard = gemNameWildcard,
                 AddedQuality = addedQuality,
                 MinSellPriceChaos = minSellPriceChaos,

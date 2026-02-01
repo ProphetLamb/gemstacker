@@ -1,5 +1,4 @@
 using DotNet.Globbing;
-using GemLevelProtScraper.Poe;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Migration;
@@ -14,20 +13,20 @@ public sealed class PoeNinjaIncursionTempleRepository(
 {
     private readonly IMongoCollection<PoeNinjaApiIncursionTemplePriceEnvelope> _templeCollection = settings.Value.GetPoeNinjaTempleCollection();
 
-    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiTemplePrice newPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(string league, PoeNinjaApiTemplePrice newPrice, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _templeCollection.FindOneAndReplaceAsync(
             item
-                => item.League == leagueMode
+                => item.League == league
                    && item.Price.Name == newPrice.Name,
-            new(leagueMode, clock.UtcNow.UtcDateTime, newPrice),
+            new(league, clock.UtcNow.UtcDateTime, newPrice),
             new() { IsUpsert = true },
             cancellationToken
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiTemplePrice>> GetByNameAsync(LeagueMode league, string? templeName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiTemplePrice>> GetByNameAsync(string league, string? templeName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(templeName))
@@ -43,7 +42,7 @@ public sealed class PoeNinjaIncursionTempleRepository(
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IAsyncCursor<PoeNinjaCurrencyExchangeRate>> GetExchangeRatesAsync(LeagueMode league, CancellationToken cancellationToken = default)
+    internal async Task<IAsyncCursor<PoeNinjaCurrencyExchangeRate>> GetExchangeRatesAsync(string league, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _templeCollection
@@ -54,14 +53,14 @@ public sealed class PoeNinjaIncursionTempleRepository(
         return cursor;
     }
 
-    internal async Task<IAsyncCursor<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> GetAllExchangeRatesAsync(
+    internal async Task<IAsyncCursor<KeyValuePair<string, PoeNinjaCurrencyExchangeRate>>> GetAllExchangeRatesAsync(
         CancellationToken cancellationToken = default
     )
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _templeCollection
             .Find(x => true)
-            .Project(s => new KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.Name, s.Price.ChaosValue)))
+            .Project(s => new KeyValuePair<string, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.Name, s.Price.ChaosValue)))
             .ToCursorAsync(cancellationToken)
             .ConfigureAwait(false);
         return cursor;
@@ -72,7 +71,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
 {
     private readonly IMongoCollection<PoeNinjaApiGemPriceEnvelope> _gemCollection = settings.Value.GetPoeNinjaGemCollection();
 
-    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiGemPrice newPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(string leagueMode, PoeNinjaApiGemPrice newPrice, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _gemCollection.FindOneAndReplaceAsync(
@@ -87,7 +86,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(LeagueMode league, string? skillName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameAsync(string league, string? skillName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(skillName))
@@ -103,7 +102,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameListAsync(string league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var skillNameSet = skillNames.ToHashSet();
@@ -113,7 +112,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<long> RemoveOlderThanAsync(LeagueMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
+    internal async Task<long> RemoveOlderThanAsync(string league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var utcTimestamp = oldestDateTime.UtcDateTime;
@@ -123,7 +122,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
         return result.IsAcknowledged ? result.DeletedCount : -1;
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiGemPrice>> GetByNameGlobAsync(string league, string? nameWildcard, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (nameWildcard == "*")
@@ -142,7 +141,7 @@ public sealed class PoeNinjaGemRepository(IOptions<PoeDatabaseSettings> settings
     }
 
 
-    internal async Task<IReadOnlyList<string>> ListNamesAsync(LeagueMode league, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<string>> ListNamesAsync(string league, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _gemCollection
@@ -157,7 +156,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
 {
     private readonly IMongoCollection<PoeNinjaApiCurrencyPriceEnvelope> _currencyCollection = settings.Value.GetPoeNinjaCurrencyCollection();
 
-    internal async Task AddOrUpdateAsync(LeagueMode leagueMode, PoeNinjaApiCurrencyPrice newCurrencyPrice, CancellationToken cancellationToken = default)
+    internal async Task AddOrUpdateAsync(string leagueMode, PoeNinjaApiCurrencyPrice newCurrencyPrice, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         _ = await _currencyCollection.FindOneAndReplaceAsync(
@@ -170,7 +169,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
         ).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameAsync(LeagueMode league, string? currencyName, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameAsync(string league, string? currencyName, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (string.IsNullOrEmpty(currencyName))
@@ -186,7 +185,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameListAsync(LeagueMode league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameListAsync(string league, IEnumerable<string> skillNames, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var skillNameSet = skillNames.ToHashSet();
@@ -196,7 +195,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<long> RemoveOlderThanAsync(LeagueMode league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
+    internal async Task<long> RemoveOlderThanAsync(string league, DateTimeOffset oldestDateTime, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var utcTimestamp = oldestDateTime.UtcDateTime;
@@ -206,7 +205,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
         return result.IsAcknowledged ? result.DeletedCount : -1;
     }
 
-    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameGlobAsync(LeagueMode league, string? nameWildcard, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<PoeNinjaApiCurrencyPrice>> GetByNameGlobAsync(string league, string? nameWildcard, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         if (nameWildcard == "*")
@@ -225,7 +224,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
     }
 
 
-    internal async Task<IReadOnlyList<string>> ListNamesAsync(LeagueMode league, CancellationToken cancellationToken = default)
+    internal async Task<IReadOnlyList<string>> ListNamesAsync(string league, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         return await _currencyCollection
@@ -234,7 +233,7 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal async Task<IAsyncCursor<PoeNinjaCurrencyExchangeRate>> GetExchangeRatesAsync(LeagueMode league, CancellationToken cancellationToken = default)
+    internal async Task<IAsyncCursor<PoeNinjaCurrencyExchangeRate>> GetExchangeRatesAsync(string league, CancellationToken cancellationToken = default)
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _currencyCollection
@@ -245,14 +244,14 @@ public sealed class PoeNinjaCurrencyRepository(IOptions<PoeDatabaseSettings> set
         return cursor;
     }
 
-    internal async Task<IAsyncCursor<KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>>> GetAllExchangeRatesAsync(
+    internal async Task<IAsyncCursor<KeyValuePair<string, PoeNinjaCurrencyExchangeRate>>> GetAllExchangeRatesAsync(
         CancellationToken cancellationToken = default
     )
     {
         _ = await completion.WaitAsync(settings.Value, cancellationToken).ConfigureAwait(false);
         var cursor = await _currencyCollection
             .Find(x => true)
-            .Project(s => new KeyValuePair<LeagueMode, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent)))
+            .Project(s => new KeyValuePair<string, PoeNinjaCurrencyExchangeRate>(s.League, new PoeNinjaCurrencyExchangeRate(s.Price.CurrencyTypeName, s.Price.ChaosEquivalent)))
             .ToCursorAsync(cancellationToken)
             .ConfigureAwait(false);
         return cursor;

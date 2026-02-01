@@ -1,12 +1,11 @@
-﻿using GemLevelProtScraper.Poe;
-using GemLevelProtScraper.Skills;
+﻿using GemLevelProtScraper.Skills;
 
 namespace GemLevelProtScraper.Profit;
 
 
 public sealed record ProfitRequest
 {
-    public required LeagueMode League { get; init; }
+    public required string League { get; init; }
     public required string? GemNameWildcard { get; init; }
     public long AddedQuality { get; init; }
     public double? MinSellPriceChaos { get; init; }

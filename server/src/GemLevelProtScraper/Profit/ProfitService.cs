@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using GemLevelProtScraper.Profit.Recipes;
 using GemLevelProtScraper.Skills;
 using Microsoft.Extensions.Options;
