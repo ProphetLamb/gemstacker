@@ -26,7 +26,7 @@ public class VendorBuyCorruptLevelSellVaal : IProfitRecipe
         var min = max.ToVendorFreePrice() with { Corrupted = false };
         var deltaExperience = ctx.Skill.SumExperience * ctx.ExperienceFactor(ctx.GemQuality(min));
 
-        var levelEarning = ctx.ProbabilisticEarnings(probabilistic) + ctx.RecipeCost(recipeCost);
+        var levelEarning = max.ChaosValue - (ctx.AttemptsToProfit(probabilistic) * ctx.RecipeCost(recipeCost));
         return new()
         {
             GainMargin = ctx.GainMargin(levelEarning, deltaExperience),

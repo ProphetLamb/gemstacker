@@ -1,2 +1,2 @@
-GET http://localhost:34571/exchange-rate-to-chaos?league=Keepers&currency=Divine Orb
+GET http://localhost:5000/exchange-rate-to-chaos?league=Mirage&currency=Cartographer's Chisel
 Authorization: Token dGVzdA==

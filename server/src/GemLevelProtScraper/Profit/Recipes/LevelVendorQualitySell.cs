@@ -39,7 +39,7 @@ public class LevelVendorQualitySell : IProfitRecipe
     {
         // level the gem, vendor it with 1x Gem Cutter, sell the gem
         var levelEarning = max.ChaosValue - min.ChaosValue;
-        var qualityCost = ctx.ExchangeRate(CurrencyTypeName.CartographersChisel) ?? 1;
+        var qualityCost = ctx.ExchangeRate(CurrencyTypeName.GemcuttersPrism) ?? 1;
 
         var adjustedEarnings = levelEarning - qualityCost;
 

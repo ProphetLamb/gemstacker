@@ -233,14 +233,12 @@ export const exchangeRateToChaosResponseSchema = z.record(z.string(), z.number()
 export type CurrencyTypeName =
 	| 'Divine Orb'
 	| "Gemcutter's Prism"
-	| "Cartographer's Chisel"
 	| 'Chaos Orb'
 	| 'Vaal Orb'
 	| 'Lapidary Lens';
 
 export interface WellKnownExchangeRateToChaosResponse {
 	divine_orb: number;
-	cartographers_chisel: number;
 	gemcutters_prism: number;
 	vaal_orb: number;
 }
@@ -256,11 +254,6 @@ export const wellKnownExchangeRateDisplay = {
 		title: 'Divine Orb',
 		alt: 'd',
 		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyModValues.png'
-	},
-	cartographers_chisel: {
-		title: "Cartographer's Chisel",
-		alt: 'cc',
-		img: 'https://web.poecdn.com/image/Art/2DItems/Currency/CurrencyMapQuality.png'
 	},
 	gemcutters_prism: {
 		title: "Gemcutter's Prism",

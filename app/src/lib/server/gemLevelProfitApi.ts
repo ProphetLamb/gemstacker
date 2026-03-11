@@ -80,10 +80,9 @@ export class RawGemProfitApi {
 	) => Promise<WellKnownExchangeRateToChaosResponse> = async (league) => {
 		const rsp = await this.getExchangeRateToChaos({
 			league,
-			currency: ["Cartographer's Chisel", "Gemcutter's Prism", 'Divine Orb', 'Vaal Orb']
+			currency: ["Gemcutter's Prism", 'Divine Orb', 'Vaal Orb']
 		});
 		return {
-			cartographers_chisel: rsp["Cartographer's Chisel"],
 			gemcutters_prism: rsp["Gemcutter's Prism"],
 			divine_orb: rsp['Divine Orb'],
 			vaal_orb: rsp['Vaal Orb']

@@ -249,7 +249,6 @@ public readonly struct CurrencyTypeName(string value) : IEquatable<CurrencyTypeN
     } = value;
 
     public static CurrencyTypeName DivineOrb => new("Divine Orb");
-    public static CurrencyTypeName CartographersChisel => new("Cartographer's Chisel");
     public static CurrencyTypeName GemcuttersPrism => new("Gemcutter's Prism");
     public static CurrencyTypeName ChaosOrb => new("Chaos Orb");
     public static CurrencyTypeName VaalOrb => new("Vaal Orb");
