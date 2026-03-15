@@ -108,6 +108,8 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 .Select(img => img.Source)
                 .FirstOrDefault();
 
+            var popup = pane.QuerySelectorAll("div.gemPopup").OfType<IHtmlDivElement>().Select(ParsePopup).FirstOrDefault();
+
             var headers = pane.QuerySelectorAll("div.card > h5.card-header");
 
             var qualities = PoeDbHtml.TryGetTableForHeader(headers, skillName, "Unusual Gems", logger) is { } qualitiesTable
@@ -148,7 +150,8 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 skillDescription,
                 qualities,
                 skillLevels,
-                genus
+                genus,
+                popup
             );
         }
 
@@ -252,6 +255,37 @@ internal sealed partial class PoeDbSkillSpider(IDataflowPublisher<PoeDbSkill> sk
                 return null;
             }
             return group.Value;
+        }
+
+        static PoeDbGemPopup ParsePopup(IHtmlDivElement gemPopup)
+        {
+            var gemTags = gemPopup.QuerySelectorAll("div.Stats a.GemTags")
+                .OfType<IHtmlAnchorElement>()
+                .Select(x => new PoeDbLink(ElementText(x), x.Href))
+                .ToImmutableArray();
+
+            var description = ElementText(gemPopup.QuerySelectorAll("div.Stats div.secDescrText").FirstOrDefault());
+
+            var implicitModifiers = gemPopup
+                .QuerySelectorAll("div.Stats div.implicitMod")
+                .Select(ElementText)
+                .ToImmutableArray();
+            var explicitModifiers = gemPopup.QuerySelectorAll("div.Stats div.explicitMod")
+                .Select(ElementText)
+                .ToImmutableArray();
+            var qualityModifiers = gemPopup.QuerySelectorAll("div.Stats div.qualityMod")
+                .Select(ElementText)
+                .ToImmutableArray();
+
+            return new(
+                gemTags,
+                description,
+                implicitModifiers,
+                explicitModifiers,
+                qualityModifiers
+            );
+
+            static string ElementText(IElement? x) => x?.Text() is { } t ? t.Trim() : "";
         }
     }
 

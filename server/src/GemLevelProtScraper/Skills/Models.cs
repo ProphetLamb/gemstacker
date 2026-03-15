@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using GemLevelProtScraper.Profit;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -15,7 +16,8 @@ public record SkillGem
     double SumExperience,
     double LastLevelExperience,
     long MaxLevel,
-    long? DropLevel
+    long? DropLevel,
+    ImmutableArray<string>? Tags = null
 );
 
 public sealed record SkillGemPrice

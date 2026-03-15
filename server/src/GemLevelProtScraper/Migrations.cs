@@ -78,6 +78,86 @@ public sealed record PoeDatabaseSettings : IOptions<PoeDatabaseSettings>, IMongo
         return database.GetCollection<SkillGem>(SkillGemViewName);
     }
 }
+[MongoMigration(PoeDatabaseSettings.Alias, 14, 15, Description = $"Add tags to SkillGemView.")]
+public sealed class AddTagsToSkillGemView(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration
+{
+    public async Task DownAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await database.DropCollectionAsync(optionsAccessor.Value.SkillGemViewName, cancellationToken).ConfigureAwait(false);
+        AddDropLevelToSkillViewMigration original = new(optionsAccessor);
+        await original.UpAsync(database, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task UpAsync(IMongoDatabase database, CancellationToken cancellationToken = default)
+    {
+        await database.DropCollectionAsync(optionsAccessor.Value.SkillGemViewName, cancellationToken).ConfigureAwait(false);
+        var createViewMql = /*lang=mql*/ $$"""
+        {
+            'create': '{{optionsAccessor.Value.SkillGemViewName}}',
+            'viewOn': '{{optionsAccessor.Value.PoeDbSkillCollectionName}}',
+            'pipeline': [
+                {
+                    '$project': {
+                        'Skill': 1,
+                        'LevelEffects': {
+                            '$filter': {
+                                'input': '$Skill.LevelEffects',
+                                'cond': { '$ne': [ '$$this.Experience', null] }
+                            }
+                        },
+                    }
+                },
+                {
+                    '$project': {
+                        'Name': '$Skill.Name._id',
+                        'RelativeUrl': '$Skill.Name.RelativeUrl',
+                        'Color': '$Skill.Name.Color',
+                        'League': '$Price.League',
+                        'IconUrl': '$Skill.IconUrl',
+                        'BaseType': '$Skill.Stats.BaseType',
+                        'DropLevel': '$Skill.Stats.DropLevel',
+                        'Discriminator': '$Skill.Discriminator',
+                        'Tags': '$Skill.Popup.Tags.Label',
+                        'SumExperience': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Experience',
+                                'initialValue': 0.0,
+                                'in': {
+                                '$add': [
+                                    { '$toDouble': '$$value' },
+                                    { '$toDouble': '$$this' },
+                                ]
+                                }
+                            }
+                        },
+                        'LastLevelExperience': { $last: '$LevelEffects.Experience' }
+                        'MaxLevel': {
+                            '$reduce': {
+                                'input': '$LevelEffects.Level',
+                                'initialValue': 0,
+                                'in': {
+                                    '$add': [
+                                        {
+                                            '$max': [
+                                                { '$toDouble': '$$value' },
+                                                { '$toDouble': '$$this' },
+                                            ]
+                                        },
+                                        1
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+            ]
+        }
+        """;
+        var command = new JsonCommand<BsonDocument>(createViewMql);
+        _ = await database.RunCommandAsync(command, null, cancellationToken).ConfigureAwait(false);
+    }
+}
+
 
 [MongoMigration(PoeDatabaseSettings.Alias, 13, 14, Description = $"Clear LeagueMode related data")]
 public sealed class PoeNinjaClearLeagueModeData(IOptions<PoeDatabaseSettings> optionsAccessor) : IMongoMigration

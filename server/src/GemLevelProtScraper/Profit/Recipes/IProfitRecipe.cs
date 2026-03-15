@@ -197,7 +197,8 @@ public sealed class SkillProfitCalculationContext(
                && string.IsNullOrEmpty(Skill.Discriminator)
                && !vendorRestrictedGems.Contains(Skill.Name)
                && !Skill.IsVaalSkillGem()
-               && !Skill.IsAwakenedGem();
+               && !Skill.IsAwakenedGem()
+               && (Skill.Tags is not { } tags || !tags.Contains("exceptional", StringComparer.OrdinalIgnoreCase));
     }
 }
 
